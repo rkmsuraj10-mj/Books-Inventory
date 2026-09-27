@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Modern Snake</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* tailwind slate-900 */
+            color: #f8fafc;
+            touch-action: none; /* Prevent scroll on mobile during gameplay */
+            overflow: hidden;
+        }
+        
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .neon-text-score {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+
+        .neon-text-gameover {
+            text-shadow: 0 0 15px rgba(244, 63, 94, 0.6);
+        }
+
+        #gameCanvas {
+            box-shadow: 0 0 40px rgba(6, 182, 212, 0.15), inset 0 0 20px rgba(0,0,0,0.5);
+            background-color: #1e293b; /* tailwind slate-800 */
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1 / 1;
+            display: block;
+        }
+
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 selection:bg-cyan-500 selection:text-white">
+
+    <div class="w-full max-w-md relative flex flex-col items-center">
+        
+        <!-- Header / Scoreboard -->
+        <div class="w-full flex justify-between items-center mb-6 px-2">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 pb-1">SNAKE</h1>
+            </div>
+            <div class="flex gap-4">
+                <div class="glass-panel px-4 py-2 rounded-xl flex flex-col items-center min-w-[80px]">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Score</span>
+                    <span id="score" class="text-xl font-bold text-cyan-400 neon-text-score">0</span>
+                </div>
+                <div class="glass-panel px-4 py-2 rounded-xl flex flex-col items-center min-w-[80px]">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Best</span>
+                    <span id="highScore" class="text-xl font-bold text-slate-200">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Area -->
+        <div class="relative w-full flex justify-center">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            
+            <!-- Start Screen Overlay -->
+            <div id="startScreen" class="absolute inset-0 glass-panel rounded-xl flex flex-col items-center justify-center z-10 transition-opacity duration-300">
+                <div class="p-3 bg-cyan-500/20 rounded-full mb-4">
+                    <svg class="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h2 class="text-xl font-bold text-white mb-2">Ready to Play?</h2>
+                <p class="text-slate-400 text-sm mb-6 text-center px-6">Use <strong class="text-slate-200">Arrow Keys</strong>, <strong class="text-slate-200">WASD</strong>, or <strong class="text-slate-200">Swipe</strong> to move.</p>
+                <button id="startBtn" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold py-3 px-8 rounded-full shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-all transform hover:scale-105 active:scale-95">
+                    Start Game
+                </button>
+            </div>
+
+            <!-- Game Over Overlay -->
+            <div id="gameOverScreen" class="absolute inset-0 glass-panel rounded-xl flex flex-col items-center justify-center z-20 hidden opacity-0 transition-opacity duration-300">
+                <h2 class="text-4xl font-extrabold text-rose-500 mb-2 neon-text-gameover">GAME OVER</h2>
+                <p class="text-slate-300 mb-6">Final Score: <span id="finalScore" class="font-bold text-white">0</span></p>
+                <button id="restartBtn" class="bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white font-bold py-3 px-8 rounded-full shadow-[0_0_15px_rgba(244,63,94,0.4)] transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Play Again
+                </button>
+            </div>
+        </div>
+        
+        <div class="mt-8 text-center">
+            <p class="text-xs text-slate-500 flex items-center justify-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Pro tip: Don't hit the walls or yourself!
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // UI Elements
+        const scoreElement = document.getElementById('score');
+        const highScoreElement = document.getElementById('highScore');
+        const finalScoreElement = document.getElementById('finalScore');
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+
+        // Game Configuration
+        const gridSize = 20; // 20x20 grid
+        const tileCount = 20; 
+        const tileSize = canvas.width / tileCount;
+        const initialSpeed = 120; // ms per frame
+
+        // State Variables
+        let snake = [];
+        let food = { x: 0, y: 0 };
+        let dx = 0;
+        let dy = 0;
+        let nextDx = 0;
+        let nextDy = 0;
+        let score = 0;
+        let highScore = localStorage.getItem('snakeHighScore') || 0;
+        let gameLoopTimeout;
+        let isPlaying = false;
+
+        highScoreElement.textContent = highScore;
+
+        // Colors
+        const colors = {
+            bg: '#1e293b',
+            grid: '#334155',
+            snakeHead: '#06b6d4', // Cyan 500
+            snakeBody: '#22d3ee', // Cyan 400
+            food: '#f43f5e',      // Rose 500
+            foodGlow: '#fb7185'
+        };
+
+        function initGame() {
+            // Initial snake position (center)
+            snake = [
+                { x: 10, y: 10 },
+                { x: 10, y: 11 },
+                { x: 10, y: 12 }
+            ];
+            
+            // Initial movement (up)
+            dx = 0;
+            dy = -1;
+            nextDx = 0;
+            nextDy = -1;
+            
+            score = 0;
+            updateScore();
+            spawnFood();
+            
+            isPlaying = true;
+            
+            // Hide overlays
+            startScreen.classList.add('opacity-0');
+            gameOverScreen.classList.add('hidden', 'opacity-0');
+            setTimeout(() => {
+                startScreen.classList.add('hidden');
+            }, 300);
+
+            if (gameLoopTimeout) clearTimeout(gameLoopTimeout);
+            gameLoop();
+        }
+
+        function spawnFood() {
+            let valid = false;
+            while (!valid) {
+                food.x = Math.floor(Math.random() * tileCount);
+                food.y = Math.floor(Math.random() * tileCount);
+                // Ensure food doesn't spawn on snake
+                valid = !snake.some(segment => segment.x === food.x && segment.y === food.y);
+            }
+        }
+
+        function updateScore() {
+            scoreElement.textContent = score;
+            if (score > highScore) {
+                highScore = score;
+                highScoreElement.textContent = highScore;
+                localStorage.setItem('snakeHighScore', highScore);
+            }
+        }
+
+        function gameOver() {
+            isPlaying = false;
+            clearTimeout(gameLoopTimeout);
+            
+            finalScoreElement.textContent = score;
+            gameOverScreen.classList.remove('hidden');
+            // Small delay for CSS transition to trigger
+            setTimeout(() => {
+                gameOverScreen.classList.remove('opacity-0');
+            }, 10);
+        }
+
+        function gameLoop() {
+            if (!isPlaying) return;
+
+            // Update direction
+            dx = nextDx;
+            dy = nextDy;
+
+            // Calculate new head position
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+            // Check wall collision
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                gameOver();
+                return;
+            }
+
+            // Check self collision
+            if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver();
+                return;
+            }
+
+            // Move snake
+            snake.unshift(head); // Add new head
+
+            // Check food collision
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                updateScore();
+                spawnFood();
+            } else {
+                snake.pop(); // Remove tail if no food eaten
+            }
+
+            draw();
+
+            // Calculate speed (gets slightly faster as score increases)
+            const currentSpeed = Math.max(50, initialSpeed - (Math.floor(score / 50) * 5));
+            gameLoopTimeout = setTimeout(gameLoop, currentSpeed);
+        }
+
+        // Custom rounded rectangle drawing for modern look
+        function drawRoundedRect(x, y, width, height, radius, fill, shadowColor) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+            
+            if (shadowColor) {
+                ctx.shadowColor = shadowColor;
+                ctx.shadowBlur = 15;
+            } else {
+                ctx.shadowBlur = 0;
+            }
+            
+            ctx.fillStyle = fill;
+            ctx.fill();
+            ctx.shadowBlur = 0; // Reset
+        }
+
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw subtle grid (optional, adds to modern aesthetic)
+            ctx.strokeStyle = colors.grid;
+            ctx.lineWidth = 0.5;
+            for(let i=0; i<=tileCount; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * tileSize, 0);
+                ctx.lineTo(i * tileSize, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i * tileSize);
+                ctx.lineTo(canvas.width, i * tileSize);
+                ctx.stroke();
+            }
+
+            // Draw Food (glowing)
+            const padding = 2;
+            drawRoundedRect(
+                food.x * tileSize + padding, 
+                food.y * tileSize + padding, 
+                tileSize - padding*2, 
+                tileSize - padding*2, 
+                tileSize/3, 
+                colors.food, 
+                colors.foodGlow
+            );
+
+            // Draw Snake
+            snake.forEach((segment, index) => {
+                const isHead = index === 0;
+                // Slightly smaller segments for the body to give a segmented look
+                const segPadding = isHead ? 1 : 2; 
+                drawRoundedRect(
+                    segment.x * tileSize + segPadding, 
+                    segment.y * tileSize + segPadding, 
+                    tileSize - segPadding*2, 
+                    tileSize - segPadding*2, 
+                    tileSize/4, 
+                    isHead ? colors.snakeHead : colors.snakeBody,
+                    isHead ? colors.snakeHead : null
+                );
+                
+                // Draw eyes on the head
+                if (isHead) {
+                    ctx.fillStyle = '#0f172a'; // Dark eye color
+                    const eyeSize = 3;
+                    const offset1 = 5;
+                    const offset2 = 12;
+                    let eye1x, eye1y, eye2x, eye2y;
+
+                    // Position eyes based on direction
+                    if (dx === 1) { // Right
+                        eye1x = eye2x = segment.x * tileSize + 14;
+                        eye1y = segment.y * tileSize + offset1;
+                        eye2y = segment.y * tileSize + offset2;
+                    } else if (dx === -1) { // Left
+                        eye1x = eye2x = segment.x * tileSize + 4;
+                        eye1y = segment.y * tileSize + offset1;
+                        eye2y = segment.y * tileSize + offset2;
+                    } else if (dy === 1) { // Down
+                        eye1y = eye2y = segment.y * tileSize + 14;
+                        eye1x = segment.x * tileSize + offset1;
+                        eye2x = segment.x * tileSize + offset2;
+                    } else { // Up
+                        eye1y = eye2y = segment.y * tileSize + 4;
+                        eye1x = segment.x * tileSize + offset1;
+                        eye2x = segment.x * tileSize + offset2;
+                    }
+                    
+                    ctx.beginPath();
+                    ctx.arc(eye1x, eye1y, eyeSize, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(eye2x, eye2y, eyeSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+        }
+
+        // Controls
+        function handleInput(key) {
+            if (!isPlaying) return;
+            
+            // Prevent 180-degree turns
+            if ((key === 'ArrowUp' || key === 'w' || key === 'W') && dy === 0) {
+                nextDx = 0; nextDy = -1;
+            } else if ((key === 'ArrowDown' || key === 's' || key === 'S') && dy === 0) {
+                nextDx = 0; nextDy = 1;
+            } else if ((key === 'ArrowLeft' || key === 'a' || key === 'A') && dx === 0) {
+                nextDx = -1; nextDy = 0;
+            } else if ((key === 'ArrowRight' || key === 'd' || key === 'D') && dx === 0) {
+                nextDx = 1; nextDy = 0;
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            // Prevent scrolling with arrows/space when playing
+            if(["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
+                e.preventDefault();
+            }
+            handleInput(e.key);
+        });
+
+        // Touch controls for mobile (Swipe detection)
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+            e.preventDefault(); // Prevent accidental scrolling
+        }, {passive: false});
+
+        canvas.addEventListener('touchend', (e) => {
+            let touchEndX = e.changedTouches[0].screenX;
+            let touchEndY = e.changedTouches[0].screenY;
+            
+            let diffX = touchEndX - touchStartX;
+            let diffY = touchEndY - touchStartY;
+            
+            // Minimum swipe distance threshold
+            if (Math.abs(diffX) < 30 && Math.abs(diffY) < 30) return;
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                // Horizontal swipe
+                if (diffX > 0) handleInput('ArrowRight');
+                else handleInput('ArrowLeft');
+            } else {
+                // Vertical swipe
+                if (diffY > 0) handleInput('ArrowDown');
+                else handleInput('ArrowUp');
+            }
+            e.preventDefault();
+        }, {passive: false});
+
+        // Initial setup
+        startBtn.addEventListener('click', initGame);
+        restartBtn.addEventListener('click', initGame);
+        
+        // Draw initial static board
+        draw();
+
+    </script>
+</body>
+</html>
