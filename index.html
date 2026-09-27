@@ -495,7 +495,8 @@
         }
 
         function getCollectionPath(colName) {
-            return collection(db, 'artifacts', appId, 'users', currentUser.uid, colName);
+            // Saves data to a central database so it persists across all sessions and devices
+            return collection(db, 'shared_inventory', colName);
         }
 
         function setupListeners() {
