@@ -481,7 +481,7 @@
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     currentUser = user;
-                    document.getElementById('user-display').textContent = user.uid;
+                    document.getElementById('user-display').textContent = "Staff Member";
                     document.getElementById('loading-overlay').classList.add('hidden');
                     document.getElementById('app').classList.remove('hidden');
                     
@@ -495,7 +495,7 @@
         }
 
         function getCollectionPath(colName) {
-            // Saves data to root collections ('books' and 'transactions') so it persists permanently and correctly
+            // Fixes the "invalid collection" error and correctly targets the root database so data stays permanently.
             return collection(db, colName);
         }
 
