@@ -495,8 +495,8 @@
         }
 
         function getCollectionPath(colName) {
-            // Saves data to a central database so it persists across all sessions and devices
-            return collection(db, 'shared_inventory', colName);
+            // Saves data to root collections ('books' and 'transactions') so it persists permanently and correctly
+            return collection(db, colName);
         }
 
         function setupListeners() {
