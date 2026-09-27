@@ -438,11 +438,18 @@
         import { getFirestore, doc, collection, onSnapshot, addDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Environment variables
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'book-inventory-app';
-        let firebaseConfig = null;
-        if (typeof __firebase_config !== 'undefined') {
-            try { firebaseConfig = JSON.parse(__firebase_config); } catch (e) { console.error("Invalid firebase config"); }
-        }
+        const appId = 'book-inventory-app';
+
+        // Your pasted Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBOasiDCAeKmKMcSeM6OIhakKDVgakyFCc",
+            authDomain: "rkmn-books-inventory.firebaseapp.com",
+            projectId: "rkmn-books-inventory",
+            storageBucket: "rkmn-books-inventory.firebasestorage.app",
+            messagingSenderId: "54509486416",
+            appId: "1:54509486416:web:57f8cfedbcf0c688feec55",
+            measurementId: "G-RY0KTKW0ZH"
+        };
 
         // State variables
         let app, auth, db;
