@@ -1,0 +1,6 @@
+{
+  "name": "Swami Vivekananda: Life, Vision & Certification Engine",
+  "description": "Interactive academic certification course on the life, speeches, Raja Yoga, and Vedantic philosophy of Swami Vivekananda.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
