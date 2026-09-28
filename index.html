@@ -451,15 +451,13 @@
         const supabaseKey = 'sb_publishable_dBhFFI7qAl_vj0T0uAjp1A_1jZxuGS_';
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // App Bootup
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('user-display').textContent = "Staff Member";
-            document.getElementById('loading-overlay').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            
-            // Load initial data from Supabase
-            fetchData();
-        });
+        // App Bootup (Runs immediately)
+        document.getElementById('user-display').textContent = "Staff Member";
+        document.getElementById('loading-overlay').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        
+        // Load initial data from Supabase
+        fetchData();
 
         // --- FETCH DATA FROM SUPABASE ---
         async function fetchData() {
