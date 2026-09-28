@@ -629,13 +629,23 @@
                     body: { email, password, fullName, roleId }
                 });
 
+                // Extract error details safely if present in the response context
                 if (response.error) {
-                    throw new Error(response.error.message || 'Failed to create user');
+                    let errorMsg = response.error.message || 'Failed to create user';
+                    if (response.error.context) {
+                        try {
+                            const errBody = await response.error.context.json();
+                            if (errBody && errBody.error) errorMsg = errBody.error;
+                        } catch (ex) {
+                            // fallback if not json
+                        }
+                    }
+                    throw new Error(errorMsg);
                 }
 
                 showToast("User created successfully!", "success");
                 
-                const modal = document.getElementById('add-user-modal') || document.querySelector('.modal');
+                const modal = document.getElementById('add-user-modal');
                 if (modal) modal.classList.add('hidden');
                 
                 e.target.reset();
@@ -669,7 +679,14 @@
                 });
 
                 if (response.error) {
-                    throw new Error(response.error.message || 'Failed to delete user');
+                    let errorMsg = response.error.message || 'Failed to delete user';
+                    if (response.error.context) {
+                        try {
+                            const errBody = await response.error.context.json();
+                            if (errBody && errBody.error) errorMsg = errBody.error;
+                        } catch (ex) {}
+                    }
+                    throw new Error(errorMsg);
                 }
 
                 showToast("User deleted successfully.", "success");
@@ -685,7 +702,6 @@
                 showToast(err.message || 'Failed to delete user', 'error');
             }
         }
-
         window.toggleUserStatus = async function(userId, currentStatus) {
             if (!confirm(`Are you sure you want to ${currentStatus === 'Active' ? 'deactivate' : 'activate'} this user?`)) return;
             const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
