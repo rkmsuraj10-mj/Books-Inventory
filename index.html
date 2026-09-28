@@ -71,8 +71,14 @@
                 </a>
             </nav>
             
-            <div class="p-4 border-t border-gray-200 text-xs text-gray-500">
-                <p>Logged in as <span id="user-display" class="font-semibold text-gray-700 truncate block">...</span></p>
+            <!-- Role Simulator -->
+            <div class="p-4 border-t border-gray-200 bg-gray-50 flex flex-col gap-2">
+                <label for="role-simulator" class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Simulate User Role</label>
+                <select id="role-simulator" onchange="switchRole(this.value)" class="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-sm bg-white focus:ring-2 focus:ring-primary focus:outline-none">
+                    <option value="admin" selected>Administrator</option>
+                    <option value="staff">Staff</option>
+                    <option value="viewer">Viewer</option>
+                </select>
             </div>
         </aside>
 
@@ -176,7 +182,8 @@
                             <h2 class="text-2xl font-bold text-gray-800">Book Master</h2>
                             <p class="text-sm text-gray-500 mt-1">Manage your catalogue of books</p>
                         </div>
-                        <button onclick="openModal('add-book-modal')" class="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
+                        <!-- ID added to Add Book button to toggle based on permissions -->
+                        <button id="btn-add-book" onclick="openModal('add-book-modal')" class="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
                             <i class="fa-solid fa-plus"></i> Add New Book
                         </button>
                     </div>
@@ -190,16 +197,18 @@
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm whitespace-nowrap">
-                                <thead class="bg-gray-50 text-gray-500 font-medium border-b border-gray-200 text-xs">
-    <tr>
-        <th class="px-4 py-3">Date</th>
-        <th class="px-4 py-3">Type</th>
-        <th class="px-4 py-3">Book</th>
-        <th class="px-4 py-3 text-right">Qty</th>
-        <th class="px-4 py-3">Remarks</th>
-        <th class="px-4 py-3 text-center">Action</th> <!-- Added Action Header -->
-    </tr>
-</thead>
+                                <thead class="bg-gray-50 text-gray-600 font-semibold border-b border-gray-200">
+                                    <tr>
+                                        <th class="px-6 py-3">Book Code</th>
+                                        <th class="px-6 py-3">Title & Author</th>
+                                        <th class="px-6 py-3">Category</th>
+                                        <th class="px-6 py-3 text-right">Price</th>
+                                        <th class="px-6 py-3 text-center">Opening</th>
+                                        <th class="px-6 py-3 text-center">Current Stock</th>
+                                        <th class="px-6 py-3 text-center">Status</th>
+                                        <th class="px-6 py-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
                                 <tbody id="books-table-body" class="divide-y divide-gray-100">
                                     <!-- Books will be populated here -->
                                 </tbody>
@@ -215,8 +224,8 @@
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <!-- Transaction Form -->
-                        <div class="lg:col-span-1 bg-white p-6 rounded-xl border border-gray-100 shadow-sm h-fit">
+                        <!-- Transaction Form (ID added for role toggling) -->
+                        <div id="container-tx-form" class="lg:col-span-1 bg-white p-6 rounded-xl border border-gray-100 shadow-sm h-fit">
                             <h3 class="font-bold text-gray-700 border-b pb-3 mb-4 text-sm uppercase">New Entry</h3>
                             <form id="transaction-form" class="space-y-4">
                                 <div>
@@ -234,7 +243,6 @@
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Select Book <span class="text-red-500">*</span></label>
                                     <select id="tx-book" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:border-transparent">
                                         <option value="">-- Select a Book --</option>
-                                        <!-- Options populated via JS -->
                                     </select>
                                     <p id="tx-current-stock-hint" class="text-xs text-gray-500 mt-1 italic hidden">Current stock: <span id="tx-hint-val" class="font-bold"></span></p>
                                 </div>
@@ -260,8 +268,8 @@
                             </form>
                         </div>
 
-                        <!-- Recent Transactions -->
-                        <div class="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                        <!-- Recent Transactions (ID added for expanding to full width if viewer) -->
+                        <div id="container-tx-list" class="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
                             <div class="p-4 border-b border-gray-100 bg-gray-50">
                                 <h3 class="font-bold text-gray-700 text-sm uppercase">Recent Transactions</h3>
                             </div>
@@ -274,6 +282,7 @@
                                             <th class="px-4 py-3">Book</th>
                                             <th class="px-4 py-3 text-right">Qty</th>
                                             <th class="px-4 py-3">Remarks</th>
+                                            <th id="tx-action-th" class="px-4 py-3 text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody id="recent-tx-body" class="divide-y divide-gray-100">
@@ -434,37 +443,61 @@
     <div id="toast-container" class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
-        // State variables
-        let currentUser = { role: 'staff' }; // Mock user to show the UI without auth barriers
+        // --- ROLE BASED ACCESS STATE ---
+        let currentUser = { role: 'admin' }; 
+
         let booksData = [];
         let transactionsData = [];
         let computedInventory = [];
-        
-        // Chart instances
         let stockDistChart = null;
         let monthlyChart = null;
 
         // --- SUPABASE INITIALIZATION ---
         const supabaseUrl = 'https://hkvzvvkkojqhrkylbfie.supabase.co';
-        
-        // REPLACE THIS WITH YOUR FULL KEY!
         const supabaseKey = 'sb_publishable_dBhFFI7qAl_vj0T0uAjp1A_1jZxuGS_'; 
-        
-        // RENAMED from 'supabase' to 'supabaseClient' to fix the SyntaxError
         const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // App Bootup (Runs immediately)
-        document.getElementById('user-display').textContent = "Staff Member";
+        // App Bootup
         document.getElementById('loading-overlay').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
         
-        // Load initial data from Supabase
+        applyPermissions();
         fetchData();
+
+        // --- ROLE MANAGEMENT ---
+        window.switchRole = function(newRole) {
+            currentUser.role = newRole;
+            applyPermissions();
+            renderRecentTransactions(); 
+            showToast("Switched to " + newRole.toUpperCase() + " view", "info");
+        }
+
+        function applyPermissions() {
+            const role = currentUser.role;
+            
+            const btnAddBook = document.getElementById('btn-add-book');
+            const txForm = document.getElementById('container-tx-form');
+            const txList = document.getElementById('container-tx-list');
+            
+            // Default resets
+            if (btnAddBook) btnAddBook.style.display = 'none';
+            if (txForm) txForm.style.display = 'none';
+            if (txList) txList.className = 'bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col lg:col-span-2';
+
+            if (role === 'admin') {
+                if (btnAddBook) btnAddBook.style.display = 'flex';
+                if (txForm) txForm.style.display = 'block';
+            } else if (role === 'staff') {
+                if (txForm) txForm.style.display = 'block';
+            } else if (role === 'viewer') {
+                // Viewer cannot see form, stretch the list to full 3 columns
+                if (txList) txList.className = 'bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col lg:col-span-3';
+            }
+        }
 
         // --- FETCH DATA FROM SUPABASE ---
         async function fetchData() {
             try {
-                // Fetch books and transactions concurrently
                 const [booksRes, txsRes] = await Promise.all([
                     supabaseClient.from('books').select('*'),
                     supabaseClient.from('transactions').select('*')
@@ -476,7 +509,6 @@
                 booksData = booksRes.data || [];
                 transactionsData = txsRes.data || [];
 
-                // Sort transactions chronologically
                 transactionsData.sort((a, b) => {
                     const dateA = new Date(a.date).getTime();
                     const dateB = new Date(b.date).getTime();
@@ -516,17 +548,10 @@
 
                 return { 
                     ...book, 
-                    currentStock, 
-                    totalReceived, 
-                    totalIssued, 
-                    totalReturned, 
-                    totalDamaged,
-                    totalAdjustments,
-                    status,
-                    bookTxs
+                    currentStock, totalReceived, totalIssued, totalReturned, totalDamaged, totalAdjustments,
+                    status, bookTxs
                 };
             });
-
             updateUI();
         }
 
@@ -536,6 +561,7 @@
         }
 
         function updateUI() {
+            applyPermissions();
             renderDashboard();
             renderBooksTable();
             renderTransactionFormDropdown();
@@ -543,11 +569,9 @@
             renderReportsTable(document.querySelector('.report-filter-btn.bg-primary').dataset.filter);
         }
 
+        // --- DASHBOARD CHARTS & KPIS ---
         function renderDashboard() {
-            let totalBooks = 0;
-            let totalValue = 0;
-            let outOfStockCount = 0;
-            
+            let totalBooks = 0, totalValue = 0, outOfStockCount = 0;
             let stockCats = { inStock: 0, lowStock: 0, outOfStock: 0 };
             let monthlyData = {};
             
@@ -562,7 +586,7 @@
 
             transactionsData.forEach(tx => {
                 if(tx.date) {
-                    const monthKey = tx.date.substring(0, 7); // YYYY-MM
+                    const monthKey = tx.date.substring(0, 7); 
                     if(!monthlyData[monthKey]) monthlyData[monthKey] = { rec: 0, iss: 0 };
                     if(tx.type === 'receipt') monthlyData[monthKey].rec += Number(tx.quantity);
                     if(tx.type === 'issue') monthlyData[monthKey].iss += Number(tx.quantity);
@@ -580,34 +604,22 @@
         function renderCharts(stockCats, monthlyData) {
             const ctxDist = document.getElementById('stockDistributionChart').getContext('2d');
             if (stockDistChart) stockDistChart.destroy();
-            
             stockDistChart = new Chart(ctxDist, {
                 type: 'doughnut',
                 data: {
                     labels: ['In Stock', 'Low Stock', 'Out of Stock'],
                     datasets: [{
                         data: [stockCats.inStock, stockCats.lowStock, stockCats.outOfStock],
-                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-                        borderWidth: 0,
-                        hoverOffset: 4
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], borderWidth: 0, hoverOffset: 4
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {family: "'Inter', sans-serif"} } } },
-                    cutout: '70%'
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {family: "'Inter', sans-serif"} } } }, cutout: '70%' }
             });
 
             const ctxMove = document.getElementById('monthlyMovementChart').getContext('2d');
             if (monthlyChart) monthlyChart.destroy();
-
             const sortedMonths = Object.keys(monthlyData).sort().slice(-6);
-            const labels = sortedMonths.map(m => {
-                const d = new Date(m + "-01");
-                return d.toLocaleDateString('default', { month: 'short', year: '2-digit' });
-            });
+            const labels = sortedMonths.map(m => new Date(m + "-01").toLocaleDateString('default', { month: 'short', year: '2-digit' }));
             const recData = sortedMonths.map(m => monthlyData[m].rec);
             const issData = sortedMonths.map(m => monthlyData[m].iss);
 
@@ -620,27 +632,17 @@
                         { label: 'Issued', data: labels.length ? issData : [0], backgroundColor: '#ef4444', borderRadius: 4 }
                     ]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: {family: "'Inter', sans-serif"} } } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { borderDash: [2, 4], color: '#f1f5f9' } },
-                        x: { grid: { display: false } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: {family: "'Inter', sans-serif"} } } }, scales: { y: { beginAtZero: true, grid: { borderDash: [2, 4], color: '#f1f5f9' } }, x: { grid: { display: false } } } }
             });
         }
 
+        // --- BOOK MASTER ---
         function renderBooksTable() {
             const tbody = document.getElementById('books-table-body');
             const searchQ = document.getElementById('book-search').value.toLowerCase();
-            
             tbody.innerHTML = '';
             
-            computedInventory
-                .filter(b => b.name.toLowerCase().includes(searchQ) || b.code.toLowerCase().includes(searchQ) || b.author.toLowerCase().includes(searchQ))
-                .forEach(book => {
+            computedInventory.filter(b => b.name.toLowerCase().includes(searchQ) || b.code.toLowerCase().includes(searchQ) || b.author.toLowerCase().includes(searchQ)).forEach(book => {
                     let statusBadge = '';
                     if (book.status === 'In Stock') statusBadge = '<span class="px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">In Stock</span>';
                     else if (book.status === 'Low Stock') statusBadge = '<span class="px-2.5 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Low Stock</span>';
@@ -650,10 +652,7 @@
                     tr.className = 'hover:bg-gray-50 transition-colors';
                     tr.innerHTML = `
                         <td class="px-6 py-4 font-mono text-xs text-gray-500">${book.code}</td>
-                        <td class="px-6 py-4">
-                            <p class="font-semibold text-gray-800">${book.name}</p>
-                            <p class="text-xs text-gray-500">${book.author}</p>
-                        </td>
+                        <td class="px-6 py-4"><p class="font-semibold text-gray-800">${book.name}</p><p class="text-xs text-gray-500">${book.author}</p></td>
                         <td class="px-6 py-4 text-gray-600">${book.category || '-'}</td>
                         <td class="px-6 py-4 text-right">₹${Number(book.price).toFixed(2)}</td>
                         <td class="px-6 py-4 text-center text-gray-500">${book.openingStock}</td>
@@ -665,16 +664,14 @@
                     `;
                     tbody.appendChild(tr);
             });
-            if(tbody.innerHTML === '') {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-500">No books found matching search criteria.</td></tr>`;
-            }
+            if(tbody.innerHTML === '') tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-500">No books found matching search criteria.</td></tr>`;
         }
-        
         document.getElementById('book-search').addEventListener('input', renderBooksTable);
 
-        // --- SAVE BOOK TO SUPABASE ---
         window.submitBookForm = async function() {
-            if (!currentUser) return;
+            if (currentUser.role !== 'admin') {
+                return showToast("Permission Denied: Only Administrators can add books.", "error");
+            }
             
             const code = document.getElementById('bk-code').value.trim();
             const name = document.getElementById('bk-name').value.trim();
@@ -685,53 +682,36 @@
             const opening = document.getElementById('bk-opening').value;
             const minstock = document.getElementById('bk-minstock').value;
 
-            if(!code || !name || !author || !price || !opening || !minstock) {
-                showToast("Please fill all required fields.", "error");
-                return;
-            }
+            if(!code || !name || !author || !price || !opening || !minstock) return showToast("Please fill all required fields.", "error");
+            if (booksData.some(b => b.code.toLowerCase() === code.toLowerCase())) return showToast("Book code already exists. Use a unique code.", "error");
 
-            if (booksData.some(b => b.code.toLowerCase() === code.toLowerCase())) {
-                showToast("Book code already exists. Use a unique code.", "error");
-                return;
-            }
-
-            const bookData = {
-                code, name, author, publisher: pub, category: cat,
-                price: Number(price), openingStock: Number(opening), minStock: Number(minstock),
-                createdAt: new Date().toISOString()
-            };
+            const bookData = { code, name, author, publisher: pub, category: cat, price: Number(price), openingStock: Number(opening), minStock: Number(minstock), createdAt: new Date().toISOString() };
 
             try {
                 const { error } = await supabaseClient.from('books').insert([bookData]);
-                
                 if (error) throw error;
-                
                 showToast("Book added successfully!", "success");
                 closeModal('add-book-modal');
                 document.getElementById('add-book-form').reset();
-                fetchData(); // Refresh UI directly from database
+                fetchData(); 
             } catch(e) {
                 showToast("Failed to add book: " + e.message, "error");
             }
         }
 
+        // --- TRANSACTIONS ---
         function renderTransactionFormDropdown() {
             const select = document.getElementById('tx-book');
             const currentVal = select.value;
             select.innerHTML = '<option value="">-- Select a Book --</option>';
-            
             const sorted = [...computedInventory].sort((a,b) => a.name.localeCompare(b.name));
-            
             sorted.forEach(b => {
                 const opt = document.createElement('option');
-                opt.value = b.id; // Supabase generated ID
+                opt.value = b.id; 
                 opt.textContent = `${b.code} - ${b.name} (Stock: ${b.currentStock})`;
                 select.appendChild(opt);
             });
-            
-            if(currentVal && sorted.find(b=>b.id == currentVal)) {
-                select.value = currentVal;
-            }
+            if(currentVal && sorted.find(b=>b.id == currentVal)) select.value = currentVal;
         }
 
         document.getElementById('tx-book').addEventListener('change', function(e) {
@@ -744,13 +724,11 @@
                 hint.classList.remove('hidden');
             }
         });
-        
         document.getElementById('tx-date').valueAsDate = new Date();
 
-        // --- SAVE TRANSACTION TO SUPABASE ---
         document.getElementById('transaction-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            if (!currentUser) return;
+            if (currentUser.role === 'viewer') return showToast("Permission Denied: Viewers cannot record transactions.", "error");
 
             const type = document.getElementById('tx-type').value;
             const bookId = document.getElementById('tx-book').value;
@@ -758,31 +736,16 @@
             let qty = Number(document.getElementById('tx-quantity').value);
             const remarks = document.getElementById('tx-remarks').value;
 
-            if(!bookId || !date || !qty) {
-                showToast("Please fill all required fields.", "error");
-                return;
-            }
-
+            if(!bookId || !date || !qty) return showToast("Please fill all required fields.", "error");
+            
             const book = computedInventory.find(b => b.id == bookId);
             if(!book) return;
 
             if (type === 'issue' || type === 'damaged') {
-                if (qty > book.currentStock) {
-                    showToast(`Insufficient Stock! Only ${book.currentStock} copies available.`, "error");
-                    return;
-                }
+                if (qty > book.currentStock) return showToast(`Insufficient Stock! Only ${book.currentStock} copies available.`, "error");
             }
 
-            const txData = {
-                bookId,
-                bookCode: book.code,
-                bookName: book.name,
-                type,
-                date,
-                quantity: qty,
-                remarks,
-                createdAt: new Date().toISOString()
-            };
+            const txData = { bookId, bookCode: book.code, bookName: book.name, type, date, quantity: qty, remarks, createdAt: new Date().toISOString() };
 
             const btn = this.querySelector('button[type="submit"]');
             btn.disabled = true;
@@ -790,14 +753,12 @@
 
             try {
                 const { error } = await supabaseClient.from('transactions').insert([txData]);
-                
                 if (error) throw error;
-                
                 showToast("Transaction saved successfully!", "success");
                 this.reset();
                 document.getElementById('tx-date').valueAsDate = new Date();
                 document.getElementById('tx-current-stock-hint').classList.add('hidden');
-                fetchData(); // Refresh UI directly from database
+                fetchData(); 
             } catch(error) {
                 showToast("Transaction failed: " + error.message, "error");
             } finally {
@@ -806,16 +767,35 @@
             }
         });
 
+        // --- DELETE TRANSACTION ---
+        window.deleteTransaction = async function(txId) {
+            if (currentUser.role !== 'admin') {
+                return showToast("Permission Denied: Only Administrators can correct/delete transactions.", "error");
+            }
+            if(!confirm("Are you sure you want to permanently delete this transaction? Stock balances will be automatically recalculated.")) return;
+
+            try {
+                const { error } = await supabaseClient.from('transactions').delete().eq('id', txId);
+                if (error) throw error;
+                showToast("Transaction deleted.", "success");
+                fetchData(); 
+            } catch(error) {
+                showToast("Failed to delete: " + error.message, "error");
+            }
+        }
+
         function renderRecentTransactions() {
             const tbody = document.getElementById('recent-tx-body');
+            const actionTh = document.getElementById('tx-action-th');
             tbody.innerHTML = '';
+            
+            // Show Action header only for admin
+            if (actionTh) actionTh.style.display = (currentUser.role === 'admin') ? 'table-cell' : 'none';
             
             const recent = [...transactionsData].reverse().slice(0, 15);
             
             recent.forEach(tx => {
-                let icon = '';
-                let color = '';
-                let sign = '';
+                let icon = ''; let color = ''; let sign = '';
                 switch(tx.type) {
                     case 'receipt': icon = 'fa-arrow-down'; color = 'text-green-600 bg-green-50'; sign = '+'; break;
                     case 'issue': icon = 'fa-arrow-up'; color = 'text-red-600 bg-red-50'; sign = '-'; break;
@@ -824,52 +804,34 @@
                     case 'adjustment': icon = 'fa-sliders'; color = 'text-gray-600 bg-gray-100'; sign = '±'; break;
                 }
 
-                const tr = document.createElement('tr');
-                // Added the delete button in the last <td>
-                tr.innerHTML = `
-                    <td class="px-4 py-3 text-gray-500 text-xs">${new Date(tx.date).toLocaleDateString('en-GB')}</td>
-                    <td class="px-4 py-3">
-                        <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium ${color}">
-                            <i class="fa-solid ${icon}"></i> ${tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}
-                        </span>
-                    </td>
-                    <td class="px-4 py-3">
-                        <p class="font-medium text-gray-800 text-xs truncate max-w-[150px]">${tx.bookName}</p>
-                        <p class="text-[10px] text-gray-500">${tx.bookCode}</p>
-                    </td>
-                    <td class="px-4 py-3 text-right font-bold text-gray-700">${sign}${tx.quantity}</td>
-                    <td class="px-4 py-3 text-xs text-gray-500 truncate max-w-[150px]">${tx.remarks || '-'}</td>
+                let deleteBtnHtml = '';
+                if (currentUser.role === 'admin') {
+                    deleteBtnHtml = `
                     <td class="px-4 py-3 text-center">
                         <button onclick="deleteTransaction('${tx.id}')" class="text-red-500 hover:text-red-700 transition-colors" title="Delete Transaction">
                             <i class="fa-solid fa-trash"></i>
                         </button>
-                    </td>
+                    </td>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-4 py-3 text-gray-500 text-xs">${new Date(tx.date).toLocaleDateString('en-GB')}</td>
+                    <td class="px-4 py-3"><span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium ${color}"><i class="fa-solid ${icon}"></i> ${tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}</span></td>
+                    <td class="px-4 py-3"><p class="font-medium text-gray-800 text-xs truncate max-w-[150px]">${tx.bookName}</p><p class="text-[10px] text-gray-500">${tx.bookCode}</p></td>
+                    <td class="px-4 py-3 text-right font-bold text-gray-700">${sign}${tx.quantity}</td>
+                    <td class="px-4 py-3 text-xs text-gray-500 truncate max-w-[150px]">${tx.remarks || '-'}</td>
+                    ${deleteBtnHtml}
                 `;
                 tbody.appendChild(tr);
             });
             if(recent.length === 0) {
-                // Changed colspan from 5 to 6
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-gray-500 text-sm">No recent transactions found.</td></tr>';
+                const colSpan = (currentUser.role === 'admin') ? 6 : 5;
+                tbody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center py-6 text-gray-500 text-sm">No recent transactions found.</td></tr>`;
             }
         }
-        // --- DELETE TRANSACTION FROM SUPABASE ---
-        window.deleteTransaction = async function(txId) {
-            if(!confirm("Are you sure you want to delete this transaction? This will automatically recalculate your current stock.")) return;
 
-            try {
-                const { error } = await supabaseClient
-                    .from('transactions')
-                    .delete()
-                    .eq('id', txId);
-                
-                if (error) throw error;
-                
-                showToast("Transaction deleted successfully!", "success");
-                fetchData(); // Refresh UI and recalculate stock
-            } catch(error) {
-                showToast("Failed to delete transaction: " + error.message, "error");
-            }
-        }
+        // --- REPORTS & HISTORY ---
         document.querySelectorAll('.report-filter-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.report-filter-btn').forEach(b => {
@@ -885,7 +847,6 @@
         function renderReportsTable(filterType = 'all') {
             const tbody = document.getElementById('reports-table-body');
             tbody.innerHTML = '';
-            
             let filtered = computedInventory;
             if(filterType === 'low') filtered = computedInventory.filter(b => b.status === 'Low Stock');
             if(filterType === 'out') filtered = computedInventory.filter(b => b.status === 'Out of Stock');
@@ -894,10 +855,7 @@
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-50';
                 tr.innerHTML = `
-                    <td class="px-6 py-4">
-                        <p class="font-semibold text-gray-800">${book.code}</p>
-                        <p class="text-xs text-gray-500 truncate max-w-[200px]">${book.name}</p>
-                    </td>
+                    <td class="px-6 py-4"><p class="font-semibold text-gray-800">${book.code}</p><p class="text-xs text-gray-500 truncate max-w-[200px]">${book.name}</p></td>
                     <td class="px-4 py-3 text-center text-gray-600 font-medium">${book.openingStock}</td>
                     <td class="px-4 py-3 text-center text-green-600 font-medium">${book.totalReceived}</td>
                     <td class="px-4 py-3 text-center text-red-600 font-medium">${book.totalIssued}</td>
@@ -907,10 +865,7 @@
                 `;
                 tbody.appendChild(tr);
             });
-
-            if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-500">No data available for the selected filter.</td></tr>`;
-            }
+            if(filtered.length === 0) tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-500">No data available for the selected filter.</td></tr>`;
         }
 
         window.viewHistory = function(bookId) {
@@ -932,7 +887,6 @@
 
             const tbody = document.getElementById('hist-table-body');
             tbody.innerHTML = '';
-            
             let runningBalance = Number(book.openingStock);
             
             tbody.innerHTML += `
@@ -953,23 +907,10 @@
             });
 
             sortedTxs.forEach(tx => {
-                let qty = Number(tx.quantity);
-                let displayQty = '';
-                let colorClass = '';
-                
-                if (['receipt', 'return'].includes(tx.type)) {
-                    runningBalance += qty;
-                    displayQty = `+${qty}`;
-                    colorClass = 'text-green-600';
-                } else if (['issue', 'damaged'].includes(tx.type)) {
-                    runningBalance -= qty;
-                    displayQty = `-${qty}`;
-                    colorClass = 'text-red-600';
-                } else if (tx.type === 'adjustment') {
-                    runningBalance += qty; 
-                    displayQty = `±${qty}`;
-                    colorClass = 'text-gray-600';
-                }
+                let qty = Number(tx.quantity); let displayQty = ''; let colorClass = '';
+                if (['receipt', 'return'].includes(tx.type)) { runningBalance += qty; displayQty = `+${qty}`; colorClass = 'text-green-600'; } 
+                else if (['issue', 'damaged'].includes(tx.type)) { runningBalance -= qty; displayQty = `-${qty}`; colorClass = 'text-red-600'; } 
+                else if (tx.type === 'adjustment') { runningBalance += qty; displayQty = `±${qty}`; colorClass = 'text-gray-600'; }
 
                 tbody.innerHTML += `
                     <tr>
@@ -981,7 +922,6 @@
                     </tr>
                 `;
             });
-
             openModal('history-modal');
         }
 
@@ -994,41 +934,21 @@
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const target = link.dataset.target;
-                
-                navLinks.forEach(l => {
-                    l.classList.remove('nav-active');
-                    l.classList.add('nav-item', 'text-gray-700');
-                });
-                link.classList.remove('nav-item', 'text-gray-700');
-                link.classList.add('nav-active');
-
+                navLinks.forEach(l => { l.classList.remove('nav-active'); l.classList.add('nav-item', 'text-gray-700'); });
+                link.classList.remove('nav-item', 'text-gray-700'); link.classList.add('nav-active');
                 sections.forEach(sec => sec.classList.add('hidden'));
                 document.getElementById(`sec-${target}`).classList.remove('hidden');
-
-                if(window.innerWidth < 768) {
-                    sidebar.classList.add('-translate-x-full');
-                    sidebar.classList.add('absolute');
-                }
+                if(window.innerWidth < 768) { sidebar.classList.add('-translate-x-full', 'absolute'); }
             });
         });
 
-        document.getElementById('open-sidebar-btn').addEventListener('click', () => {
-            sidebar.classList.remove('-translate-x-full');
-            sidebar.classList.add('absolute', 'h-full', 'z-50');
-        });
-        document.getElementById('close-sidebar-btn').addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-        });
-        if(window.innerWidth < 768) {
-            sidebar.classList.add('-translate-x-full', 'absolute');
-        }
+        document.getElementById('open-sidebar-btn').addEventListener('click', () => { sidebar.classList.remove('-translate-x-full'); sidebar.classList.add('absolute', 'h-full', 'z-50'); });
+        document.getElementById('close-sidebar-btn').addEventListener('click', () => { sidebar.classList.add('-translate-x-full'); });
+        if(window.innerWidth < 768) sidebar.classList.add('-translate-x-full', 'absolute');
 
         window.addEventListener('resize', () => {
-            if(window.innerWidth >= 768) {
-                sidebar.classList.remove('-translate-x-full', 'absolute', 'h-full', 'z-50');
-            } else {
-                sidebar.classList.add('-translate-x-full', 'absolute');
-            }
+            if(window.innerWidth >= 768) sidebar.classList.remove('-translate-x-full', 'absolute', 'h-full', 'z-50');
+            else sidebar.classList.add('-translate-x-full', 'absolute');
         });
 
         window.openModal = function(id) {
@@ -1038,29 +958,18 @@
             modal.children[0].offsetHeight; 
             modal.children[0].style.animation = null;
         }
-        window.closeModal = function(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
+        window.closeModal = function(id) { document.getElementById(id).classList.add('hidden'); }
 
         window.showToast = function(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            
-            let color = 'bg-gray-800';
-            let icon = 'fa-info-circle';
+            let color = 'bg-gray-800'; let icon = 'fa-info-circle';
             if (type === 'success') { color = 'bg-green-600'; icon = 'fa-check-circle'; }
             if (type === 'error') { color = 'bg-red-600'; icon = 'fa-exclamation-circle'; }
-
             toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium ${color} toast-enter-active`;
             toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
-            
             container.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.classList.remove('toast-enter-active');
-                toast.classList.add('toast-exit-active');
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
+            setTimeout(() => { toast.classList.remove('toast-enter-active'); toast.classList.add('toast-exit-active'); setTimeout(() => toast.remove(), 300); }, 4000);
         }
     </script>
 </body>
