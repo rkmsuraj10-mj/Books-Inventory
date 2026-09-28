@@ -99,11 +99,11 @@
                         <button onclick="openModal('add-book-modal')" class="admin-only bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add New Book</button>
                     </div>
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
-                        <div class="p-4 border-b border-gray-100 flex gap-4 bg-gray-50"><div class="relative flex-1 max-w-md"><i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i><input type="text" id="book-search" placeholder="Search by title, code, author..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"></div></div>
+                        <div class="p-4 border-b border-gray-100 flex gap-4 bg-gray-50"><div class="relative flex-1 max-w-md"><i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i><input type="text" id="book-search" placeholder="Search by name, code..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"></div></div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm whitespace-nowrap">
                                 <thead class="bg-gray-50 text-gray-600 font-semibold border-b border-gray-200">
-                                    <tr><th class="px-6 py-3">Book Code</th><th class="px-6 py-3">Title & Author</th><th class="px-6 py-3">Category</th><th class="px-6 py-3 text-right">Price</th><th class="px-6 py-3 text-center">Opening</th><th class="px-6 py-3 text-center">Current Stock</th><th class="px-6 py-3 text-center">Status</th><th class="px-6 py-3 text-right">Actions</th></tr>
+                                    <tr><th class="px-6 py-3">Book Code</th><th class="px-6 py-3">Book Name</th><th class="px-6 py-3 text-right">Price</th><th class="px-6 py-3 text-center">Opening</th><th class="px-6 py-3 text-center">Current Stock</th><th class="px-6 py-3 text-center">Status</th><th class="px-6 py-3 text-right">Actions</th></tr>
                                 </thead>
                                 <tbody id="books-table-body" class="divide-y divide-gray-100"></tbody>
                             </table>
@@ -184,24 +184,19 @@
 
     <!-- Modals -->
     <div id="add-book-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md flex flex-col">
             <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl"><h3 class="font-bold text-lg text-gray-800">Add New Book</h3><button onclick="closeModal('add-book-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-times text-xl"></i></button></div>
             <div class="p-6 overflow-y-auto flex-1 hide-scrollbar">
-                <form id="add-book-form" class="space-y-5">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Book Code *</label><input type="text" id="bk-code" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Book Name *</label><input type="text" id="bk-name" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Author Name *</label><input type="text" id="bk-author" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Publisher</label><input type="text" id="bk-publisher" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Category</label><select id="bk-category" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary"><option value="Fiction">Fiction</option><option value="Non-Fiction">Non-Fiction</option><option value="Academic">Academic</option><option value="Science">Science</option><option value="History">History</option><option value="Other">Other</option></select></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Price (₹) *</label><input type="number" id="bk-price" min="0" step="0.01" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Opening Stock *</label><input type="number" id="bk-opening" min="0" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" value="0"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Min. Stock Level *</label><input type="number" id="bk-minstock" min="0" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" value="5"></div>
-                    </div>
+                <form id="add-book-form" class="space-y-4">
+                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">1. Book Code *</label><input type="text" id="bk-code" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="e.g. B001"></div>
+                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">2. Book Name *</label><input type="text" id="bk-name" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="e.g. Advanced Mathematics"></div>
+                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">3. Book Price (₹) *</label><input type="number" id="bk-price" min="0" step="0.01" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="0.00"></div>
+                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">4. Opening Stock *</label><input type="number" id="bk-opening" min="0" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" value="0"></div>
                 </form>
             </div>
             <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-xl">
-                <button onclick="closeModal('add-book-modal')" class="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button><button onclick="submitBookForm()" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-blue-800">Save Book Master</button>
+                <button onclick="closeModal('add-book-modal')" class="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+                <button onclick="submitBookForm()" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-blue-800">Save Book Master</button>
             </div>
         </div>
     </div>
@@ -255,7 +250,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) {
-                window.location.href = 'index.html'; // Kick out if not logged in
+                window.location.href = 'index.html'; 
             } else {
                 await loadUserProfile(session.user);
             }
@@ -343,7 +338,7 @@
                     }
                 });
 
-                let status = currentStock <= 0 ? 'Out of Stock' : currentStock <= Number(book.minStock) ? 'Low Stock' : 'In Stock';
+                let status = currentStock <= 0 ? 'Out of Stock' : currentStock <= Number(book.minStock || 5) ? 'Low Stock' : 'In Stock';
                 return { ...book, currentStock, totalReceived, totalIssued, totalReturned, totalDamaged, totalAdjustments, status, bookTxs };
             });
             updateUI();
@@ -410,32 +405,47 @@
             const searchQ = document.getElementById('book-search').value.toLowerCase();
             tbody.innerHTML = '';
             
-            computedInventory.filter(b => b.name.toLowerCase().includes(searchQ) || b.code.toLowerCase().includes(searchQ) || b.author.toLowerCase().includes(searchQ)).forEach(book => {
+            computedInventory.filter(b => b.name.toLowerCase().includes(searchQ) || b.code.toLowerCase().includes(searchQ)).forEach(book => {
                     let statusBadge = book.status === 'In Stock' ? '<span class="px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">In Stock</span>' : book.status === 'Low Stock' ? '<span class="px-2.5 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Low Stock</span>' : '<span class="px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Out of Stock</span>';
                     tbody.innerHTML += `
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 font-mono text-xs text-gray-500">${book.code}</td><td class="px-6 py-4"><p class="font-semibold text-gray-800">${book.name}</p><p class="text-xs text-gray-500">${book.author}</p></td><td class="px-6 py-4 text-gray-600">${book.category || '-'}</td>
-                            <td class="px-6 py-4 text-right">₹${Number(book.price).toFixed(2)}</td><td class="px-6 py-4 text-center text-gray-500">${book.openingStock}</td><td class="px-6 py-4 text-center font-bold text-gray-800">${book.currentStock}</td>
-                            <td class="px-6 py-4 text-center">${statusBadge}</td><td class="px-6 py-4 text-right"><button onclick="viewHistory('${book.id}')" class="text-blue-500 hover:text-blue-700 text-sm font-medium"><i class="fa-solid fa-clock-rotate-left mr-1"></i> History</button></td>
+                            <td class="px-6 py-4 font-mono text-xs text-gray-500">${book.code}</td>
+                            <td class="px-6 py-4 font-semibold text-gray-800">${book.name}</td>
+                            <td class="px-6 py-4 text-right">₹${Number(book.price).toFixed(2)}</td>
+                            <td class="px-6 py-4 text-center text-gray-500">${book.openingStock}</td>
+                            <td class="px-6 py-4 text-center font-bold text-gray-800">${book.currentStock}</td>
+                            <td class="px-6 py-4 text-center">${statusBadge}</td>
+                            <td class="px-6 py-4 text-right"><button onclick="viewHistory('${book.id}')" class="text-blue-500 hover:text-blue-700 text-sm font-medium"><i class="fa-solid fa-clock-rotate-left mr-1"></i> History</button></td>
                         </tr>
                     `;
             });
-            if(tbody.innerHTML === '') tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-500">No books found.</td></tr>`;
+            if(tbody.innerHTML === '') tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-500">No books found.</td></tr>`;
         }
         document.getElementById('book-search').addEventListener('input', renderBooksTable);
 
         window.submitBookForm = async function() {
             if (activeUserProfile.roles.name !== 'Administrator') return showToast("Permission Denied.", "error");
             
-            const code = document.getElementById('bk-code').value.trim(); const name = document.getElementById('bk-name').value.trim();
-            const author = document.getElementById('bk-author').value.trim(); const pub = document.getElementById('bk-publisher').value.trim();
-            const cat = document.getElementById('bk-category').value; const price = document.getElementById('bk-price').value;
-            const opening = document.getElementById('bk-opening').value; const minstock = document.getElementById('bk-minstock').value;
+            const code = document.getElementById('bk-code').value.trim(); 
+            const name = document.getElementById('bk-name').value.trim();
+            const price = document.getElementById('bk-price').value; 
+            const opening = document.getElementById('bk-opening').value;
 
-            if(!code || !name || !author || !price || !opening || !minstock) return showToast("Please fill all required fields.", "error");
+            if(!code || !name || !price || !opening) return showToast("Please fill all required fields.", "error");
             if (booksData.some(b => b.code.toLowerCase() === code.toLowerCase())) return showToast("Book code already exists.", "error");
 
-            const bookData = { code, name, author, publisher: pub, category: cat, price: Number(price), openingStock: Number(opening), minStock: Number(minstock), createdAt: new Date().toISOString() };
+            // Assigned default placeholders for removed fields to keep database integrity intact
+            const bookData = { 
+                code, 
+                name, 
+                author: '-', 
+                publisher: '', 
+                category: 'General', 
+                price: Number(price), 
+                openingStock: Number(opening), 
+                minStock: 5, 
+                createdAt: new Date().toISOString() 
+            };
 
             try {
                 const { error } = await supabaseClient.from('books').insert([bookData]);
@@ -610,7 +620,6 @@
             `).join('');
         }
 
-        // --- UPDATED SECURE USER CREATION & MANAGEMENT ---
         document.getElementById('add-user-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
@@ -629,28 +638,21 @@
                     body: { email, password, fullName, roleId }
                 });
 
-                // Extract error details safely if present in the response context
                 if (response.error) {
                     let errorMsg = response.error.message || 'Failed to create user';
                     if (response.error.context) {
                         try {
                             const errBody = await response.error.context.json();
                             if (errBody && errBody.error) errorMsg = errBody.error;
-                        } catch (ex) {
-                            // fallback if not json
-                        }
+                        } catch (ex) {}
                     }
                     throw new Error(errorMsg);
                 }
 
                 showToast("User created successfully!", "success");
-                
                 const modal = document.getElementById('add-user-modal');
                 if (modal) modal.classList.add('hidden');
-                
                 e.target.reset();
-
-                // Immediately reload table data without page refresh
                 await loadAdminUsersTable();
                 
                 if (typeof logAuditAction === 'function') {
@@ -665,7 +667,6 @@
             }
         });
 
-        // --- UPDATED USER DELETION WITH INSTANT UI SYNC ---
         window.deleteSystemUser = async function(userId, userEmail) {
             if (activeUserProfile && activeUserProfile.id === userId) {
                 return showToast("You cannot delete your own active administrator account.", "error");
@@ -690,18 +691,16 @@
                 }
 
                 showToast("User deleted successfully.", "success");
-                
                 if (typeof logAuditAction === 'function') {
                     await logAuditAction('Delete', 'Users', `Permanently deleted user account for ${userEmail}`);
                 }
-
-                // Immediately refresh table to remove the deleted user instantly
                 await loadAdminUsersTable();
             } catch (err) {
                 console.error("Error deleting user:", err);
                 showToast(err.message || 'Failed to delete user', 'error');
             }
         }
+
         window.toggleUserStatus = async function(userId, currentStatus) {
             if (!confirm(`Are you sure you want to ${currentStatus === 'Active' ? 'deactivate' : 'activate'} this user?`)) return;
             const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
