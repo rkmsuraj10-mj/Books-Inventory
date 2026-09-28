@@ -599,18 +599,41 @@
             tbody.innerHTML = users.map(u => `<tr class="hover:bg-gray-50"><td class="px-6 py-4 font-semibold text-gray-800">${u.full_name}</td><td class="px-6 py-4 text-gray-500">${u.email}</td><td class="px-6 py-4"><span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-bold">${u.roles.name}</span></td><td class="px-6 py-4 text-center"><span class="px-2.5 py-1 ${u.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} rounded-full text-xs font-semibold">${u.status}</span></td><td class="px-6 py-4 text-right"><button onclick="toggleUserStatus('${u.id}', '${u.status}')" class="text-sm font-medium ${u.status === 'Active' ? 'text-red-500 hover:text-red-700' : 'text-green-600 hover:text-green-800'} transition-colors">${u.status === 'Active' ? 'Deactivate' : 'Activate'}</button></td></tr>`).join('');
         }
 
+        // --- UPDATED SECURE USER CREATION ---
         document.getElementById('add-user-form').addEventListener('submit', async (e) => {
-            e.preventDefault(); const btn = e.target.querySelector('button'); btn.innerHTML = 'Creating securely...';
-            const email = document.getElementById('new-user-email').value; const password = document.getElementById('new-user-password').value; const full_name = document.getElementById('new-user-name').value; const role_id = parseInt(document.getElementById('new-user-role').value);
-            const secondaryClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false }});
+            e.preventDefault(); 
+            const btn = e.target.querySelector('button'); 
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Creating securely...';
+            btn.disabled = true;
             
-            const { data: newAuthUser, error: authError } = await secondaryClient.auth.signUp({ email, password, options: { data: { full_name } } });
-            if (authError) { showToast(authError.message, 'error'); btn.innerHTML = 'Create User Account'; return; }
-            if (newAuthUser.user) await supabaseClient.from('users').update({ role_id: role_id }).eq('id', newAuthUser.user.id);
+            const email = document.getElementById('new-user-email').value; 
+            const password = document.getElementById('new-user-password').value; 
+            const fullName = document.getElementById('new-user-name').value; 
+            const roleId = parseInt(document.getElementById('new-user-role').value);
+            
+            try {
+                // Securely invoke the deployed Edge Function
+                const { data, error } = await supabaseClient.functions.invoke('swift-function', {
+                    body: { email, password, fullName, roleId }
+                });
 
-            await logAuditAction('Create', 'Users', `Created new user account for ${email}`);
-            showToast("User created successfully.", "success"); closeModal('add-user-modal'); e.target.reset(); btn.innerHTML = 'Create User Account'; loadAdminUsersTable();
+                if (error) throw error;
+
+                await logAuditAction('Create', 'Users', `Created new user account for ${email}`);
+                showToast("User created successfully.", "success"); 
+                closeModal('add-user-modal'); 
+                e.target.reset(); 
+                loadAdminUsersTable();
+            } catch (err) {
+                console.error("Error creating user:", err);
+                showToast(err.message || 'Failed to create user', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         });
+        // ------------------------------------
 
         window.toggleUserStatus = async function(userId, currentStatus) {
             if (!confirm(`Are you sure you want to ${currentStatus === 'Active' ? 'deactivate' : 'activate'} this user?`)) return;
