@@ -303,7 +303,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) {
-                window.location.href = 'index.html'; 
+                window.location.href = 'login.html'; 
             } else {
                 await loadUserProfile(session.user);
             }
@@ -328,14 +328,14 @@
 
             } catch (err) {
                 alert(err.message);
-                window.location.href = 'index.html';
+                window.location.href = 'login.html';
             }
         }
 
         async function handleLogout() {
             await logAuditAction('Logout', 'Authentication', 'User signed out');
             await supabaseClient.auth.signOut();
-            window.location.href = 'index.html';
+            window.location.href = 'login.html';
         }
 
         function renderSecureInterface() {
