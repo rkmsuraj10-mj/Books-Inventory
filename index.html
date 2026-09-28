@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -432,28 +435,9 @@
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, collection, onSnapshot, addDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Environment variables
-        const appId = 'book-inventory-app';
-
-        // Your pasted Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBOasiDCAeKmKMcSeM6OIhakKDVgakyFCc",
-            authDomain: "rkmn-books-inventory.firebaseapp.com",
-            projectId: "rkmn-books-inventory",
-            storageBucket: "rkmn-books-inventory.firebasestorage.app",
-            messagingSenderId: "54509486416",
-            appId: "1:54509486416:web:57f8cfedbcf0c688feec55",
-            measurementId: "G-RY0KTKW0ZH"
-        };
-
+    <script>
         // State variables
-        let app, auth, db;
-        let currentUser = null;
+        let currentUser = { role: 'staff' }; // Mock user to show the UI without auth barriers
         let booksData = [];
         let transactionsData = [];
         let computedInventory = [];
@@ -462,64 +446,50 @@
         let stockDistChart = null;
         let monthlyChart = null;
 
-        // Initialize Firebase
-        if (firebaseConfig) {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-            
-            const initialToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-            if (initialToken) {
-                signInWithCustomToken(auth, initialToken).catch(err => {
-                    console.error("Custom token failed, falling back to anonymous", err);
-                    signInAnonymously(auth);
-                });
-            } else {
-                signInAnonymously(auth);
-            }
+        // --- SUPABASE INITIALIZATION ---
+        const supabaseUrl = 'https://hkvzvvkkojqhrkylbfie.supabase.co';
+        const supabaseKey = 'sb_publishable_dBhFFI7qAl_vj0T0uAjp1A_1jZxuGS_';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    currentUser = user;
-                    document.getElementById('user-display').textContent = "Staff Member";
-                    document.getElementById('loading-overlay').classList.add('hidden');
-                    document.getElementById('app').classList.remove('hidden');
-                    
-                    // Generate dummy data if requested in future, for now setup listeners
-                    setupListeners();
-                }
-            });
-        } else {
-            document.getElementById('loading-overlay').innerHTML = "<p class='text-red-500'>Firebase config missing. Running in UI only mode.</p>";
+        // App Bootup
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('user-display').textContent = "Staff Member";
+            document.getElementById('loading-overlay').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden');
-        }
+            
+            // Load initial data from Supabase
+            fetchData();
+        });
 
-        function getCollectionPath(colName) {
-            // Fixes the "invalid collection" error and correctly targets the root database so data stays permanently.
-            return collection(db, colName);
-        }
+        // --- FETCH DATA FROM SUPABASE ---
+        async function fetchData() {
+            try {
+                // Fetch books and transactions concurrently
+                const [booksRes, txsRes] = await Promise.all([
+                    supabase.from('books').select('*'),
+                    supabase.from('transactions').select('*')
+                ]);
 
-        function setupListeners() {
-            // Listen to Books
-            onSnapshot(getCollectionPath('books'), (snapshot) => {
-                booksData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                computeInventory();
-            }, (error) => showToast("Error loading books: " + error.message, "error"));
+                if (booksRes.error) throw booksRes.error;
+                if (txsRes.error) throw txsRes.error;
 
-            // Listen to Transactions
-            onSnapshot(getCollectionPath('transactions'), (snapshot) => {
-                transactionsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // Sort transactions by date asc, then createdAt asc
+                booksData = booksRes.data || [];
+                transactionsData = txsRes.data || [];
+
+                // Sort transactions chronologically
                 transactionsData.sort((a, b) => {
                     const dateA = new Date(a.date).getTime();
                     const dateB = new Date(b.date).getTime();
                     if(dateA === dateB) {
-                        return (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0);
+                        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
                     }
                     return dateA - dateB;
                 });
+
                 computeInventory();
-            }, (error) => showToast("Error loading transactions: " + error.message, "error"));
+            } catch (error) {
+                showToast("Error loading data: " + error.message, "error");
+            }
         }
 
         function computeInventory() {
@@ -536,7 +506,7 @@
                         case 'issue': currentStock -= qty; totalIssued += qty; break;
                         case 'return': currentStock += qty; totalReturned += qty; break;
                         case 'damaged': currentStock -= qty; totalDamaged += qty; break;
-                        case 'adjustment': currentStock += qty; totalAdjustments += qty; break; // assume adjustment can be +/- entered as qty
+                        case 'adjustment': currentStock += qty; totalAdjustments += qty; break;
                     }
                 });
 
@@ -561,8 +531,8 @@
         }
 
         window.refreshData = function() {
-            showToast("Data refreshed.", "success");
-            computeInventory();
+            showToast("Fetching latest data...", "info");
+            fetchData();
         }
 
         function updateUI() {
@@ -579,9 +549,7 @@
             let outOfStockCount = 0;
             
             let stockCats = { inStock: 0, lowStock: 0, outOfStock: 0 };
-            
-            // For Monthly Movement chart
-            let monthlyData = {}; // Format: { "YYYY-MM": { rec: 0, iss: 0 } }
+            let monthlyData = {};
             
             computedInventory.forEach(book => {
                 totalBooks += book.currentStock;
@@ -610,7 +578,6 @@
         }
 
         function renderCharts(stockCats, monthlyData) {
-            // Stock Distribution Chart
             const ctxDist = document.getElementById('stockDistributionChart').getContext('2d');
             if (stockDistChart) stockDistChart.destroy();
             
@@ -633,12 +600,10 @@
                 }
             });
 
-            // Monthly Movement Chart
             const ctxMove = document.getElementById('monthlyMovementChart').getContext('2d');
             if (monthlyChart) monthlyChart.destroy();
 
-            // Sort months
-            const sortedMonths = Object.keys(monthlyData).sort().slice(-6); // Last 6 months
+            const sortedMonths = Object.keys(monthlyData).sort().slice(-6);
             const labels = sortedMonths.map(m => {
                 const d = new Date(m + "-01");
                 return d.toLocaleDateString('default', { month: 'short', year: '2-digit' });
@@ -707,6 +672,7 @@
         
         document.getElementById('book-search').addEventListener('input', renderBooksTable);
 
+        // --- SAVE BOOK TO SUPABASE ---
         window.submitBookForm = async function() {
             if (!currentUser) return;
             
@@ -724,7 +690,6 @@
                 return;
             }
 
-            // check duplicate code
             if (booksData.some(b => b.code.toLowerCase() === code.toLowerCase())) {
                 showToast("Book code already exists. Use a unique code.", "error");
                 return;
@@ -733,14 +698,18 @@
             const bookData = {
                 code, name, author, publisher: pub, category: cat,
                 price: Number(price), openingStock: Number(opening), minStock: Number(minstock),
-                createdAt: serverTimestamp()
+                createdAt: new Date().toISOString()
             };
 
             try {
-                await addDoc(getCollectionPath('books'), bookData);
+                const { error } = await supabase.from('books').insert([bookData]);
+                
+                if (error) throw error;
+                
                 showToast("Book added successfully!", "success");
                 closeModal('add-book-modal');
                 document.getElementById('add-book-form').reset();
+                fetchData(); // Refresh UI directly from database
             } catch(e) {
                 showToast("Failed to add book: " + e.message, "error");
             }
@@ -751,17 +720,16 @@
             const currentVal = select.value;
             select.innerHTML = '<option value="">-- Select a Book --</option>';
             
-            // Sort books alphabetically by name
             const sorted = [...computedInventory].sort((a,b) => a.name.localeCompare(b.name));
             
             sorted.forEach(b => {
                 const opt = document.createElement('option');
-                opt.value = b.id;
+                opt.value = b.id; // Supabase generated ID
                 opt.textContent = `${b.code} - ${b.name} (Stock: ${b.currentStock})`;
                 select.appendChild(opt);
             });
             
-            if(currentVal && sorted.find(b=>b.id === currentVal)) {
+            if(currentVal && sorted.find(b=>b.id == currentVal)) {
                 select.value = currentVal;
             }
         }
@@ -769,7 +737,7 @@
         document.getElementById('tx-book').addEventListener('change', function(e) {
             const hint = document.getElementById('tx-current-stock-hint');
             if(!this.value) { hint.classList.add('hidden'); return; }
-            const book = computedInventory.find(b => b.id === this.value);
+            const book = computedInventory.find(b => b.id == this.value);
             if(book) {
                 document.getElementById('tx-hint-val').textContent = book.currentStock;
                 document.getElementById('tx-hint-val').className = book.currentStock > 0 ? "font-bold text-green-600" : "font-bold text-red-600";
@@ -777,9 +745,9 @@
             }
         });
         
-        // Auto-set today's date
         document.getElementById('tx-date').valueAsDate = new Date();
 
+        // --- SAVE TRANSACTION TO SUPABASE ---
         document.getElementById('transaction-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (!currentUser) return;
@@ -795,10 +763,9 @@
                 return;
             }
 
-            const book = computedInventory.find(b => b.id === bookId);
+            const book = computedInventory.find(b => b.id == bookId);
             if(!book) return;
 
-            // Validation: Prevent negative stock on issues/damaged
             if (type === 'issue' || type === 'damaged') {
                 if (qty > book.currentStock) {
                     showToast(`Insufficient Stock! Only ${book.currentStock} copies available.`, "error");
@@ -814,7 +781,7 @@
                 date,
                 quantity: qty,
                 remarks,
-                createdAt: serverTimestamp()
+                createdAt: new Date().toISOString()
             };
 
             const btn = this.querySelector('button[type="submit"]');
@@ -822,11 +789,15 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
 
             try {
-                await addDoc(getCollectionPath('transactions'), txData);
+                const { error } = await supabase.from('transactions').insert([txData]);
+                
+                if (error) throw error;
+                
                 showToast("Transaction saved successfully!", "success");
                 this.reset();
                 document.getElementById('tx-date').valueAsDate = new Date();
                 document.getElementById('tx-current-stock-hint').classList.add('hidden');
+                fetchData(); // Refresh UI directly from database
             } catch(error) {
                 showToast("Transaction failed: " + error.message, "error");
             } finally {
@@ -839,7 +810,6 @@
             const tbody = document.getElementById('recent-tx-body');
             tbody.innerHTML = '';
             
-            // Get last 15 txs
             const recent = [...transactionsData].reverse().slice(0, 15);
             
             recent.forEach(tx => {
@@ -876,7 +846,6 @@
             }
         }
 
-        // Reports View filtering logic
         document.querySelectorAll('.report-filter-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.report-filter-btn').forEach(b => {
@@ -921,12 +890,11 @@
         }
 
         window.viewHistory = function(bookId) {
-            const book = computedInventory.find(b => b.id === bookId);
+            const book = computedInventory.find(b => b.id == bookId);
             if(!book) return;
 
             document.getElementById('hist-title').textContent = `${book.code} - ${book.name}`;
             
-            // Formula representation
             let formulaStr = `Opening: ${book.openingStock}`;
             if(book.totalReceived > 0) formulaStr += ` + Rec: ${book.totalReceived}`;
             if(book.totalIssued > 0) formulaStr += ` - Iss: ${book.totalIssued}`;
@@ -941,7 +909,6 @@
             const tbody = document.getElementById('hist-table-body');
             tbody.innerHTML = '';
             
-            // Render Opening Stock row
             let runningBalance = Number(book.openingStock);
             
             tbody.innerHTML += `
@@ -954,11 +921,10 @@
                 </tr>
             `;
 
-            // Sort txs to ensure correct running balance chronological calculation
             const sortedTxs = [...book.bookTxs].sort((a,b) => {
                 const dA = new Date(a.date).getTime();
                 const dB = new Date(b.date).getTime();
-                if(dA === dB) return (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0);
+                if(dA === dB) return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
                 return dA - dB;
             });
 
@@ -976,7 +942,7 @@
                     displayQty = `-${qty}`;
                     colorClass = 'text-red-600';
                 } else if (tx.type === 'adjustment') {
-                    runningBalance += qty; // assuming entered with sign if needed, or just standard positive
+                    runningBalance += qty; 
                     displayQty = `±${qty}`;
                     colorClass = 'text-gray-600';
                 }
@@ -995,8 +961,7 @@
             openModal('history-modal');
         }
 
-        
-        // Navigation Logic
+        // --- UI NAVIGATION & MODALS ---
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = document.querySelectorAll('.content-section');
         const sidebar = document.getElementById('sidebar');
@@ -1006,7 +971,6 @@
                 e.preventDefault();
                 const target = link.dataset.target;
                 
-                // Update UI active states
                 navLinks.forEach(l => {
                     l.classList.remove('nav-active');
                     l.classList.add('nav-item', 'text-gray-700');
@@ -1014,11 +978,9 @@
                 link.classList.remove('nav-item', 'text-gray-700');
                 link.classList.add('nav-active');
 
-                // Toggle sections
                 sections.forEach(sec => sec.classList.add('hidden'));
                 document.getElementById(`sec-${target}`).classList.remove('hidden');
 
-                // On mobile, close sidebar on nav click
                 if(window.innerWidth < 768) {
                     sidebar.classList.add('-translate-x-full');
                     sidebar.classList.add('absolute');
@@ -1026,7 +988,6 @@
             });
         });
 
-        // Mobile Sidebar Toggles
         document.getElementById('open-sidebar-btn').addEventListener('click', () => {
             sidebar.classList.remove('-translate-x-full');
             sidebar.classList.add('absolute', 'h-full', 'z-50');
@@ -1034,7 +995,6 @@
         document.getElementById('close-sidebar-btn').addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
         });
-        // Initial setup for mobile sidebar
         if(window.innerWidth < 768) {
             sidebar.classList.add('-translate-x-full', 'absolute');
         }
@@ -1047,11 +1007,9 @@
             }
         });
 
-        // Modal Controls
         window.openModal = function(id) {
             const modal = document.getElementById(id);
             modal.classList.remove('hidden');
-            // small trick to force animation
             modal.children[0].style.animation = 'none';
             modal.children[0].offsetHeight; 
             modal.children[0].style.animation = null;
@@ -1060,7 +1018,6 @@
             document.getElementById(id).classList.add('hidden');
         }
 
-        // Toast Notification System
         window.showToast = function(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -1081,22 +1038,6 @@
                 setTimeout(() => toast.remove(), 300);
             }, 4000);
         }
-</script>
-
-<!-- Paste the Supabase code here: -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const supabaseUrl = 'https://hkvzvvkkojqhrkylbfie.supabase.co';
-  const supabaseKey = 'sb_publishable_dBhFFI7qAl_vj0T0uAjp1A_1jZxuGS_';
-  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-  
-  async function loadData() {
-    const { data, error } = await supabase.from('elibrary_resources').select('*');
-    if (error) console.error("Error fetching data: ", error);
-    else console.log("Success! Here is your database data: ", data);
-  }
-  loadData();
-</script>
-
+    </script>
 </body>
 </html>
