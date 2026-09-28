@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookFlow - Login</title>
+    <title>BookFlow - Secure Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -13,43 +13,41 @@
 </head>
 <body class="bg-gray-100 h-screen overflow-hidden text-gray-800 flex items-center justify-center relative">
 
+    <!-- Loading Screen -->
     <div id="boot-loader" class="absolute inset-0 bg-gray-100 z-[300] flex flex-col items-center justify-center">
         <i class="fa-solid fa-circle-notch fa-spin text-4xl text-primary mb-4"></i>
         <p class="text-gray-600 font-medium">Checking Secure Session...</p>
     </div>
 
+    <!-- Login Screen -->
     <div id="login-screen" class="absolute inset-0 bg-gray-900 flex items-center justify-center z-[200] hidden">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 m-4">
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-primary mb-4"><i class="fa-solid fa-shield-halved text-3xl"></i></div>
-                <h1 class="text-2xl font-bold text-gray-800">Welcome to BookFlow</h1>
-                <p class="text-gray-500 text-sm mt-2">Sign in to securely access inventory</p>
-                <div id="first-time-setup-alert" class="mt-4 bg-green-50 text-green-700 text-xs px-3 py-2 rounded-lg border border-green-200 hidden">
-                    <i class="fa-solid fa-circle-info mr-1"></i> First Time Setup: Sign up using the Register tab.
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-primary mb-4">
+                    <i class="fa-solid fa-shield-halved text-3xl"></i>
                 </div>
-            </div>
-            
-            <div class="flex border-b border-gray-200 mb-6">
-                <button id="tab-login" class="flex-1 py-2 font-bold text-primary border-b-2 border-primary transition-all">Sign In</button>
-                <button id="tab-register" class="flex-1 py-2 font-medium text-gray-500 hover:text-gray-700 transition-all">Register</button>
+                <h1 class="text-2xl font-bold text-gray-800">BookFlow System</h1>
+                <p class="text-gray-500 text-sm mt-2">Authorized Access Only</p>
+                
+                <!-- Setup Alert -->
+                <div id="first-time-setup-alert" class="mt-4 bg-yellow-50 text-yellow-800 text-xs px-3 py-2 rounded-lg border border-yellow-200 hidden">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> <strong>System Uninitialized:</strong> No Admin found. Please run the secure backend setup script with your installation token.
+                </div>
             </div>
 
             <!-- Login Form -->
             <form id="login-form" class="space-y-5">
-                <div><label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label><input type="email" id="login-email" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-transparent"></div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <input type="email" id="login-email" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <input type="password" id="login-password" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-transparent">
                 </div>
-                <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-semibold py-3 rounded-lg shadow-md">Secure Login</button>
-            </form>
-
-            <!-- Register Form -->
-            <form id="register-form" class="space-y-5 hidden">
-                <div><label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label><input type="text" id="reg-name" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary"></div>
-                <div><label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label><input type="email" id="reg-email" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary"></div>
-                <div><label class="block text-sm font-medium text-gray-700 mb-1">Password</label><input type="password" id="reg-password" required minlength="6" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary"></div>
-                <button type="submit" class="w-full bg-secondary hover:bg-blue-600 text-white font-semibold py-3 rounded-lg shadow-md">Create Account</button>
+                <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-semibold py-3 rounded-lg shadow-md transition-colors">
+                    Secure Login
+                </button>
             </form>
         </div>
     </div>
@@ -57,6 +55,7 @@
     <div id="toast-container" class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2"></div>
 
     <script>
+        // Replace with your actual Supabase URL and Anon Key
         const SUPABASE_URL = 'https://hkvzvvkkojqhrkylbfie.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_dBhFFI7qAl_vj0T0uAjp1A_1jZxuGS_';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -64,7 +63,8 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
-                window.location.href = 'dashboard.html'; // Redirect if already logged in
+                // Reroute active sessions. Backend/Dashboard should verify role access.
+                window.location.href = 'dashboard.html'; 
             } else {
                 document.getElementById('boot-loader').classList.add('hidden');
                 document.getElementById('login-screen').classList.remove('hidden');
@@ -72,50 +72,43 @@
             }
         });
 
+        // Checks if an admin exists to warn if initialization is needed
         async function checkIfFirstSetup() {
+            // Note: This requires RLS policies to allow reading 'users' table or a specific public view
             const { data, error } = await supabaseClient.from('users').select('id').eq('role_id', 1).limit(1);
-            if (!error && data.length === 0) document.getElementById('first-time-setup-alert').classList.remove('hidden');
+            if (!error && data.length === 0) {
+                document.getElementById('first-time-setup-alert').classList.remove('hidden');
+            }
         }
-
-        // Tab Switching
-        document.getElementById('tab-register').addEventListener('click', () => {
-            document.getElementById('login-form').classList.add('hidden'); document.getElementById('register-form').classList.remove('hidden');
-            document.getElementById('tab-register').className = "flex-1 py-2 font-bold text-primary border-b-2 border-primary transition-all";
-            document.getElementById('tab-login').className = "flex-1 py-2 font-medium text-gray-500 hover:text-gray-700 transition-all";
-        });
-        document.getElementById('tab-login').addEventListener('click', () => {
-            document.getElementById('register-form').classList.add('hidden'); document.getElementById('login-form').classList.remove('hidden');
-            document.getElementById('tab-login').className = "flex-1 py-2 font-bold text-primary border-b-2 border-primary transition-all";
-            document.getElementById('tab-register').className = "flex-1 py-2 font-medium text-gray-500 hover:text-gray-700 transition-all";
-        });
 
         // Auth Logic
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector('button'); btn.innerHTML = 'Authenticating...';
-            const { error } = await supabaseClient.auth.signInWithPassword({
-                email: document.getElementById('login-email').value, password: document.getElementById('login-password').value
-            });
-            if (error) { showToast(error.message, 'error'); btn.innerHTML = 'Secure Login'; } 
-            else { window.location.href = 'dashboard.html'; } // Redirect on success
-        });
+            const btn = e.target.querySelector('button'); 
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...';
+            btn.disabled = true;
 
-        document.getElementById('register-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button'); btn.innerHTML = 'Creating...';
-            const { error } = await supabaseClient.auth.signUp({
-                email: document.getElementById('reg-email').value, password: document.getElementById('reg-password').value,
-                options: { data: { full_name: document.getElementById('reg-name').value } }
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: document.getElementById('login-email').value, 
+                password: document.getElementById('login-password').value
             });
-            if (error) { showToast(error.message, 'error'); btn.innerHTML = 'Create Account'; } 
-            else { showToast("Account Created! Logging in.", "success"); setTimeout(() => window.location.href = 'dashboard.html', 1000); }
+
+            if (error) { 
+                showToast(error.message, 'error'); 
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            } else { 
+                // Login successful. The dashboard page must perform role-based routing.
+                window.location.href = 'dashboard.html'; 
+            } 
         });
 
         function showToast(message, type = 'error') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
-            toast.textContent = message;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-circle-exclamation'} mr-2"></i>${message}`;
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         }
