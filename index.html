@@ -246,7 +246,8 @@
         const SUPABASE_URL = 'https://hkvzvvkkojqhrkylbfie.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_dBhFFI7qAl_vj0T0uAjp1A_1jZxuGS_';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // RENAME "supabase" TO "supabaseClient" to prevent global conflicts!
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let activeUserProfile = null;
 
         // ==========================================
@@ -255,7 +256,7 @@
         document.addEventListener('DOMContentLoaded', checkActiveSession);
 
         async function checkActiveSession() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 await loadUserProfile(session.user);
             } else {
@@ -266,7 +267,7 @@
 
         async function loadUserProfile(authUser) {
             try {
-                const { data: profile, error } = await supabase
+                const { data: profile, error } = await supabaseClient
                     .from('users')
                     .select('*, roles(name)')
                     .eq('id', authUser.id)
@@ -274,7 +275,7 @@
 
                 if (error) throw error;
                 if (profile.status === 'Inactive') {
-                    await supabase.auth.signOut();
+                    await supabaseClient.auth.signOut();
                     throw new Error("Your account has been deactivated. Contact Administrator.");
                 }
 
@@ -299,7 +300,7 @@
         }
 
         async function checkIfFirstSetup() {
-            const { data, error } = await supabase.from('users').select('id').eq('role_id', 1).limit(1);
+            const { data, error } = await supabaseClient.from('users').select('id').eq('role_id', 1).limit(1);
             if (!error && data.length === 0) {
                 document.getElementById('first-time-setup-alert').classList.remove('hidden');
             }
@@ -333,7 +334,7 @@
             const btn = e.target.querySelector('button');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
 
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
             
             if (error) {
                 showToast(error.message, 'error');
@@ -348,7 +349,7 @@
             const btn = e.target.querySelector('button');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
 
-            const { data, error } = await supabase.auth.signUp({
+            const { data, error } = await supabaseClient.auth.signUp({
                 email: document.getElementById('reg-email').value,
                 password: document.getElementById('reg-password').value,
                 options: { data: { full_name: document.getElementById('reg-name').value } }
@@ -365,7 +366,7 @@
 
         async function handleLogout() {
             await logAuditAction('Logout', 'Authentication', 'User signed out');
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             window.location.reload();
         }
 
@@ -395,7 +396,7 @@
         // 5. USER MANAGEMENT (Admin Only)
         // ==========================================
         async function loadAdminUsersTable() {
-            const { data: users, error } = await supabase.from('users').select('*, roles(name)').order('created_at', { ascending: false });
+            const { data: users, error } = await supabaseClient.from('users').select('*, roles(name)').order('created_at', { ascending: false });
             
             if (error) return showToast(error.message, 'error');
 
@@ -440,7 +441,7 @@
             }
 
             if (newAuthUser.user) {
-                const { error: updateError } = await supabase.from('users').update({ role_id: role_id }).eq('id', newAuthUser.user.id);
+                const { error: updateError } = await supabaseClient.from('users').update({ role_id: role_id }).eq('id', newAuthUser.user.id);
                 if (updateError) console.error("Could not set precise role, user defaulted to Viewer", updateError);
             }
 
@@ -457,7 +458,7 @@
             if (!confirm(`Are you sure you want to ${currentStatus === 'Active' ? 'deactivate' : 'activate'} this user?`)) return;
             const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
             
-            const { error } = await supabase.from('users').update({ status: newStatus }).eq('id', userId);
+            const { error } = await supabaseClient.from('users').update({ status: newStatus }).eq('id', userId);
             
             if (error) {
                 showToast(error.message, 'error');
@@ -473,7 +474,7 @@
         // ==========================================
         async function logAuditAction(action, module, description) {
             if (!activeUserProfile) return;
-            await supabase.from('audit_logs').insert([{
+            await supabaseClient.from('audit_logs').insert([{
                 user_id: activeUserProfile.id,
                 action, module, description
             }]);
