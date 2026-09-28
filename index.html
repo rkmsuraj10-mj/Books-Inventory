@@ -1083,5 +1083,26 @@
         }
 
     </script>
+    }, 4000);
+    }
+</script>
+
+<!-- Paste the Supabase code here: -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabaseUrl = 'YOUR_PROJECT_URL';
+  const supabaseKey = 'YOUR_PUBLISHABLE_KEY';
+  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+  
+  async function loadData() {
+    const { data, error } = await supabase.from('your_table_name').select('*');
+    if (error) console.error("Error fetching data: ", error);
+    else console.log("Success! Here is your database data: ", data);
+  }
+  loadData();
+</script>
+
+</body>
+</html>
 </body>
 </html>
