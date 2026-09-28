@@ -195,7 +195,6 @@
                     </div>
                 </section>
 
-                <!-- Books and other sections would follow similar patterns here... -->
             </div>
         </main>
     </div>
@@ -267,7 +266,6 @@
 
         async function loadUserProfile(authUser) {
             try {
-                // Fetch the user's customized profile and mapped role from the public database
                 const { data: profile, error } = await supabase
                     .from('users')
                     .select('*, roles(name)')
@@ -281,11 +279,7 @@
                 }
 
                 activeUserProfile = profile;
-                
-                // Render Secure UI based on Server Roles
                 renderSecureInterface();
-                
-                // Log the login audit safely
                 await logAuditAction('Login', 'Authentication', 'User securely signed in');
 
                 document.getElementById('boot-loader').classList.add('hidden');
@@ -305,7 +299,6 @@
         }
 
         async function checkIfFirstSetup() {
-            // Check if there are any administrators in the system
             const { data, error } = await supabase.from('users').select('id').eq('role_id', 1).limit(1);
             if (!error && data.length === 0) {
                 document.getElementById('first-time-setup-alert').classList.remove('hidden');
@@ -315,8 +308,6 @@
         // ==========================================
         // 3. LOGIN & REGISTER FORMS
         // ==========================================
-        
-        // Tab Switching
         document.getElementById('tab-register').addEventListener('click', () => {
             document.getElementById('login-form').classList.add('hidden');
             document.getElementById('register-form').classList.remove('hidden');
@@ -335,7 +326,6 @@
             document.getElementById('tab-register').classList.replace('text-primary', 'text-gray-500');
         });
 
-        // Sign In Execution
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
@@ -349,12 +339,10 @@
                 showToast(error.message, 'error');
                 btn.innerHTML = 'Secure Login';
             } else {
-                // Update last login timestamp natively using Supabase RPC or just let session handle it
                 window.location.reload(); 
             }
         });
 
-        // First-Time Registration Execution
         document.getElementById('register-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button');
@@ -387,21 +375,17 @@
         function renderSecureInterface() {
             const roleName = activeUserProfile.roles.name;
             
-            // Setup Profile Badge
             document.getElementById('ui-user-name').textContent = activeUserProfile.full_name;
             document.getElementById('ui-avatar').textContent = activeUserProfile.full_name.charAt(0).toUpperCase();
             document.getElementById('ui-user-role').textContent = roleName;
             
-            // Dynamic Color Coding for Roles
             const roleBadge = document.getElementById('ui-user-role');
             if (roleName === 'Administrator') roleBadge.className = "inline-block px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-red-600 mt-1 uppercase";
             if (roleName === 'Staff') roleBadge.className = "inline-block px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-blue-600 mt-1 uppercase";
 
-            // Enforce UI Restrictions (Remember: The DB RLS provides the actual security!)
             if (roleName !== 'Administrator') {
                 document.querySelectorAll('.admin-only').forEach(el => el.remove());
             }
-
             if (roleName === 'Viewer') {
                 document.querySelectorAll('.staff-admin-only').forEach(el => el.remove());
             }
@@ -411,7 +395,6 @@
         // 5. USER MANAGEMENT (Admin Only)
         // ==========================================
         async function loadAdminUsersTable() {
-            // RLS will automatically block this if user is not an Admin.
             const { data: users, error } = await supabase.from('users').select('*, roles(name)').order('created_at', { ascending: false });
             
             if (error) return showToast(error.message, 'error');
@@ -434,7 +417,6 @@
             `).join('');
         }
 
-        // Create New User (Admin Function)
         document.getElementById('add-user-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button');
@@ -445,10 +427,6 @@
             const full_name = document.getElementById('new-user-name').value;
             const role_id = parseInt(document.getElementById('new-user-role').value);
 
-            /* 
-             * STRATEGY: Since we are in the frontend, calling `supabase.auth.signUp()` normally will log the Admin out.
-             * To prevent this, we instantiate a SECONDARY temporary client to create the user.
-             */
             const secondaryClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false }});
             
             const { data: newAuthUser, error: authError } = await secondaryClient.auth.signUp({
@@ -461,11 +439,7 @@
                 return;
             }
 
-            /*
-             * Because the trigger defaults new users created via the anon API to Viewers,
-             * the Admin immediately executes an Update query using their MAIN Administrator session.
-             */
-            if (data.user) {
+            if (newAuthUser.user) {
                 const { error: updateError } = await supabase.from('users').update({ role_id: role_id }).eq('id', newAuthUser.user.id);
                 if (updateError) console.error("Could not set precise role, user defaulted to Viewer", updateError);
             }
@@ -483,7 +457,6 @@
             if (!confirm(`Are you sure you want to ${currentStatus === 'Active' ? 'deactivate' : 'activate'} this user?`)) return;
             const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
             
-            // The RLS Database policy actively verifies if the person pressing this button is actually an Administrator!
             const { error } = await supabase.from('users').update({ status: newStatus }).eq('id', userId);
             
             if (error) {
