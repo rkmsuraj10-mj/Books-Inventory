@@ -610,55 +610,42 @@
             `).join('');
         }
 
-        // Add this new function to handle frontend user deletion
-        window.deleteSystemUser = async function(userId, userEmail) {
-            if (activeUserProfile.id === userId) {
-                return showToast("You cannot delete your own active administrator account.", "error");
-            }
-            if (!confirm(`Are you sure you want to permanently delete user: ${userEmail}? This action cannot be undone.`)) return;
-
-            try {
-                const { data, error } = await supabaseClient.functions.invoke('swift-function', {
-                    method: 'DELETE',
-                    body: { userId }
-                });
-
-                if (error) throw error;
-
-                await logAuditAction('Delete', 'Users', `Permanently deleted user account for ${userEmail}`);
-                showToast("User deleted successfully.", "success");
-                loadAdminUsersTable();
-            } catch (err) {
-                console.error("Error deleting user:", err);
-                showToast(err.message || 'Failed to delete user', 'error');
-            }
-        }
-        // --- UPDATED SECURE USER CREATION ---
+        // --- UPDATED SECURE USER CREATION & MANAGEMENT ---
         document.getElementById('add-user-form').addEventListener('submit', async (e) => {
-            e.preventDefault(); 
-            const btn = e.target.querySelector('button'); 
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Creating securely...';
             btn.disabled = true;
-            
-            const email = document.getElementById('new-user-email').value; 
-            const password = document.getElementById('new-user-password').value; 
-            const fullName = document.getElementById('new-user-name').value; 
-            const roleId = parseInt(document.getElementById('new-user-role').value);
-            
+
+            const fullName = document.getElementById('new-user-name').value;
+            const email = document.getElementById('new-user-email').value;
+            const password = document.getElementById('new-user-password').value;
+            const roleId = document.getElementById('new-user-role').value;
+
             try {
-                // Securely invoke the deployed Edge Function
-                const { data, error } = await supabaseClient.functions.invoke('swift-function', {
+                const response = await supabaseClient.functions.invoke('swift-function', {
+                    method: 'POST',
                     body: { email, password, fullName, roleId }
                 });
 
-                if (error) throw error;
+                if (response.error) {
+                    throw new Error(response.error.message || 'Failed to create user');
+                }
 
-                await logAuditAction('Create', 'Users', `Created new user account for ${email}`);
-                showToast("User created successfully.", "success"); 
-                closeModal('add-user-modal'); 
-                e.target.reset(); 
-                loadAdminUsersTable();
+                showToast("User created successfully!", "success");
+                
+                const modal = document.getElementById('add-user-modal') || document.querySelector('.modal');
+                if (modal) modal.classList.add('hidden');
+                
+                e.target.reset();
+
+                // Immediately reload table data without page refresh
+                await loadAdminUsersTable();
+                
+                if (typeof logAuditAction === 'function') {
+                    await logAuditAction('Create', 'Users', `Created new user account for ${email}`);
+                }
             } catch (err) {
                 console.error("Error creating user:", err);
                 showToast(err.message || 'Failed to create user', 'error');
@@ -667,7 +654,37 @@
                 btn.disabled = false;
             }
         });
-        // ------------------------------------
+
+        // --- UPDATED USER DELETION WITH INSTANT UI SYNC ---
+        window.deleteSystemUser = async function(userId, userEmail) {
+            if (activeUserProfile && activeUserProfile.id === userId) {
+                return showToast("You cannot delete your own active administrator account.", "error");
+            }
+            if (!confirm(`Are you sure you want to permanently delete user: ${userEmail}? This action cannot be undone.`)) return;
+
+            try {
+                const response = await supabaseClient.functions.invoke('swift-function', {
+                    method: 'DELETE',
+                    body: { userId }
+                });
+
+                if (response.error) {
+                    throw new Error(response.error.message || 'Failed to delete user');
+                }
+
+                showToast("User deleted successfully.", "success");
+                
+                if (typeof logAuditAction === 'function') {
+                    await logAuditAction('Delete', 'Users', `Permanently deleted user account for ${userEmail}`);
+                }
+
+                // Immediately refresh table to remove the deleted user instantly
+                await loadAdminUsersTable();
+            } catch (err) {
+                console.error("Error deleting user:", err);
+                showToast(err.message || 'Failed to delete user', 'error');
+            }
+        }
 
         window.toggleUserStatus = async function(userId, currentStatus) {
             if (!confirm(`Are you sure you want to ${currentStatus === 'Active' ? 'deactivate' : 'activate'} this user?`)) return;
