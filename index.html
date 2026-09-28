@@ -448,8 +448,12 @@
 
         // --- SUPABASE INITIALIZATION ---
         const supabaseUrl = 'https://hkvzvvkkojqhrkylbfie.supabase.co';
-        const supabaseKey = 'sb_publishable_dBhFFI7qAl_vj0T0uAjp1A_1jZxuGS_';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // REPLACE THIS WITH YOUR FULL KEY!
+        const supabaseKey = 'sb_publishable_dBhFFI7qAl_vj0T0uAjp1A_1jZxuGS_'; 
+        
+        // RENAMED from 'supabase' to 'supabaseClient' to fix the SyntaxError
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         // App Bootup (Runs immediately)
         document.getElementById('user-display').textContent = "Staff Member";
@@ -464,8 +468,8 @@
             try {
                 // Fetch books and transactions concurrently
                 const [booksRes, txsRes] = await Promise.all([
-                    supabase.from('books').select('*'),
-                    supabase.from('transactions').select('*')
+                    supabaseClient.from('books').select('*'),
+                    supabaseClient.from('transactions').select('*')
                 ]);
 
                 if (booksRes.error) throw booksRes.error;
@@ -492,7 +496,7 @@
 
         function computeInventory() {
             computedInventory = booksData.map(book => {
-                const bookTxs = transactionsData.filter(t => t.bookId === book.id);
+                const bookTxs = transactionsData.filter(t => t.bookId == book.id);
                 
                 let currentStock = Number(book.openingStock) || 0;
                 let totalReceived = 0, totalIssued = 0, totalReturned = 0, totalDamaged = 0, totalAdjustments = 0;
@@ -700,7 +704,7 @@
             };
 
             try {
-                const { error } = await supabase.from('books').insert([bookData]);
+                const { error } = await supabaseClient.from('books').insert([bookData]);
                 
                 if (error) throw error;
                 
@@ -787,7 +791,7 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
 
             try {
-                const { error } = await supabase.from('transactions').insert([txData]);
+                const { error } = await supabaseClient.from('transactions').insert([txData]);
                 
                 if (error) throw error;
                 
