@@ -77,7 +77,7 @@
                 <!-- Dashboard Section -->
                 <section id="sec-dashboard" class="content-section block">
                     <div class="flex justify-between items-end mb-6">
-                        <div><h2 class="text-2xl font-bold text-gray-800">Dashboard</h2><p class="text-sm text-gray-500 mt-1">Overview of your complete inventory</p></div>
+                        <div><h2 class="text-2xl font-bold text-gray-800">Dashboard</h2><p class="text-sm text-gray-500 mt-1">Overview of your complete inventory & language classification</p></div>
                         <button onclick="refreshData()" class="text-gray-500 hover:text-primary transition-colors text-sm flex items-center gap-2"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -86,6 +86,15 @@
                         <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col"><div class="flex justify-between items-start"><div><p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Out of Stock</p><h3 class="text-3xl font-bold text-red-600 mt-1" id="kpi-out-of-stock">0</h3></div><div class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-lg"><i class="fa-solid fa-triangle-exclamation"></i></div></div></div>
                         <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col"><div class="flex justify-between items-start"><div><p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Inventory Value</p><h3 class="text-3xl font-bold text-green-600 mt-1" id="kpi-inventory-value">₹0</h3></div><div class="w-10 h-10 rounded-full bg-green-50 text-green-500 flex items-center justify-center text-lg"><i class="fa-solid fa-indian-rupee-sign"></i></div></div></div>
                     </div>
+
+                    <!-- Language-wise Dashboard Summary Cards -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide">Language-wise Summary</h3>
+                        <div id="language-summary-cards" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                         <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm"><h4 class="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">Stock Distribution</h4><div class="relative h-64 w-full flex items-center justify-center"><canvas id="stockDistributionChart"></canvas></div></div>
                         <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm"><h4 class="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">Monthly Receipts vs Issues</h4><div class="relative h-64 w-full"><canvas id="monthlyMovementChart"></canvas></div></div>
@@ -95,15 +104,29 @@
                 <!-- Book Master Section -->
                 <section id="sec-books" class="content-section hidden">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
-                        <div><h2 class="text-2xl font-bold text-gray-800">Book Master</h2><p class="text-sm text-gray-500 mt-1">Manage your catalogue of books</p></div>
+                        <div><h2 class="text-2xl font-bold text-gray-800">Book Master</h2><p class="text-sm text-gray-500 mt-1">Manage your catalogue of books with language classification</p></div>
                         <button onclick="openModal('add-book-modal')" class="admin-only bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add New Book</button>
                     </div>
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
-                        <div class="p-4 border-b border-gray-100 flex gap-4 bg-gray-50"><div class="relative flex-1 max-w-md"><i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i><input type="text" id="book-search" placeholder="Search by name, code..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"></div></div>
+                        <div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4 bg-gray-50 items-center">
+                            <div class="relative flex-1 max-w-md w-full"><i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i><input type="text" id="book-search" placeholder="Search by name, code..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"></div>
+                            <div class="w-full sm:w-48">
+                                <select id="book-lang-filter" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary">
+                                    <option value="all">All Languages</option>
+                                    <option value="marathi">Marathi</option>
+                                    <option value="hindi">Hindi</option>
+                                    <option value="kokani">Kokani</option>
+                                    <option value="english">English</option>
+                                    <option value="bangla">Bangla</option>
+                                    <option value="others">Others</option>
+                                </select>
+                            </div>
+                            <button onclick="resetBookFilters()" class="text-sm text-gray-500 hover:text-primary px-3 py-2 flex items-center gap-1"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm whitespace-nowrap">
                                 <thead class="bg-gray-50 text-gray-600 font-semibold border-b border-gray-200">
-                                    <tr><th class="px-6 py-3">Book Code</th><th class="px-6 py-3">Book Name</th><th class="px-6 py-3 text-right">Price</th><th class="px-6 py-3 text-center">Opening</th><th class="px-6 py-3 text-center">Current Stock</th><th class="px-6 py-3 text-center">Status</th><th class="px-6 py-3 text-right">Actions</th></tr>
+                                    <tr><th class="px-6 py-3">Book Code</th><th class="px-6 py-3">Book Name</th><th class="px-6 py-3">Language</th><th class="px-6 py-3 text-right">Price</th><th class="px-6 py-3 text-center">Opening</th><th class="px-6 py-3 text-center">Current Stock</th><th class="px-6 py-3 text-center">Status</th><th class="px-6 py-3 text-right">Actions</th></tr>
                                 </thead>
                                 <tbody id="books-table-body" class="divide-y divide-gray-100"></tbody>
                             </table>
@@ -142,17 +165,31 @@
 
                 <!-- Reports Section -->
                 <section id="sec-reports" class="content-section hidden flex-col h-full">
-                    <div class="mb-4"><h2 class="text-2xl font-bold text-gray-800">Inventory Reports</h2><p class="text-sm text-gray-500 mt-1">Detailed view of current stock and alerts</p></div>
+                    <div class="mb-4"><h2 class="text-2xl font-bold text-gray-800">Inventory Reports</h2><p class="text-sm text-gray-500 mt-1">Detailed language-wise view of current stock and alerts</p></div>
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col flex-1 min-h-[400px]">
-                        <div class="p-4 border-b border-gray-100 bg-gray-50 flex gap-2 overflow-x-auto hide-scrollbar">
-                            <button class="report-filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-primary text-white" data-filter="all">Full Inventory</button>
-                            <button class="report-filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-white text-gray-600 border border-gray-200 hover:bg-gray-100" data-filter="low">Low Stock Alerts</button>
-                            <button class="report-filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-white text-gray-600 border border-gray-200 hover:bg-gray-100" data-filter="out">Out of Stock</button>
+                        <div class="p-4 border-b border-gray-100 bg-gray-50 flex flex-wrap gap-2 items-center justify-between">
+                            <div class="flex gap-2 overflow-x-auto hide-scrollbar">
+                                <button class="report-filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-primary text-white" data-filter="all">Full Inventory</button>
+                                <button class="report-filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-white text-gray-600 border border-gray-200 hover:bg-gray-100" data-filter="low">Low Stock Alerts</button>
+                                <button class="report-filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-white text-gray-600 border border-gray-200 hover:bg-gray-100" data-filter="out">Out of Stock</button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-xs font-semibold text-gray-600">Language Filter:</label>
+                                <select id="report-lang-filter" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:ring-2 focus:ring-primary">
+                                    <option value="all">All Languages</option>
+                                    <option value="marathi">Marathi</option>
+                                    <option value="hindi">Hindi</option>
+                                    <option value="kokani">Kokani</option>
+                                    <option value="english">English</option>
+                                    <option value="bangla">Bangla</option>
+                                    <option value="others">Others</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="overflow-x-auto flex-1">
                             <table class="w-full text-left text-sm whitespace-nowrap">
                                 <thead class="bg-gray-50 text-gray-600 font-semibold border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-                                    <tr><th class="px-6 py-3">Book Details</th><th class="px-4 py-3 text-center">Opening</th><th class="px-4 py-3 text-center text-green-600">Received</th><th class="px-4 py-3 text-center text-red-600">Issued</th><th class="px-4 py-3 text-center text-blue-600">Returns</th><th class="px-4 py-3 text-center text-orange-500">Damaged</th><th class="px-6 py-3 text-center font-bold">Current Balance</th></tr>
+                                    <tr><th class="px-6 py-3">Book Details</th><th class="px-4 py-3">Language</th><th class="px-4 py-3 text-center">Opening</th><th class="px-4 py-3 text-center text-green-600">Received</th><th class="px-4 py-3 text-center text-red-600">Issued</th><th class="px-4 py-3 text-center text-blue-600">Returns</th><th class="px-4 py-3 text-center text-orange-500">Damaged</th><th class="px-6 py-3 text-center font-bold">Current Balance</th></tr>
                                 </thead>
                                 <tbody id="reports-table-body" class="divide-y divide-gray-100"></tbody>
                             </table>
@@ -190,8 +227,24 @@
                 <form id="add-book-form" class="space-y-4">
                     <div><label class="block text-xs font-semibold text-gray-600 mb-1">1. Book Code *</label><input type="text" id="bk-code" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="e.g. B001"></div>
                     <div><label class="block text-xs font-semibold text-gray-600 mb-1">2. Book Name *</label><input type="text" id="bk-name" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="e.g. Advanced Mathematics"></div>
-                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">3. Book Price (₹) *</label><input type="number" id="bk-price" min="0" step="0.01" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="0.00"></div>
-                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">4. Opening Stock *</label><input type="number" id="bk-opening" min="0" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" value="0"></div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">3. Language *</label>
+                        <select id="bk-language" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary bg-white">
+                            <option value="">[ Select Language ]</option>
+                            <option value="marathi">Marathi</option>
+                            <option value="hindi">Hindi</option>
+                            <option value="kokani">Kokani</option>
+                            <option value="english">English</option>
+                            <option value="bangla">Bangla</option>
+                            <option value="others">Others</option>
+                        </select>
+                    </div>
+                    <div id="other-language-container" class="hidden">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Other Language Name *</label>
+                        <input type="text" id="bk-other-language" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="e.g. Sanskrit, Gujarati">
+                    </div>
+                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">4. Book Price (₹) *</label><input type="number" id="bk-price" min="0" step="0.01" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="0.00"></div>
+                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">5. Opening Stock *</label><input type="number" id="bk-opening" min="0" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" value="0"></div>
                 </form>
             </div>
             <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-xl">
@@ -305,7 +358,7 @@
         }
 
         // ==========================================
-        // INVENTORY LOGIC
+        // INVENTORY LOGIC & LANGUAGE CLASSIFICATION
         // ==========================================
         async function fetchData() {
             try {
@@ -339,7 +392,8 @@
                 });
 
                 let status = currentStock <= 0 ? 'Out of Stock' : currentStock <= Number(book.minStock || 5) ? 'Low Stock' : 'In Stock';
-                return { ...book, currentStock, totalReceived, totalIssued, totalReturned, totalDamaged, totalAdjustments, status, bookTxs };
+                const lang = book.language ? book.language.toLowerCase() : 'others';
+                return { ...book, language: lang, currentStock, totalReceived, totalIssued, totalReturned, totalDamaged, totalAdjustments, status, bookTxs };
             });
             updateUI();
         }
@@ -347,9 +401,24 @@
         window.refreshData = function() { showToast("Fetching latest data...", "info"); fetchData(); }
 
         function updateUI() {
-            renderDashboard(); renderBooksTable(); renderTransactionFormDropdown(); renderRecentTransactions();
+            renderDashboard(); 
+            renderBooksTable(); 
+            renderTransactionFormDropdown(); 
+            renderRecentTransactions();
             const activeFilter = document.querySelector('.report-filter-btn.bg-primary');
             renderReportsTable(activeFilter ? activeFilter.dataset.filter : 'all');
+        }
+
+        // --- LANGUAGE FORMATTER HELPER ---
+        function formatLanguageName(book) {
+            const lang = (book.language || 'others').toLowerCase();
+            if (lang === 'marathi') return '<span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-medium text-xs">Marathi</span>';
+            if (lang === 'hindi') return '<span class="px-2 py-0.5 bg-orange-100 text-orange-800 rounded font-medium text-xs">Hindi</span>';
+            if (lang === 'kokani') return '<span class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded font-medium text-xs">Kokani</span>';
+            if (lang === 'english') return '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-medium text-xs">English</span>';
+            if (lang === 'bangla') return '<span class="px-2 py-0.5 bg-teal-100 text-teal-800 rounded font-medium text-xs">Bangla</span>';
+            const otherName = book.other_language ? ` (${book.other_language})` : '';
+            return `<span class="px-2 py-0.5 bg-gray-200 text-gray-800 rounded font-medium text-xs">Others${otherName}</span>`;
         }
 
         // --- DASHBOARD ---
@@ -358,10 +427,25 @@
             let stockCats = { inStock: 0, lowStock: 0, outOfStock: 0 };
             let monthlyData = {};
             
+            // Language summary aggregations
+            const langStats = {
+                marathi: { titles: 0, stock: 0 },
+                hindi: { titles: 0, stock: 0 },
+                kokani: { titles: 0, stock: 0 },
+                english: { titles: 0, stock: 0 },
+                bangla: { titles: 0, stock: 0 },
+                others: { titles: 0, stock: 0 }
+            };
+
             computedInventory.forEach(book => {
-                totalBooks += book.currentStock; totalValue += (book.currentStock * Number(book.price || 0));
+                totalBooks += book.currentStock; 
+                totalValue += (book.currentStock * Number(book.price || 0));
                 if(book.status === 'Out of Stock') { outOfStockCount++; stockCats.outOfStock++; }
                 else if(book.status === 'Low Stock') { stockCats.lowStock++; } else { stockCats.inStock++; }
+
+                const lKey = langStats[book.language] ? book.language : 'others';
+                langStats[lKey].titles += 1;
+                langStats[lKey].stock += book.currentStock;
             });
 
             transactionsData.forEach(tx => {
@@ -373,9 +457,38 @@
                 }
             });
 
-            document.getElementById('kpi-total-books').textContent = totalBooks; document.getElementById('kpi-total-titles').textContent = computedInventory.length;
-            document.getElementById('kpi-out-of-stock').textContent = outOfStockCount; document.getElementById('kpi-inventory-value').textContent = "₹" + totalValue.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+            document.getElementById('kpi-total-books').textContent = totalBooks; 
+            document.getElementById('kpi-total-titles').textContent = computedInventory.length;
+            document.getElementById('kpi-out-of-stock').textContent = outOfStockCount; 
+            document.getElementById('kpi-inventory-value').textContent = "₹" + totalValue.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+            
+            renderLanguageSummaryCards(langStats);
             renderCharts(stockCats, monthlyData);
+        }
+
+        function renderLanguageSummaryCards(langStats) {
+            const container = document.getElementById('language-summary-cards');
+            const langConfig = [
+                { key: 'marathi', label: 'Marathi', color: 'border-l-4 border-blue-500' },
+                { key: 'hindi', label: 'Hindi', color: 'border-l-4 border-orange-500' },
+                { key: 'kokani', label: 'Kokani', color: 'border-l-4 border-purple-500' },
+                { key: 'english', label: 'English', color: 'border-l-4 border-emerald-500' },
+                { key: 'bangla', label: 'Bangla', color: 'border-l-4 border-teal-500' },
+                { key: 'others', label: 'Others', color: 'border-l-4 border-gray-500' }
+            ];
+
+            container.innerHTML = langConfig.map(cfg => {
+                const stat = langStats[cfg.key] || { titles: 0, stock: 0 };
+                return `
+                    <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm ${cfg.color} flex flex-col justify-between">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">${cfg.label}</p>
+                        <div class="mt-2">
+                            <p class="text-sm font-semibold text-gray-800">Titles: <span class="font-bold text-primary">${stat.titles}</span></p>
+                            <p class="text-sm font-semibold text-gray-800">Stock: <span class="font-bold text-green-600">${stat.stock}</span></p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function renderCharts(stockCats, monthlyData) {
@@ -399,45 +512,79 @@
             });
         }
 
-        // --- BOOK MASTER ---
+        // --- BOOK MASTER & FILTERS ---
         function renderBooksTable() {
             const tbody = document.getElementById('books-table-body');
             const searchQ = document.getElementById('book-search').value.toLowerCase();
+            const langFilter = document.getElementById('book-lang-filter').value;
             tbody.innerHTML = '';
             
-            computedInventory.filter(b => b.name.toLowerCase().includes(searchQ) || b.code.toLowerCase().includes(searchQ)).forEach(book => {
-                    let statusBadge = book.status === 'In Stock' ? '<span class="px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">In Stock</span>' : book.status === 'Low Stock' ? '<span class="px-2.5 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Low Stock</span>' : '<span class="px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Out of Stock</span>';
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 font-mono text-xs text-gray-500">${book.code}</td>
-                            <td class="px-6 py-4 font-semibold text-gray-800">${book.name}</td>
-                            <td class="px-6 py-4 text-right">₹${Number(book.price).toFixed(2)}</td>
-                            <td class="px-6 py-4 text-center text-gray-500">${book.openingStock}</td>
-                            <td class="px-6 py-4 text-center font-bold text-gray-800">${book.currentStock}</td>
-                            <td class="px-6 py-4 text-center">${statusBadge}</td>
-                            <td class="px-6 py-4 text-right"><button onclick="viewHistory('${book.id}')" class="text-blue-500 hover:text-blue-700 text-sm font-medium"><i class="fa-solid fa-clock-rotate-left mr-1"></i> History</button></td>
-                        </tr>
-                    `;
+            const filtered = computedInventory.filter(book => {
+                const matchesSearch = book.name.toLowerCase().includes(searchQ) || book.code.toLowerCase().includes(searchQ);
+                const matchesLang = langFilter === 'all' || book.language === langFilter;
+                return matchesSearch && matchesLang;
             });
-            if(tbody.innerHTML === '') tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-gray-500">No books found.</td></tr>`;
+
+            filtered.forEach(book => {
+                let statusBadge = book.status === 'In Stock' ? '<span class="px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">In Stock</span>' : book.status === 'Low Stock' ? '<span class="px-2.5 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Low Stock</span>' : '<span class="px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Out of Stock</span>';
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-xs text-gray-500">${book.code}</td>
+                        <td class="px-6 py-4 font-semibold text-gray-800">${book.name}</td>
+                        <td class="px-6 py-4">${formatLanguageName(book)}</td>
+                        <td class="px-6 py-4 text-right">₹${Number(book.price).toFixed(2)}</td>
+                        <td class="px-6 py-4 text-center text-gray-500">${book.openingStock}</td>
+                        <td class="px-6 py-4 text-center font-bold text-gray-800">${book.currentStock}</td>
+                        <td class="px-6 py-4 text-center">${statusBadge}</td>
+                        <td class="px-6 py-4 text-right"><button onclick="viewHistory('${book.id}')" class="text-blue-500 hover:text-blue-700 text-sm font-medium"><i class="fa-solid fa-clock-rotate-left mr-1"></i> History</button></td>
+                    </tr>
+                `;
+            });
+            if(tbody.innerHTML === '') tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-500">No books found matching criteria.</td></tr>`;
         }
+
         document.getElementById('book-search').addEventListener('input', renderBooksTable);
+        document.getElementById('book-lang-filter').addEventListener('change', renderBooksTable);
+
+        window.resetBookFilters = function() {
+            document.getElementById('book-search').value = '';
+            document.getElementById('book-lang-filter').value = 'all';
+            renderBooksTable();
+        }
+
+        // --- ADD BOOK LANGUAGE LOGIC ---
+        document.getElementById('bk-language').addEventListener('change', function() {
+            const otherContainer = document.getElementById('other-language-container');
+            const otherInput = document.getElementById('bk-other-language');
+            if (this.value === 'others') {
+                otherContainer.classList.remove('hidden');
+                otherInput.required = true;
+            } else {
+                otherContainer.classList.add('hidden');
+                otherInput.required = false;
+                otherInput.value = '';
+            }
+        });
 
         window.submitBookForm = async function() {
             if (activeUserProfile.roles.name !== 'Administrator') return showToast("Permission Denied.", "error");
             
             const code = document.getElementById('bk-code').value.trim(); 
             const name = document.getElementById('bk-name').value.trim();
+            const language = document.getElementById('bk-language').value;
+            const otherLanguage = document.getElementById('bk-other-language').value.trim();
             const price = document.getElementById('bk-price').value; 
             const opening = document.getElementById('bk-opening').value;
 
-            if(!code || !name || !price || !opening) return showToast("Please fill all required fields.", "error");
+            if(!code || !name || !language || !price || !opening) return showToast("Please fill all required fields.", "error");
+            if(language === 'others' && !otherLanguage) return showToast("Please specify the other language name.", "error");
             if (booksData.some(b => b.code.toLowerCase() === code.toLowerCase())) return showToast("Book code already exists.", "error");
 
-            // Assigned default placeholders for removed fields to keep database integrity intact
             const bookData = { 
                 code, 
                 name, 
+                language,
+                other_language: language === 'others' ? otherLanguage : null,
                 author: '-', 
                 publisher: '', 
                 category: 'General', 
@@ -450,9 +597,12 @@
             try {
                 const { error } = await supabaseClient.from('books').insert([bookData]);
                 if (error) throw error;
-                await logAuditAction('Add Book', 'Inventory', `Added new book: ${code}`);
+                await logAuditAction('Add Book', 'Inventory', `Added new book: ${code} (${language})`);
                 showToast("Book added successfully!", "success");
-                closeModal('add-book-modal'); document.getElementById('add-book-form').reset(); fetchData(); 
+                closeModal('add-book-modal'); 
+                document.getElementById('add-book-form').reset(); 
+                document.getElementById('other-language-container').classList.add('hidden');
+                fetchData(); 
             } catch(e) { showToast("Failed to add book: " + e.message, "error"); }
         }
 
@@ -461,7 +611,7 @@
             const select = document.getElementById('tx-book'); const currentVal = select.value;
             select.innerHTML = '<option value="">-- Select a Book --</option>';
             [...computedInventory].sort((a,b) => a.name.localeCompare(b.name)).forEach(b => {
-                const opt = document.createElement('option'); opt.value = b.id; opt.textContent = `${b.code} - ${b.name} (Stock: ${b.currentStock})`; select.appendChild(opt);
+                const opt = document.createElement('option'); opt.value = b.id; opt.textContent = `${b.code} - ${b.name} (${b.language.toUpperCase()}, Stock: ${b.currentStock})`; select.appendChild(opt);
             });
             if(currentVal && computedInventory.find(b=>b.id == currentVal)) select.value = currentVal;
         }
@@ -549,31 +699,45 @@
         document.querySelectorAll('.report-filter-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.report-filter-btn').forEach(b => { b.classList.remove('bg-primary', 'text-white'); b.classList.add('bg-white', 'text-gray-600'); });
-                this.classList.remove('bg-white', 'text-gray-600'); this.classList.add('bg-primary', 'text-white'); renderReportsTable(this.dataset.filter);
+                this.classList.remove('bg-white', 'text-gray-600'); this.classList.add('bg-primary', 'text-white'); 
+                const activeFilterBtn = document.querySelector('.report-filter-btn.bg-primary');
+                const langFilterVal = document.getElementById('report-lang-filter').value;
+                renderReportsTable(activeFilterBtn ? activeFilterBtn.dataset.filter : 'all', langFilterVal);
             });
         });
 
-        function renderReportsTable(filterType = 'all') {
+        document.getElementById('report-lang-filter').addEventListener('change', function() {
+            const activeFilterBtn = document.querySelector('.report-filter-btn.bg-primary');
+            renderReportsTable(activeFilterBtn ? activeFilterBtn.dataset.filter : 'all', this.value);
+        });
+
+        function renderReportsTable(filterType = 'all', langFilter = 'all') {
             const tbody = document.getElementById('reports-table-body'); tbody.innerHTML = '';
             let filtered = computedInventory;
-            if(filterType === 'low') filtered = computedInventory.filter(b => b.status === 'Low Stock'); if(filterType === 'out') filtered = computedInventory.filter(b => b.status === 'Out of Stock');
+            if(filterType === 'low') filtered = computedInventory.filter(b => b.status === 'Low Stock'); 
+            if(filterType === 'out') filtered = computedInventory.filter(b => b.status === 'Out of Stock');
+            if(langFilter !== 'all') filtered = filtered.filter(b => b.language === langFilter);
 
             filtered.forEach(book => {
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4"><p class="font-semibold text-gray-800">${book.code}</p><p class="text-xs text-gray-500 truncate max-w-[200px]">${book.name}</p></td>
-                        <td class="px-4 py-3 text-center text-gray-600 font-medium">${book.openingStock}</td><td class="px-4 py-3 text-center text-green-600 font-medium">${book.totalReceived}</td>
-                        <td class="px-4 py-3 text-center text-red-600 font-medium">${book.totalIssued}</td><td class="px-4 py-3 text-center text-blue-600 font-medium">${book.totalReturned}</td>
-                        <td class="px-4 py-3 text-center text-orange-500 font-medium">${book.totalDamaged}</td><td class="px-6 py-3 text-center text-lg font-bold text-gray-800 bg-gray-50 border-l border-gray-100">${book.currentStock}</td>
+                        <td class="px-4 py-3">${formatLanguageName(book)}</td>
+                        <td class="px-4 py-3 text-center text-gray-600 font-medium">${book.openingStock}</td>
+                        <td class="px-4 py-3 text-center text-green-600 font-medium">${book.totalReceived}</td>
+                        <td class="px-4 py-3 text-center text-red-600 font-medium">${book.totalIssued}</td>
+                        <td class="px-4 py-3 text-center text-blue-600 font-medium">${book.totalReturned}</td>
+                        <td class="px-4 py-3 text-center text-orange-500 font-medium">${book.totalDamaged}</td>
+                        <td class="px-6 py-3 text-center text-lg font-bold text-gray-800 bg-gray-50 border-l border-gray-100">${book.currentStock}</td>
                     </tr>
                 `;
             });
-            if(filtered.length === 0) tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-500">No data available.</td></tr>`;
+            if(filtered.length === 0) tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-gray-500">No data available for selected filters.</td></tr>`;
         }
 
         window.viewHistory = function(bookId) {
             const book = computedInventory.find(b => b.id == bookId); if(!book) return;
-            document.getElementById('hist-title').textContent = `${book.code} - ${book.name}`;
+            document.getElementById('hist-title').textContent = `${book.code} - ${book.name} (${book.language.toUpperCase()})`;
             
             let formulaStr = `Opening: ${book.openingStock}`;
             if(book.totalReceived > 0) formulaStr += ` + Rec: ${book.totalReceived}`; if(book.totalIssued > 0) formulaStr += ` - Iss: ${book.totalIssued}`;
