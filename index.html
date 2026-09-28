@@ -2,993 +2,333 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="description"
-        content="Official Books Stock Entry Portal of the Publication Department of Ramakrishna Math Nagpur."
-    >
-
-    <meta
-        name="theme-color"
-        content="#8b1e1e"
-    >
-
-    <title>
-        Ramakrishna Math Nagpur | Books Stock Entry Portal
-    </title>
-
-    <!-- Google Font -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Entry Portal | Ramakrishna Math Nagpur</title>
+    <!-- Google Fonts for modern typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Variables for consistent theming */
+        :root {
+            --bg-dark: #111827; /* Matches the dark background in your login screenshot */
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --accent-saffron: #f97316;
+            --accent-hover: #ea580c;
+            --button-blue: #274472; /* Deep blue matching the secure login button */
+            --button-blue-hover: #1c3254;
+        }
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
-        rel="stylesheet"
-    >
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <!-- Icons -->
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    >
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--bg-card);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-    <link rel="stylesheet" href="style.css">
+        /* Background Pattern / Graphic */
+        .background-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(circle at 15% 50%, rgba(249, 115, 22, 0.08), transparent 25%),
+                              radial-gradient(circle at 85% 30%, rgba(39, 68, 114, 0.15), transparent 25%);
+            z-index: -1;
+        }
+
+        /* Header Navigation */
+        header {
+            padding: 2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--accent-saffron);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
+        }
+
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Content Grid */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 5%;
+        }
+
+        .hero-container {
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        /* Text Content */
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-text h1 span {
+            color: var(--accent-saffron);
+        }
+
+        .hero-text h2 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: #d1d5db;
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            color: #9ca3af;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            max-width: 90%;
+        }
+
+        /* Buttons */
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--button-blue);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(39, 68, 114, 0.4);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--button-blue-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Info Card */
+        .hero-card {
+            background-color: var(--bg-card);
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            color: var(--text-main);
+            position: relative;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, var(--accent-saffron), var(--button-blue));
+            z-index: -1;
+            border-radius: 18px;
+            opacity: 0.3;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #ecfdf5;
+            color: #065f46;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .status-badge .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-bottom: 2.5rem;
+        }
+
+        .card-features li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.05rem;
+            color: var(--text-muted);
+        }
+
+        .card-features li svg {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-saffron);
+            flex-shrink: 0;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 3rem;
+            }
+            .hero-text p {
+                margin: 0 auto 2.5rem auto;
+            }
+            .cta-group {
+                justify-content: center;
+            }
+            .hero-text h1 {
+                font-size: 2.8rem;
+            }
+        }
+    </style>
 </head>
-
 <body>
+    <div class="background-pattern"></div>
 
-    <!-- =========================
-         NAVIGATION
-    ========================== -->
-
-    <header class="site-header">
-
-        <div class="container nav-container">
-
-            <a href="#" class="brand">
-
-                <div class="brand-logo">
-                    <i class="fa-solid fa-book-open"></i>
-                </div>
-
-                <div class="brand-text">
-                    <span class="brand-title">
-                        Ramakrishna Math
-                    </span>
-
-                    <span class="brand-location">
-                        Nagpur
-                    </span>
-                </div>
-
-            </a>
-
-            <nav class="desktop-nav">
-
-                <a href="#home" class="active">
-                    Home
-                </a>
-
-                <a href="#about">
-                    About Portal
-                </a>
-
-                <a href="#features">
-                    Features
-                </a>
-
-                <a href="#workflow">
-                    Workflow
-                </a>
-
-                <a href="#contact">
-                    Contact
-                </a>
-
-                <a
-                    href="login.html"
-                    class="nav-button"
-                >
-                    Open Portal
-                    <i class="fa-solid fa-arrow-right"></i>
-                </a>
-
-            </nav>
-
-            <button
-                class="mobile-menu-button"
-                id="mobileMenuButton"
-                aria-label="Open navigation menu"
-            >
-                <i class="fa-solid fa-bars"></i>
-            </button>
-
+    <header>
+        <div class="logo-section">
+            <div class="logo-icon">RM</div>
+            <div class="header-title">Ramakrishna Math Nagpur</div>
         </div>
-
-        <div
-            class="mobile-menu"
-            id="mobileMenu"
-        >
-
-            <a href="#home">Home</a>
-            <a href="#about">About Portal</a>
-            <a href="#features">Features</a>
-            <a href="#workflow">Workflow</a>
-            <a href="#contact">Contact</a>
-
-            <a
-                href="login.html"
-                class="mobile-portal-button"
-            >
-                Open Stock Portal
-            </a>
-
-        </div>
-
     </header>
 
-
-    <!-- =========================
-         HERO SECTION
-    ========================== -->
-
     <main>
-
-        <section
-            class="hero"
-            id="home"
-        >
-
-            <div class="hero-pattern"></div>
-
-            <div class="container hero-grid">
-
-                <div class="hero-content">
-
-                    <div class="eyebrow">
-
-                        <span class="eyebrow-icon">
-                            <i class="fa-solid fa-building-columns"></i>
-                        </span>
-
-                        Publication Department
-
-                    </div>
-
-                    <h1>
-                        Books Stock
-                        <span>Entry Portal</span>
-                    </h1>
-
-                    <p class="hero-lead">
-                        Ramakrishna Math Nagpur
-                    </p>
-
-                    <p class="hero-description">
-                        Welcome to the Official Books Stock Entry Portal
-                        of the Publication Department of Ramakrishna Math
-                        Nagpur.
-                    </p>
-
-                    <p class="hero-description secondary">
-                        This portal is designed to facilitate the systematic
-                        entry, management, and monitoring of books received,
-                        issued, and available in stock.
-                    </p>
-
-                    <div class="hero-actions">
-
-                        <a
-                            href="login.html"
-                            class="primary-button"
-                        >
-                            <i class="fa-solid fa-boxes-stacked"></i>
-
-                            Enter Stock Portal
-
-                            <i class="fa-solid fa-arrow-right arrow-icon"></i>
-                        </a>
-
-                        <a
-                            href="#about"
-                            class="secondary-button"
-                        >
-                            Learn More
-                            <i class="fa-solid fa-angle-down"></i>
-                        </a>
-
-                    </div>
-
-                    <div class="hero-note">
-
-                        <i class="fa-solid fa-shield-halved"></i>
-
-                        <span>
-                            Designed for systematic publication
-                            stock management
-                        </span>
-
-                    </div>
-
+        <div class="hero-container">
+            <!-- Left side: Welcome Text -->
+            <div class="hero-text">
+                <h1>Official Books<br><span>Stock Portal</span></h1>
+                <h2>Welcome to the Publication Department of Ramakrishna Math Nagpur.</h2>
+                <p>This portal is designed to facilitate the systematic entry, management, and monitoring of books received, issued, and available in stock.</p>
+                
+                <div class="cta-group">
+                    <!-- Update href with the URL to your secure login page from Screenshot (79) -->
+                    <a href="login.html" class="btn btn-primary">Proceed to Secure Login</a>
+                    <a href="#about" class="btn btn-secondary">Documentation</a>
                 </div>
-
-
-                <!-- HERO VISUAL -->
-
-                <div class="hero-visual">
-
-                    <div class="visual-glow"></div>
-
-                    <div class="dashboard-card">
-
-                        <div class="dashboard-top">
-
-                            <div>
-
-                                <span class="small-label">
-                                    PUBLICATION DEPARTMENT
-                                </span>
-
-                                <h3>
-                                    Stock Overview
-                                </h3>
-
-                            </div>
-
-                            <div class="dashboard-icon">
-                                <i class="fa-solid fa-chart-simple"></i>
-                            </div>
-
-                        </div>
-
-
-                        <div class="stock-highlight">
-
-                            <div class="stock-icon">
-                                <i class="fa-solid fa-book"></i>
-                            </div>
-
-                            <div>
-                                <span>
-                                    Total Books
-                                </span>
-
-                                <strong>
-                                    <span
-                                        class="counter"
-                                        data-target="2480"
-                                    >
-                                        0
-                                    </span>
-                                    +
-                                </strong>
-                            </div>
-
-                        </div>
-
-
-                        <div class="mini-stats">
-
-                            <div class="mini-stat">
-
-                                <span class="mini-icon received">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </span>
-
-                                <div>
-                                    <small>Received</small>
-                                    <strong>
-                                        <span
-                                            class="counter"
-                                            data-target="1350"
-                                        >
-                                            0
-                                        </span>
-                                    </strong>
-                                </div>
-
-                            </div>
-
-
-                            <div class="mini-stat">
-
-                                <span class="mini-icon issued">
-                                    <i class="fa-solid fa-arrow-up"></i>
-                                </span>
-
-                                <div>
-                                    <small>Issued</small>
-                                    <strong>
-                                        <span
-                                            class="counter"
-                                            data-target="870"
-                                        >
-                                            0
-                                        </span>
-                                    </strong>
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="chart-area">
-
-                            <div class="chart-header">
-                                <span>Stock Activity</span>
-                                <span class="chart-period">
-                                    Overview
-                                </span>
-                            </div>
-
-                            <div class="bars">
-
-                                <span style="height:42%"></span>
-                                <span style="height:65%"></span>
-                                <span style="height:50%"></span>
-                                <span style="height:78%"></span>
-                                <span style="height:60%"></span>
-                                <span style="height:88%"></span>
-                                <span style="height:72%"></span>
-                                <span style="height:95%"></span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="floating-card floating-card-one">
-
-                        <div class="floating-icon">
-                            <i class="fa-solid fa-circle-check"></i>
-                        </div>
-
-                        <div>
-                            <strong>Systematic</strong>
-                            <span>Stock Records</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="floating-card floating-card-two">
-
-                        <div class="floating-icon">
-                            <i class="fa-solid fa-book-open"></i>
-                        </div>
-
-                        <div>
-                            <strong>Books</strong>
-                            <span>Management</span>
-                        </div>
-
-                    </div>
-
-                </div>
-
             </div>
 
-            <div class="hero-bottom-wave"></div>
-
-        </section>
-
-
-        <!-- =========================
-             ABOUT
-        ========================== -->
-
-        <section
-            class="section about-section"
-            id="about"
-        >
-
-            <div class="container">
-
-                <div class="section-heading">
-
-                    <span class="section-label">
-                        ABOUT THE PORTAL
-                    </span>
-
-                    <h2>
-                        A systematic approach to
-                        <span>book stock management</span>
-                    </h2>
-
-                    <p>
-                        The Books Stock Entry Portal provides a centralized
-                        platform for recording and monitoring publication
-                        department book transactions.
-                    </p>
-
+            <!-- Right side: System Status / Quick Info Card -->
+            <div class="hero-card">
+                <div class="status-badge">
+                    <span class="dot"></span>
+                    System Online
                 </div>
+                
+                <ul class="card-features">
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Secure access for authorized personnel
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                        </svg>
+                        Centralized database management
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Real-time stock monitoring & tracking
+                    </li>
+                </ul>
 
-
-                <div class="about-grid">
-
-                    <div class="about-content">
-
-                        <div class="about-card">
-
-                            <div class="about-number">
-                                01
-                            </div>
-
-                            <div>
-                                <h3>
-                                    Organized Records
-                                </h3>
-
-                                <p>
-                                    Maintain systematic records of books
-                                    received and issued by the Publication
-                                    Department.
-                                </p>
-                            </div>
-
-                        </div>
-
-
-                        <div class="about-card">
-
-                            <div class="about-number">
-                                02
-                            </div>
-
-                            <div>
-                                <h3>
-                                    Stock Visibility
-                                </h3>
-
-                                <p>
-                                    Keep track of current book availability
-                                    and maintain a clear picture of stock
-                                    levels.
-                                </p>
-                            </div>
-
-                        </div>
-
-
-                        <div class="about-card">
-
-                            <div class="about-number">
-                                03
-                            </div>
-
-                            <div>
-                                <h3>
-                                    Better Monitoring
-                                </h3>
-
-                                <p>
-                                    Make publication stock information easier
-                                    to review, update, and manage.
-                                </p>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="about-visual">
-
-                        <div class="book-stack">
-
-                            <div class="book book-one">
-                                <span>
-                                    RAMAKRISHNA
-                                </span>
-                            </div>
-
-                            <div class="book book-two">
-                                <span>
-                                    VEDANTA
-                                </span>
-                            </div>
-
-                            <div class="book book-three">
-                                <span>
-                                    LITERATURE
-                                </span>
-                            </div>
-
-                            <div class="book-shadow"></div>
-
-                        </div>
-
-                        <div class="om-symbol">
-                            ॐ
-                        </div>
-
-                    </div>
-
-                </div>
-
+                <p style="font-size: 0.9rem; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 1.5rem;">
+                    * Authorized Access Only. Ensure you have your credentials configured before proceeding to the BookFlow System interface.
+                </p>
             </div>
-
-        </section>
-
-
-        <!-- =========================
-             FEATURES
-        ========================== -->
-
-        <section
-            class="section features-section"
-            id="features"
-        >
-
-            <div class="container">
-
-                <div class="section-heading centered">
-
-                    <span class="section-label">
-                        PORTAL FEATURES
-                    </span>
-
-                    <h2>
-                        Everything organized in
-                        <span>one place</span>
-                    </h2>
-
-                    <p>
-                        The portal is structured to simplify everyday
-                        publication stock-entry and monitoring activities.
-                    </p>
-
-                </div>
-
-
-                <div class="features-grid">
-
-                    <article class="feature-card">
-
-                        <div class="feature-icon">
-                            <i class="fa-solid fa-plus"></i>
-                        </div>
-
-                        <h3>
-                            Book Receipt Entry
-                        </h3>
-
-                        <p>
-                            Record books received by the Publication
-                            Department and update stock information.
-                        </p>
-
-                        <span class="feature-number">
-                            01
-                        </span>
-
-                    </article>
-
-
-                    <article class="feature-card">
-
-                        <div class="feature-icon">
-                            <i class="fa-solid fa-minus"></i>
-                        </div>
-
-                        <h3>
-                            Book Issue Entry
-                        </h3>
-
-                        <p>
-                            Record books issued or sold and keep stock
-                            quantities updated.
-                        </p>
-
-                        <span class="feature-number">
-                            02
-                        </span>
-
-                    </article>
-
-
-                    <article class="feature-card">
-
-                        <div class="feature-icon">
-                            <i class="fa-solid fa-layer-group"></i>
-                        </div>
-
-                        <h3>
-                            Stock Monitoring
-                        </h3>
-
-                        <p>
-                            Monitor available quantities and maintain
-                            organized stock records.
-                        </p>
-
-                        <span class="feature-number">
-                            03
-                        </span>
-
-                    </article>
-
-
-                    <article class="feature-card">
-
-                        <div class="feature-icon">
-                            <i class="fa-solid fa-chart-line"></i>
-                        </div>
-
-                        <h3>
-                            Reports & Analysis
-                        </h3>
-
-                        <p>
-                            Analyze book transactions and obtain useful
-                            information from recorded stock data.
-                        </p>
-
-                        <span class="feature-number">
-                            04
-                        </span>
-
-                    </article>
-
-
-                    <article class="feature-card">
-
-                        <div class="feature-icon">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </div>
-
-                        <h3>
-                            Easy Search
-                        </h3>
-
-                        <p>
-                            Quickly locate book records and review relevant
-                            publication information.
-                        </p>
-
-                        <span class="feature-number">
-                            05
-                        </span>
-
-                    </article>
-
-
-                    <article class="feature-card">
-
-                        <div class="feature-icon">
-                            <i class="fa-solid fa-database"></i>
-                        </div>
-
-                        <h3>
-                            Centralized Records
-                        </h3>
-
-                        <p>
-                            Keep publication stock information organized
-                            within one centralized system.
-                        </p>
-
-                        <span class="feature-number">
-                            06
-                        </span>
-
-                    </article>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             WORKFLOW
-        ========================== -->
-
-        <section
-            class="section workflow-section"
-            id="workflow"
-        >
-
-            <div class="container">
-
-                <div class="section-heading centered">
-
-                    <span class="section-label">
-                        HOW IT WORKS
-                    </span>
-
-                    <h2>
-                        Simple and systematic
-                        <span>stock workflow</span>
-                    </h2>
-
-                </div>
-
-
-                <div class="workflow">
-
-                    <div class="workflow-line"></div>
-
-
-                    <div class="workflow-step">
-
-                        <div class="workflow-circle">
-                            <i class="fa-solid fa-book"></i>
-                        </div>
-
-                        <span class="workflow-number">
-                            01
-                        </span>
-
-                        <h3>
-                            Book Received
-                        </h3>
-
-                        <p>
-                            Enter details whenever new books are received
-                            by the Publication Department.
-                        </p>
-
-                    </div>
-
-
-                    <div class="workflow-step">
-
-                        <div class="workflow-circle">
-                            <i class="fa-solid fa-file-circle-plus"></i>
-                        </div>
-
-                        <span class="workflow-number">
-                            02
-                        </span>
-
-                        <h3>
-                            Record Entry
-                        </h3>
-
-                        <p>
-                            Enter the relevant transaction details into
-                            the stock management system.
-                        </p>
-
-                    </div>
-
-
-                    <div class="workflow-step">
-
-                        <div class="workflow-circle">
-                            <i class="fa-solid fa-arrow-right-arrow-left"></i>
-                        </div>
-
-                        <span class="workflow-number">
-                            03
-                        </span>
-
-                        <h3>
-                            Book Issued
-                        </h3>
-
-                        <p>
-                            Record books issued or sold and maintain
-                            updated transaction records.
-                        </p>
-
-                    </div>
-
-
-                    <div class="workflow-step">
-
-                        <div class="workflow-circle">
-                            <i class="fa-solid fa-chart-pie"></i>
-                        </div>
-
-                        <span class="workflow-number">
-                            04
-                        </span>
-
-                        <h3>
-                            Monitor Stock
-                        </h3>
-
-                        <p>
-                            Review available stock and analyze publication
-                            inventory information.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             CTA
-        ========================== -->
-
-        <section class="cta-section">
-
-            <div class="container">
-
-                <div class="cta-card">
-
-                    <div class="cta-pattern"></div>
-
-                    <div class="cta-content">
-
-                        <span class="cta-label">
-                            PUBLICATION DEPARTMENT
-                        </span>
-
-                        <h2>
-                            Ready to manage your
-                            book stock?
-                        </h2>
-
-                        <p>
-                            Access the Books Stock Entry Portal and
-                            maintain systematic publication records.
-                        </p>
-
-                        <a
-                            href="login.html"
-                            class="cta-button"
-                        >
-                            Open Stock Portal
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </a>
-
-                    </div>
-
-                    <div class="cta-symbol">
-                        ॐ
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             CONTACT
-        ========================== -->
-
-        <section
-            class="section contact-section"
-            id="contact"
-        >
-
-            <div class="container">
-
-                <div class="contact-grid">
-
-                    <div>
-
-                        <span class="section-label">
-                            RAMAKRISHNA MATH NAGPUR
-                        </span>
-
-                        <h2>
-                            Publication Department
-                        </h2>
-
-                        <p>
-                            This portal is intended to support systematic
-                            management and monitoring of books handled by
-                            the Publication Department.
-                        </p>
-
-                    </div>
-
-
-                    <div class="contact-info">
-
-                        <div class="contact-item">
-
-                            <div class="contact-icon">
-                                <i class="fa-solid fa-location-dot"></i>
-                            </div>
-
-                            <div>
-                                <span>Location</span>
-                                <strong>Nagpur, Maharashtra</strong>
-                            </div>
-
-                        </div>
-
-
-                        <div class="contact-item">
-
-                            <div class="contact-icon">
-                                <i class="fa-solid fa-building"></i>
-                            </div>
-
-                            <div>
-                                <span>Department</span>
-                                <strong>Publication Department</strong>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
+        </div>
     </main>
 
-
-    <!-- =========================
-         FOOTER
-    ========================== -->
-
-    <footer class="site-footer">
-
-        <div class="container footer-content">
-
-            <div class="footer-brand">
-
-                <div class="footer-logo">
-                    <i class="fa-solid fa-book-open"></i>
-                </div>
-
-                <div>
-                    <strong>
-                        Ramakrishna Math Nagpur
-                    </strong>
-
-                    <span>
-                        Books Stock Entry Portal
-                    </span>
-                </div>
-
-            </div>
-
-
-            <div class="footer-links">
-
-                <a href="#home">Home</a>
-                <a href="#about">About</a>
-                <a href="#features">Features</a>
-                <a href="#workflow">Workflow</a>
-
-            </div>
-
-
-            <div class="footer-copy">
-
-                © <span id="currentYear"></span>
-                Ramakrishna Math Nagpur.
-                All Rights Reserved.
-
-            </div>
-
-        </div>
-
+    <footer>
+        <p>&copy; 2026 Publication Department, Ramakrishna Math Nagpur. All rights reserved.</p>
     </footer>
-
-
-    <!-- =========================
-         JAVASCRIPT
-    ========================== -->
-
-    <script src="script.js"></script>
-
 </body>
 </html>
