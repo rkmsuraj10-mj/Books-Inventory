@@ -186,7 +186,7 @@
                     <!-- Language-wise Dashboard Summary Cards -->
                     <div class="mb-8">
                         <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-language text-blue-500"></i> Language-wise Distribution</h3>
-                        <div id="language-summary-cards" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div id="language-summary-cards" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
                             <!-- Populated dynamically with upgraded styling -->
                         </div>
                     </div>
@@ -231,6 +231,8 @@
                                     <option value="all">All Languages</option>
                                     <option value="marathi">Marathi</option>
                                     <option value="hindi">Hindi</option>
+                                    <option value="ub-marathi">UB Marathi</option>
+                                    <option value="ub-hindi">UB Hindi</option>
                                     <option value="kokani">Kokani</option>
                                     <option value="english">English</option>
                                     <option value="bangla">Bangla</option>
@@ -277,9 +279,7 @@
                                     <select id="tx-type" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors cursor-pointer">
                                         <option value="receipt">Book Receipt (+)</option>
                                         <option value="issue">Issue / Sale (-)</option>
-                                        <option value="return">Return (+)</option>
                                         <option value="damaged">Damaged / Lost (-)</option>
-                                        <option value="adjustment">Stock Adjustment (±)</option>
                                     </select>
                                 </div>
                                 <div>
@@ -354,6 +354,8 @@
                                     <option value="all">All Languages</option>
                                     <option value="marathi">Marathi</option>
                                     <option value="hindi">Hindi</option>
+                                    <option value="ub-marathi">UB Marathi</option>
+                                    <option value="ub-hindi">UB Hindi</option>
                                     <option value="kokani">Kokani</option>
                                     <option value="english">English</option>
                                     <option value="bangla">Bangla</option>
@@ -370,7 +372,6 @@
                                         <th class="px-4 py-4 text-center">Opening</th>
                                         <th class="px-4 py-4 text-center text-emerald-600">Received</th>
                                         <th class="px-4 py-4 text-center text-red-500">Issued</th>
-                                        <th class="px-4 py-4 text-center text-blue-600">Returns</th>
                                         <th class="px-4 py-4 text-center text-orange-500">Damaged</th>
                                         <th class="px-6 py-4 text-center font-extrabold text-slate-800 bg-slate-100/50">Balance</th>
                                     </tr>
@@ -433,6 +434,8 @@
                             <option value="">[ Select Language ]</option>
                             <option value="marathi">Marathi</option>
                             <option value="hindi">Hindi</option>
+                            <option value="ub-marathi">UB Marathi</option>
+                            <option value="ub-hindi">UB Hindi</option>
                             <option value="kokani">Kokani</option>
                             <option value="english">English</option>
                             <option value="bangla">Bangla</option>
@@ -594,22 +597,22 @@
             computedInventory = booksData.map(book => {
                 const bookTxs = transactionsData.filter(t => t.bookId == book.id);
                 let currentStock = Number(book.openingStock) || 0;
-                let totalReceived = 0, totalIssued = 0, totalReturned = 0, totalDamaged = 0, totalAdjustments = 0;
+                let totalReceived = 0, totalIssued = 0, totalDamaged = 0;
                 
                 bookTxs.forEach(tx => {
                     const qty = Number(tx.quantity);
                     switch(tx.type) {
                         case 'receipt': currentStock += qty; totalReceived += qty; break;
                         case 'issue': currentStock -= qty; totalIssued += qty; break;
-                        case 'return': currentStock += qty; totalReturned += qty; break;
+                        case 'return': currentStock += qty; break; // fallback for legacy data if any
                         case 'damaged': currentStock -= qty; totalDamaged += qty; break;
-                        case 'adjustment': currentStock += qty; totalAdjustments += qty; break;
+                        case 'adjustment': currentStock += qty; break; // fallback for legacy data if any
                     }
                 });
 
                 let status = currentStock <= 0 ? 'Out of Stock' : currentStock <= Number(book.minStock || 5) ? 'Low Stock' : 'In Stock';
                 const lang = book.language ? book.language.toLowerCase() : 'others';
-                return { ...book, language: lang, currentStock, totalReceived, totalIssued, totalReturned, totalDamaged, totalAdjustments, status, bookTxs };
+                return { ...book, language: lang, currentStock, totalReceived, totalIssued, totalDamaged, status, bookTxs };
             });
             updateUI();
         }
@@ -633,6 +636,8 @@
             const styles = {
                 marathi: 'bg-blue-100/50 text-blue-700 border-blue-200',
                 hindi: 'bg-orange-100/50 text-orange-700 border-orange-200',
+                'ub-marathi': 'bg-indigo-100/50 text-indigo-700 border-indigo-200',
+                'ub-hindi': 'bg-amber-100/50 text-amber-700 border-amber-200',
                 kokani: 'bg-purple-100/50 text-purple-700 border-purple-200',
                 english: 'bg-emerald-100/50 text-emerald-700 border-emerald-200',
                 bangla: 'bg-teal-100/50 text-teal-700 border-teal-200',
@@ -640,7 +645,7 @@
             const defaultStyle = 'bg-slate-100 text-slate-700 border-slate-200';
             const style = styles[lang] || defaultStyle;
             
-            let label = lang.charAt(0).toUpperCase() + lang.slice(1);
+            let label = lang === 'ub-marathi' ? 'UB Marathi' : lang === 'ub-hindi' ? 'UB Hindi' : lang.charAt(0).toUpperCase() + lang.slice(1);
             if (lang === 'others' && book.other_language) label += ` (${book.other_language})`;
             
             return `<span class="px-2.5 py-1 ${style} border rounded-md font-bold text-[10px] uppercase tracking-wider inline-block">${label}</span>`;
@@ -655,6 +660,8 @@
             const langStats = {
                 marathi: { titles: 0, stock: 0 },
                 hindi: { titles: 0, stock: 0 },
+                'ub-marathi': { titles: 0, stock: 0 },
+                'ub-hindi': { titles: 0, stock: 0 },
                 kokani: { titles: 0, stock: 0 },
                 english: { titles: 0, stock: 0 },
                 bangla: { titles: 0, stock: 0 },
@@ -695,6 +702,8 @@
             const langConfig = [
                 { key: 'marathi', label: 'Marathi', border: 'border-blue-200', bgHover: 'group-hover:bg-blue-50/50', text: 'text-blue-600', fill: 'bg-blue-500' },
                 { key: 'hindi', label: 'Hindi', border: 'border-orange-200', bgHover: 'group-hover:bg-orange-50/50', text: 'text-orange-500', fill: 'bg-orange-500' },
+                { key: 'ub-marathi', label: 'UB Marathi', border: 'border-indigo-200', bgHover: 'group-hover:bg-indigo-50/50', text: 'text-indigo-600', fill: 'bg-indigo-500' },
+                { key: 'ub-hindi', label: 'UB Hindi', border: 'border-amber-200', bgHover: 'group-hover:bg-amber-50/50', text: 'text-amber-600', fill: 'bg-amber-500' },
                 { key: 'kokani', label: 'Kokani', border: 'border-purple-200', bgHover: 'group-hover:bg-purple-50/50', text: 'text-purple-600', fill: 'bg-purple-500' },
                 { key: 'english', label: 'English', border: 'border-emerald-200', bgHover: 'group-hover:bg-emerald-50/50', text: 'text-emerald-600', fill: 'bg-emerald-500' },
                 { key: 'bangla', label: 'Bangla', border: 'border-teal-200', bgHover: 'group-hover:bg-teal-50/50', text: 'text-teal-600', fill: 'bg-teal-500' },
@@ -703,27 +712,26 @@
 
             container.innerHTML = langConfig.map(cfg => {
                 const stat = langStats[cfg.key] || { titles: 0, stock: 0 };
-                // Calculate max width for visual bar (cap at some relative number like 500 for visual effect)
                 const barWidth = Math.min((stat.stock / 500) * 100, 100);
                 
                 return `
-                    <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.03)] hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group">
+                    <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.03)] hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group">
                         <div class="absolute inset-0 transition-colors duration-300 ${cfg.bgHover}"></div>
                         <div class="relative z-10 flex flex-col h-full justify-between">
-                            <div class="flex justify-between items-center mb-4">
-                                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest group-hover:${cfg.text} transition-colors">${cfg.label}</p>
+                            <div class="flex justify-between items-center mb-3">
+                                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest group-hover:${cfg.text} transition-colors truncate">${cfg.label}</p>
                             </div>
                             <div class="space-y-1">
-                                <div class="flex justify-between items-center text-sm">
+                                <div class="flex justify-between items-center text-xs">
                                     <span class="font-semibold text-slate-500">Titles</span>
                                     <span class="font-extrabold text-slate-800">${stat.titles}</span>
                                 </div>
-                                <div class="flex justify-between items-center text-sm">
+                                <div class="flex justify-between items-center text-xs">
                                     <span class="font-semibold text-slate-500">Stock</span>
                                     <span class="font-extrabold ${cfg.text}">${stat.stock}</span>
                                 </div>
                             </div>
-                            <div class="mt-4 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                            <div class="mt-3 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                                 <div class="${cfg.fill} h-1.5 rounded-full" style="width: ${barWidth}%"></div>
                             </div>
                         </div>
@@ -996,13 +1004,12 @@
                         <td class="px-4 py-4 text-center text-slate-500 font-bold">${book.openingStock}</td>
                         <td class="px-4 py-4 text-center text-emerald-600 font-bold">${book.totalReceived}</td>
                         <td class="px-4 py-4 text-center text-red-500 font-bold">${book.totalIssued}</td>
-                        <td class="px-4 py-4 text-center text-blue-600 font-bold">${book.totalReturned}</td>
                         <td class="px-4 py-4 text-center text-orange-500 font-bold">${book.totalDamaged}</td>
                         <td class="px-6 py-4 text-center text-lg font-black text-slate-800 bg-slate-50/50 border-l border-slate-100">${book.currentStock}</td>
                     </tr>
                 `;
             });
-            if(filtered.length === 0) tbody.innerHTML = `<tr><td colspan="8" class="text-center py-16 text-slate-500 font-medium">No data available for selected filters.</td></tr>`;
+            if(filtered.length === 0) tbody.innerHTML = `<tr><td colspan="7" class="text-center py-16 text-slate-500 font-medium">No data available for selected filters.</td></tr>`;
         }
 
         window.viewHistory = function(bookId) {
@@ -1012,9 +1019,7 @@
             let formulaStr = `<span class="text-slate-500">Opening:</span> <span class="font-bold">${book.openingStock}</span>`;
             if(book.totalReceived > 0) formulaStr += ` <span class="text-emerald-500 mx-1">+</span> Rec: <span class="font-bold">${book.totalReceived}</span>`; 
             if(book.totalIssued > 0) formulaStr += ` <span class="text-red-500 mx-1">-</span> Iss: <span class="font-bold">${book.totalIssued}</span>`;
-            if(book.totalReturned > 0) formulaStr += ` <span class="text-blue-500 mx-1">+</span> Ret: <span class="font-bold">${book.totalReturned}</span>`; 
             if(book.totalDamaged > 0) formulaStr += ` <span class="text-orange-500 mx-1">-</span> Dmg: <span class="font-bold">${book.totalDamaged}</span>`;
-            if(book.totalAdjustments > 0) formulaStr += ` <span class="text-slate-500 mx-1">±</span> Adj: <span class="font-bold">${book.totalAdjustments}</span>`;
             
             document.getElementById('hist-formula').innerHTML = formulaStr;
             document.getElementById('hist-balance').textContent = book.currentStock; 
