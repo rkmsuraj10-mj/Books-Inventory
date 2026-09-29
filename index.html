@@ -94,8 +94,8 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 4rem;
-            /* Changed to center to prevent forcing the image wrapper to stretch */
-            align-items: center; 
+            /* Changed to flex-start to align image with top heading */
+            align-items: flex-start; 
         }
 
         /* Left Side: Image Content */
@@ -104,15 +104,14 @@
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            /* Background added in case of transparency, though jpg shouldn't have any */
             background-color: var(--bg-card); 
         }
 
         .hero-image-wrapper img {
             width: 100%;
-            height: auto; /* Ensures natural 1154x1046 aspect ratio */
+            height: auto;
             display: block;
-            object-fit: contain; /* Prevents cropping */
+            object-fit: contain; 
         }
 
         /* Right Side: Text & Features Content */
@@ -123,7 +122,7 @@
             gap: 1.5rem;
         }
 
-        /* New Elegant Welcome Heading */
+        /* Modern & Elegant Welcome Heading */
         .welcome-heading {
             border-left: 4px solid var(--accent-saffron);
             padding-left: 1.25rem;
@@ -309,7 +308,7 @@
 
     <main>
         <div class="hero-container">
-            <!-- Left side: Temple Image (Now scaled properly without cropping) -->
+            <!-- Left side: Temple Image -->
             <div class="hero-image-wrapper">
                 <img src="Rkm Nagpur Temple.jpg" alt="Ramakrishna Math Nagpur Temple">
             </div>
@@ -323,7 +322,7 @@
                     <span class="math-text">Ramakrishna Math, Nagpur</span>
                 </div>
                 
-                <h1>Official<br><span>Publication Books & Inventory Management Portal</span></h1>
+                <h1>Official Books<br><span>Stock Portal</span></h1>
                 
                 <p>This portal is designed to facilitate the systematic entry, management, and monitoring of books received, issued, and available in stock.</p>
                 
