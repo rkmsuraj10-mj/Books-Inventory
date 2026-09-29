@@ -32,7 +32,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-dark);
-            color: #ffffff; /* Default text color for dark mode background */
+            color: #ffffff; 
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -66,7 +66,6 @@
             gap: 1rem;
         }
 
-        /* Replaced CSS logo icon with Image element styling */
         .logo-image {
             height: 50px;
             width: auto;
@@ -95,26 +94,25 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 4rem;
-            align-items: stretch;
+            /* Changed to center to prevent forcing the image wrapper to stretch */
+            align-items: center; 
         }
 
         /* Left Side: Image Content */
         .hero-image-wrapper {
             width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            position: relative;
+            /* Background added in case of transparency, though jpg shouldn't have any */
+            background-color: var(--bg-card); 
         }
 
         .hero-image-wrapper img {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto; /* Ensures natural 1154x1046 aspect ratio */
             display: block;
+            object-fit: contain; /* Prevents cropping */
         }
 
         /* Right Side: Text & Features Content */
@@ -125,17 +123,36 @@
             gap: 1.5rem;
         }
 
-        .hero-content h2 {
-            font-size: 1.25rem;
+        /* New Elegant Welcome Heading */
+        .welcome-heading {
+            border-left: 4px solid var(--accent-saffron);
+            padding-left: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-heading .dept-text {
+            display: block;
+            font-size: 1.15rem;
             font-weight: 400;
             color: #d1d5db;
-            line-height: 1.4;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.35rem;
+        }
+
+        .welcome-heading .math-text {
+            display: block;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: 0.5px;
         }
 
         .hero-content h1 {
             font-size: 3rem;
             font-weight: 700;
             line-height: 1.1;
+            margin-top: 0.5rem;
         }
 
         .hero-content h1 span {
@@ -257,11 +274,18 @@
                 gap: 3rem;
             }
             .hero-image-wrapper {
-                max-height: 400px;
+                max-width: 600px;
+                margin: 0 auto;
             }
             .hero-content {
                 align-items: center;
                 text-align: center;
+            }
+            .welcome-heading {
+                border-left: none;
+                border-bottom: 4px solid var(--accent-saffron);
+                padding-left: 0;
+                padding-bottom: 1rem;
             }
             .hero-content h1 {
                 font-size: 2.5rem;
@@ -278,7 +302,6 @@
 
     <header>
         <div class="logo-section">
-            <!-- Organization Logo as per Github File Name -->
             <img src="Rkm Nagpur logo.png" alt="Ramakrishna Math Nagpur Logo" class="logo-image">
             <div class="header-title">Ramakrishna Math Nagpur</div>
         </div>
@@ -286,23 +309,26 @@
 
     <main>
         <div class="hero-container">
-            <!-- Left side: Temple Image -->
+            <!-- Left side: Temple Image (Now scaled properly without cropping) -->
             <div class="hero-image-wrapper">
                 <img src="Rkm Nagpur Temple.jpg" alt="Ramakrishna Math Nagpur Temple">
             </div>
 
             <!-- Right side: Welcome Content & Info Box -->
             <div class="hero-content">
-                <h2>Welcome to the Publication Department of Ramakrishna Math Nagpur</h2>
+                
+                <!-- Modern & Elegant Heading Structure -->
+                <div class="welcome-heading">
+                    <span class="dept-text">Welcome to the Publication Department</span>
+                    <span class="math-text">Ramakrishna Math, Nagpur</span>
+                </div>
                 
                 <h1>Official Books<br><span>Stock Portal</span></h1>
                 
                 <p>This portal is designed to facilitate the systematic entry, management, and monitoring of books received, issued, and available in stock.</p>
                 
-                <!-- Proceed to login button, Documentation button removed -->
                 <a href="login.html" class="btn btn-primary">Proceed to Secure Login</a>
                 
-                <!-- White Information Box relocated beneath the login button -->
                 <div class="info-box">
                     <div class="status-badge">
                         <span class="dot"></span>
