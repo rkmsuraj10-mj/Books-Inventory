@@ -11,107 +11,223 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
-        tailwind.config = { theme: { extend: { colors: { primary: '#1e3a8a', secondary: '#3b82f6', accent: '#f59e0b' } } } }
+        tailwind.config = { 
+            theme: { 
+                extend: { 
+                    colors: { 
+                        primary: '#1e40af', 
+                        secondary: '#3b82f6', 
+                        accent: '#f59e0b',
+                        surface: '#f8fafc' 
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                } 
+            } 
+        }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .nav-active { background-color: #3b82f6; color: white; }
-        .nav-item:hover:not(.nav-active) { background-color: #e2e8f0; }
+        
+        /* Modern Navigation Styles */
+        .nav-active { 
+            background: linear-gradient(135deg, #2563eb, #3b82f6); 
+            color: white; 
+            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+            font-weight: 600;
+        }
+        .nav-item { font-weight: 500; color: #64748b; transition: all 0.3s ease; }
+        .nav-item:hover:not(.nav-active) { 
+            background-color: #eff6ff; 
+            color: #2563eb; 
+            transform: translateX(4px);
+        }
+        
+        /* Smooth transitions for table rows */
+        tbody tr { transition: background-color 0.2s ease; }
+        tbody tr:hover { background-color: #f8fafc; }
     </style>
 </head>
-<body class="bg-gray-100 h-screen overflow-hidden text-gray-800 flex items-center justify-center relative">
+<body class="h-screen overflow-hidden text-slate-800 flex items-center justify-center relative font-sans antialiased">
 
-    <div id="boot-loader" class="absolute inset-0 bg-gray-100 z-[300] flex flex-col items-center justify-center">
-        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-primary mb-4"></i>
-        <p class="text-gray-600 font-medium tracking-wide">Securing Data...</p>
+    <div id="boot-loader" class="absolute inset-0 bg-slate-50 z-[300] flex flex-col items-center justify-center">
+        <div class="relative w-20 h-20 mb-4">
+            <div class="absolute inset-0 rounded-full border-t-4 border-blue-500 animate-spin"></div>
+            <div class="absolute inset-2 rounded-full border-r-4 border-indigo-400 animate-spin" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
+            <i class="fa-solid fa-book-open absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xl text-blue-600"></i>
+        </div>
+        <p class="text-slate-500 font-semibold tracking-widest uppercase text-sm">Securing Data...</p>
     </div>
 
     <!-- MAIN APP STRUCTURE -->
-    <div id="app" class="flex h-full w-full hidden">
+    <div id="app" class="flex h-full w-full hidden bg-slate-50">
         <!-- Sidebar Navigation -->
-        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm flex-shrink-0 z-10 transition-all duration-300 relative" id="sidebar">
-            <div class="h-16 flex items-center justify-between px-6 border-b border-gray-200 bg-gray-50">
-                <div class="flex items-center gap-2 font-bold text-xl text-primary">
-                    <i class="fa-solid fa-book-open"></i> <span>Books & Inventory Portal</span>
+        <aside class="w-72 bg-white border-r border-slate-200 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] flex-shrink-0 z-20 transition-transform duration-300 relative" id="sidebar">
+            <div class="h-20 flex items-center justify-between px-6 border-b border-slate-100 bg-white">
+                <div class="flex items-center gap-3 font-extrabold text-lg text-slate-800 tracking-tight">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/30">
+                        <i class="fa-solid fa-book-open text-sm"></i>
+                    </div>
+                    <span>Inventory Portal</span>
                 </div>
-                <button id="close-sidebar-btn" class="md:hidden text-gray-500"><i class="fa-solid fa-times"></i></button>
+                <button id="close-sidebar-btn" class="md:hidden text-slate-400 hover:text-slate-600 transition-colors"><i class="fa-solid fa-times text-xl"></i></button>
             </div>
             
-            <div class="p-4 border-b border-gray-100 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg shadow-sm" id="ui-avatar"></div>
-                <div class="flex-1 overflow-hidden">
-                    <p class="text-sm font-bold text-gray-800 truncate" id="ui-user-name">Loading...</p>
-                    <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-blue-600 mt-1 uppercase" id="ui-user-role">Role</span>
+            <div class="p-6 border-b border-slate-100 flex items-center gap-4 bg-slate-50/50 relative overflow-hidden">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-blue-500 text-white flex items-center justify-center font-bold text-xl shadow-lg ring-2 ring-white" id="ui-avatar"></div>
+                <div class="flex-1 overflow-hidden z-10">
+                    <p class="text-sm font-extrabold text-slate-800 truncate" id="ui-user-name">Loading...</p>
+                    <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-blue-600 mt-1 uppercase shadow-sm tracking-wider" id="ui-user-role">Role</span>
                 </div>
             </div>
 
-            <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-                <a href="#" data-target="dashboard" class="nav-link nav-active flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors"><i class="fa-solid fa-chart-pie w-5 text-center"></i> Dashboard</a>
-                <a href="#" data-target="books" class="nav-link nav-item text-gray-700 flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors"><i class="fa-solid fa-book w-5 text-center"></i> Book Master</a>
-                <a href="#" data-target="inventory" class="nav-link nav-item text-gray-700 flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors"><i class="fa-solid fa-right-left w-5 text-center"></i> Transactions</a>
-                <a href="#" data-target="reports" class="nav-link nav-item text-gray-700 flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors"><i class="fa-solid fa-file-invoice w-5 text-center"></i> Reports</a>
+            <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1.5">
+                <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Main Menu</p>
+                <a href="#" data-target="dashboard" class="nav-link nav-active flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"><i class="fa-solid fa-chart-pie w-5 text-center text-lg"></i> Dashboard</a>
+                <a href="#" data-target="books" class="nav-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"><i class="fa-solid fa-book w-5 text-center text-lg"></i> Book Master</a>
+                <a href="#" data-target="inventory" class="nav-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"><i class="fa-solid fa-right-left w-5 text-center text-lg"></i> Transactions</a>
+                <a href="#" data-target="reports" class="nav-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"><i class="fa-solid fa-file-invoice w-5 text-center text-lg"></i> Reports</a>
                 
-                <div class="admin-only my-2 border-t border-gray-200"></div>
-                <a href="#" data-target="users" class="admin-only nav-link nav-item text-gray-700 flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors"><i class="fa-solid fa-users w-5 text-center"></i> Manage Users</a>
+                <div class="admin-only my-4 border-t border-slate-200/60 pt-4">
+                    <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Administration</p>
+                    <a href="#" data-target="users" class="admin-only nav-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"><i class="fa-solid fa-users-gear w-5 text-center text-lg"></i> Manage Users</a>
+                </div>
             </nav>
             
-            <div class="p-4 border-t border-gray-200">
-                <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
-                    <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+            <div class="p-4 border-t border-slate-100 bg-white">
+                <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl transition-all duration-300 group">
+                    <i class="fa-solid fa-right-from-bracket group-hover:-translate-x-1 transition-transform"></i> Sign Out
                 </button>
             </div>
         </aside>
 
         <!-- Main Content Area -->
         <main class="flex-1 flex flex-col h-full overflow-hidden relative">
-            <header class="md:hidden h-16 bg-white border-b border-gray-200 flex items-center px-4 justify-between flex-shrink-0">
-                <div class="flex items-center gap-2 font-bold text-lg text-primary"><i class="fa-solid fa-book-open"></i>Publication Books & Inventory Management Portal</div>
-                <button id="open-sidebar-btn" class="text-gray-600 p-2"><i class="fa-solid fa-bars text-xl"></i></button>
+            <header class="md:hidden h-16 bg-white border-b border-slate-200 flex items-center px-4 justify-between flex-shrink-0 shadow-sm z-10">
+                <div class="flex items-center gap-2 font-bold text-lg text-primary">
+                    <i class="fa-solid fa-book-open"></i> Inventory Portal
+                </div>
+                <button id="open-sidebar-btn" class="text-slate-600 p-2 hover:bg-slate-100 rounded-lg"><i class="fa-solid fa-bars text-xl"></i></button>
             </header>
 
-            <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50 hide-scrollbar relative">
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 hide-scrollbar relative">
                 
                 <!-- Dashboard Section -->
-                <section id="sec-dashboard" class="content-section block">
-                    <div class="flex justify-between items-end mb-6">
-                        <div><h2 class="text-2xl font-bold text-gray-800">Dashboard</h2><p class="text-sm text-gray-500 mt-1">Overview of your complete inventory</p></div>
-                        <button onclick="refreshData()" class="text-gray-500 hover:text-primary transition-colors text-sm flex items-center gap-2"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col"><div class="flex justify-between items-start"><div><p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Books in Stock</p><h3 class="text-3xl font-bold text-gray-800 mt-1" id="kpi-total-books">0</h3></div><div class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-lg"><i class="fa-solid fa-layer-group"></i></div></div></div>
-                        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col"><div class="flex justify-between items-start"><div><p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Unique Titles</p><h3 class="text-3xl font-bold text-gray-800 mt-1" id="kpi-total-titles">0</h3></div><div class="w-10 h-10 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center text-lg"><i class="fa-solid fa-tags"></i></div></div></div>
-                        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col"><div class="flex justify-between items-start"><div><p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Out of Stock</p><h3 class="text-3xl font-bold text-red-600 mt-1" id="kpi-out-of-stock">0</h3></div><div class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-lg"><i class="fa-solid fa-triangle-exclamation"></i></div></div></div>
-                        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col"><div class="flex justify-between items-start"><div><p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Inventory Value</p><h3 class="text-3xl font-bold text-green-600 mt-1" id="kpi-inventory-value">₹0</h3></div><div class="w-10 h-10 rounded-full bg-green-50 text-green-500 flex items-center justify-center text-lg"><i class="fa-solid fa-indian-rupee-sign"></i></div></div></div>
+                <section id="sec-dashboard" class="content-section block max-w-7xl mx-auto">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Dashboard</h2>
+                            <p class="text-sm text-slate-500 mt-1 font-medium">Overview of your complete inventory metrics</p>
+                        </div>
+                        <button onclick="refreshData()" class="px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-600 hover:text-blue-600 hover:border-blue-200 hover:shadow-md transition-all text-sm font-semibold flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-right"></i> Refresh Data
+                        </button>
                     </div>
 
-                    <!-- Language-wise Dashboard Summary Cards -->
-                    <div class="mb-6">
-                        <h3 class="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide">Language-wise Summary</h3>
-                        <div id="language-summary-cards" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                            <!-- Populated dynamically -->
+                    <!-- Top KPI Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(14,165,233,0.15)] transition-all duration-300 transform hover:-translate-y-1 flex flex-col group relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700 ease-out"></div>
+                            <div class="flex justify-between items-start relative z-10">
+                                <div>
+                                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Total Books in Stock</p>
+                                    <h3 class="text-4xl font-extrabold text-slate-800 tracking-tight" id="kpi-total-books">0</h3>
+                                </div>
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 flex items-center justify-center text-2xl shadow-inner border border-blue-100/50 group-hover:rotate-6 transition-transform">
+                                    <i class="fa-solid fa-layer-group"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(168,85,247,0.15)] transition-all duration-300 transform hover:-translate-y-1 flex flex-col group relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-24 h-24 bg-purple-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700 ease-out"></div>
+                            <div class="flex justify-between items-start relative z-10">
+                                <div>
+                                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Unique Titles</p>
+                                    <h3 class="text-4xl font-extrabold text-slate-800 tracking-tight" id="kpi-total-titles">0</h3>
+                                </div>
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-50 text-purple-600 flex items-center justify-center text-2xl shadow-inner border border-purple-100/50 group-hover:rotate-6 transition-transform">
+                                    <i class="fa-solid fa-tags"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(239,68,68,0.15)] transition-all duration-300 transform hover:-translate-y-1 flex flex-col group relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-24 h-24 bg-red-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700 ease-out"></div>
+                            <div class="flex justify-between items-start relative z-10">
+                                <div>
+                                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Out of Stock</p>
+                                    <h3 class="text-4xl font-extrabold text-red-600 tracking-tight" id="kpi-out-of-stock">0</h3>
+                                </div>
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-100 to-red-50 text-red-600 flex items-center justify-center text-2xl shadow-inner border border-red-100/50 group-hover:-rotate-6 transition-transform">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(34,197,94,0.15)] transition-all duration-300 transform hover:-translate-y-1 flex flex-col group relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 w-24 h-24 bg-green-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700 ease-out"></div>
+                            <div class="flex justify-between items-start relative z-10">
+                                <div>
+                                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Inventory Value</p>
+                                    <h3 class="text-4xl font-extrabold text-green-600 tracking-tight truncate" id="kpi-inventory-value">₹0</h3>
+                                </div>
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-100 to-green-50 text-green-600 flex items-center justify-center text-2xl shadow-inner border border-green-100/50 group-hover:rotate-6 transition-transform">
+                                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Language-wise Dashboard Summary Cards -->
+                    <div class="mb-8">
+                        <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-language text-blue-500"></i> Language-wise Distribution</h3>
+                        <div id="language-summary-cards" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                            <!-- Populated dynamically with upgraded styling -->
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm"><h4 class="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">Stock Distribution</h4><div class="relative h-64 w-full flex items-center justify-center"><canvas id="stockDistributionChart"></canvas></div></div>
-                        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm"><h4 class="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">Monthly Receipts vs Issues</h4><div class="relative h-64 w-full"><canvas id="monthlyMovementChart"></canvas></div></div>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-lg transition-shadow">
+                            <h4 class="font-bold text-slate-800 mb-6 text-sm uppercase tracking-widest flex items-center gap-2">
+                                <i class="fa-solid fa-chart-pie text-indigo-500"></i> Stock Distribution
+                            </h4>
+                            <div class="relative h-64 w-full flex items-center justify-center"><canvas id="stockDistributionChart"></canvas></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] hover:shadow-lg transition-shadow">
+                            <h4 class="font-bold text-slate-800 mb-6 text-sm uppercase tracking-widest flex items-center gap-2">
+                                <i class="fa-solid fa-chart-line text-blue-500"></i> Monthly Movements
+                            </h4>
+                            <div class="relative h-64 w-full"><canvas id="monthlyMovementChart"></canvas></div>
+                        </div>
                     </div>
                 </section>
 
                 <!-- Book Master Section -->
-                <section id="sec-books" class="content-section hidden">
+                <section id="sec-books" class="content-section hidden max-w-7xl mx-auto">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
-                        <div><h2 class="text-2xl font-bold text-gray-800">Book Master</h2><p class="text-sm text-gray-500 mt-1">Manage your catalogue of books with language classification</p></div>
-                        <button onclick="openModal('add-book-modal')" class="admin-only bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add New Book</button>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Book Master</h2>
+                            <p class="text-sm text-slate-500 mt-1 font-medium">Manage your catalogue of books and master records</p>
+                        </div>
+                        <button onclick="openModal('add-book-modal')" class="admin-only bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/30 text-sm font-semibold transition-all hover:-translate-y-0.5 flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Add New Book
+                        </button>
                     </div>
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
-                        <div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4 bg-gray-50 items-center">
-                            <div class="relative flex-1 max-w-md w-full"><i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i><input type="text" id="book-search" placeholder="Search by name, code..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"></div>
-                            <div class="w-full sm:w-48">
-                                <select id="book-lang-filter" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary">
+                    
+                    <div class="bg-white rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden flex flex-col">
+                        <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row gap-4 bg-white items-center">
+                            <div class="relative flex-1 max-w-md w-full">
+                                <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                                <input type="text" id="book-search" placeholder="Search by name, code..." class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                            </div>
+                            <div class="w-full sm:w-56">
+                                <select id="book-lang-filter" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all cursor-pointer">
                                     <option value="all">All Languages</option>
                                     <option value="marathi">Marathi</option>
                                     <option value="hindi">Hindi</option>
@@ -121,42 +237,98 @@
                                     <option value="others">Others</option>
                                 </select>
                             </div>
-                            <button onclick="resetBookFilters()" class="text-sm text-gray-500 hover:text-primary px-3 py-2 flex items-center gap-1"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+                            <button onclick="resetBookFilters()" class="text-sm font-semibold text-slate-500 hover:text-blue-600 hover:bg-blue-50 px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2">
+                                <i class="fa-solid fa-rotate-right"></i> Reset
+                            </button>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm whitespace-nowrap">
-                                <thead class="bg-gray-50 text-gray-600 font-semibold border-b border-gray-200">
-                                    <tr><th class="px-6 py-3">Book Code</th><th class="px-6 py-3">Book Name</th><th class="px-6 py-3">Language</th><th class="px-6 py-3 text-right">Price</th><th class="px-6 py-3 text-center">Opening</th><th class="px-6 py-3 text-center">Current Stock</th><th class="px-6 py-3 text-center">Status</th><th class="px-6 py-3 text-right">Actions</th></tr>
+                                <thead class="bg-slate-50/80 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-6 py-4">Book Code</th>
+                                        <th class="px-6 py-4">Book Name</th>
+                                        <th class="px-6 py-4">Language</th>
+                                        <th class="px-6 py-4 text-right">Price</th>
+                                        <th class="px-6 py-4 text-center">Opening</th>
+                                        <th class="px-6 py-4 text-center">Current Stock</th>
+                                        <th class="px-6 py-4 text-center">Status</th>
+                                        <th class="px-6 py-4 text-right">Actions</th>
+                                    </tr>
                                 </thead>
-                                <tbody id="books-table-body" class="divide-y divide-gray-100"></tbody>
+                                <tbody id="books-table-body" class="divide-y divide-slate-100"></tbody>
                             </table>
                         </div>
                     </div>
                 </section>
 
                 <!-- Inventory Transactions Section -->
-                <section id="sec-inventory" class="content-section hidden">
-                    <div class="mb-6"><h2 class="text-2xl font-bold text-gray-800">Inventory Transactions</h2><p class="text-sm text-gray-500 mt-1">Record stock movements</p></div>
+                <section id="sec-inventory" class="content-section hidden max-w-7xl mx-auto">
+                    <div class="mb-6">
+                        <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Inventory Transactions</h2>
+                        <p class="text-sm text-slate-500 mt-1 font-medium">Record and track stock movements in real-time</p>
+                    </div>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div id="container-tx-form" class="staff-admin-only lg:col-span-1 bg-white p-6 rounded-xl border border-gray-100 shadow-sm h-fit">
-                            <h3 class="font-bold text-gray-700 border-b pb-3 mb-4 text-sm uppercase">New Entry</h3>
+                        <!-- Form -->
+                        <div id="container-tx-form" class="staff-admin-only lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-fit">
+                            <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-4 mb-5 text-sm uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-blue-500"></i> New Entry</h3>
                             <form id="transaction-form" class="space-y-4">
-                                <div><label class="block text-xs font-semibold text-gray-600 mb-1">Transaction Type *</label><select id="tx-type" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary"><option value="receipt">Book Receipt (+)</option><option value="issue">Issue / Sale (-)</option><option value="return">Return (+)</option><option value="damaged">Damaged / Lost (-)</option><option value="adjustment">Stock Adjustment (±)</option></select></div>
-                                <div><label class="block text-xs font-semibold text-gray-600 mb-1">Select Book *</label><select id="tx-book" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary"><option value="">-- Select a Book --</option></select><p id="tx-current-stock-hint" class="text-xs text-gray-500 mt-1 italic hidden">Current stock: <span id="tx-hint-val" class="font-bold"></span></p></div>
-                                <div><label class="block text-xs font-semibold text-gray-600 mb-1">Date *</label><input type="date" id="tx-date" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></div>
-                                <div><label class="block text-xs font-semibold text-gray-600 mb-1">Quantity *</label><input type="number" id="tx-quantity" min="1" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="e.g. 10"></div>
-                                <div><label class="block text-xs font-semibold text-gray-600 mb-1">Remarks</label><input type="text" id="tx-remarks" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="Invoice # or Notes"></div>
-                                <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors mt-2">Save Transaction</button>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Transaction Type *</label>
+                                    <select id="tx-type" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors cursor-pointer">
+                                        <option value="receipt">Book Receipt (+)</option>
+                                        <option value="issue">Issue / Sale (-)</option>
+                                        <option value="return">Return (+)</option>
+                                        <option value="damaged">Damaged / Lost (-)</option>
+                                        <option value="adjustment">Stock Adjustment (±)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Select Book *</label>
+                                    <select id="tx-book" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors cursor-pointer">
+                                        <option value="">-- Select a Book --</option>
+                                    </select>
+                                    <div class="mt-2 text-right">
+                                        <p id="tx-current-stock-hint" class="inline-block px-3 py-1 bg-slate-100 rounded-lg text-xs font-medium text-slate-600 hidden">
+                                            Current stock: <span id="tx-hint-val" class="font-extrabold ml-1"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Date *</label>
+                                    <input type="date" id="tx-date" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Quantity *</label>
+                                    <input type="number" id="tx-quantity" min="1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="e.g. 10">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Remarks</label>
+                                    <input type="text" id="tx-remarks" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="Invoice # or Notes">
+                                </div>
+                                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all hover:-translate-y-0.5 mt-4">
+                                    Save Transaction
+                                </button>
                             </form>
                         </div>
-                        <div id="container-tx-list" class="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-                            <div class="p-4 border-b border-gray-100 bg-gray-50"><h3 class="font-bold text-gray-700 text-sm uppercase">Recent Transactions</h3></div>
-                            <div class="overflow-x-auto flex-1">
+                        
+                        <!-- List -->
+                        <div id="container-tx-list" class="lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
+                            <div class="p-5 border-b border-slate-100 bg-white flex justify-between items-center">
+                                <h3 class="font-bold text-slate-800 text-sm uppercase tracking-widest"><i class="fa-solid fa-clock-rotate-left text-slate-400 mr-2"></i> Recent Transactions</h3>
+                            </div>
+                            <div class="overflow-x-auto flex-1 p-2">
                                 <table class="w-full text-left text-sm whitespace-nowrap">
-                                    <thead class="bg-gray-50 text-gray-500 font-medium border-b border-gray-200 text-xs">
-                                        <tr><th class="px-4 py-3">Date</th><th class="px-4 py-3">Type</th><th class="px-4 py-3">Book</th><th class="px-4 py-3 text-right">Qty</th><th class="px-4 py-3">Remarks</th><th id="tx-action-th" class="admin-only px-4 py-3 text-center">Action</th></tr>
+                                    <thead class="bg-slate-50 rounded-lg text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+                                        <tr>
+                                            <th class="px-5 py-3 rounded-l-lg">Date</th>
+                                            <th class="px-4 py-3">Type</th>
+                                            <th class="px-4 py-3">Book Details</th>
+                                            <th class="px-4 py-3 text-right">Qty</th>
+                                            <th class="px-4 py-3">Remarks</th>
+                                            <th id="tx-action-th" class="admin-only px-4 py-3 text-center rounded-r-lg">Action</th>
+                                        </tr>
                                     </thead>
-                                    <tbody id="recent-tx-body" class="divide-y divide-gray-100"></tbody>
+                                    <tbody id="recent-tx-body" class="divide-y divide-slate-50"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -164,18 +336,21 @@
                 </section>
 
                 <!-- Reports Section -->
-                <section id="sec-reports" class="content-section hidden flex-col h-full">
-                    <div class="mb-4"><h2 class="text-2xl font-bold text-gray-800">Inventory Reports</h2><p class="text-sm text-gray-500 mt-1">Detailed language-wise view of current stock and alerts</p></div>
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col flex-1 min-h-[400px]">
-                        <div class="p-4 border-b border-gray-100 bg-gray-50 flex flex-wrap gap-2 items-center justify-between">
-                            <div class="flex gap-2 overflow-x-auto hide-scrollbar">
-                                <button class="report-filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-primary text-white" data-filter="all">Full Inventory</button>
-                                <button class="report-filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-white text-gray-600 border border-gray-200 hover:bg-gray-100" data-filter="low">Low Stock Alerts</button>
-                                <button class="report-filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-white text-gray-600 border border-gray-200 hover:bg-gray-100" data-filter="out">Out of Stock</button>
+                <section id="sec-reports" class="content-section hidden flex-col h-full max-w-7xl mx-auto">
+                    <div class="mb-6">
+                        <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Inventory Reports</h2>
+                        <p class="text-sm text-slate-500 mt-1 font-medium">Comprehensive tracking and detailed stock analysis</p>
+                    </div>
+                    <div class="bg-white rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col flex-1 min-h-[500px] overflow-hidden">
+                        <div class="p-5 border-b border-slate-100 bg-white flex flex-wrap gap-4 items-center justify-between">
+                            <div class="flex gap-2 p-1 bg-slate-100 rounded-xl overflow-x-auto hide-scrollbar">
+                                <button class="report-filter-btn px-5 py-2 text-sm font-bold rounded-lg bg-white text-slate-800 shadow-sm transition-all" data-filter="all">Full Inventory</button>
+                                <button class="report-filter-btn px-5 py-2 text-sm font-medium rounded-lg text-slate-500 hover:text-slate-800 transition-all" data-filter="low">Low Stock Alerts</button>
+                                <button class="report-filter-btn px-5 py-2 text-sm font-medium rounded-lg text-slate-500 hover:text-slate-800 transition-all" data-filter="out">Out of Stock</button>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <label class="text-xs font-semibold text-gray-600">Language Filter:</label>
-                                <select id="report-lang-filter" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:ring-2 focus:ring-primary">
+                            <div class="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-filter mr-1"></i> Filter:</label>
+                                <select id="report-lang-filter" class="bg-transparent text-sm font-medium text-slate-800 focus:outline-none cursor-pointer">
                                     <option value="all">All Languages</option>
                                     <option value="marathi">Marathi</option>
                                     <option value="hindi">Hindi</option>
@@ -188,28 +363,48 @@
                         </div>
                         <div class="overflow-x-auto flex-1">
                             <table class="w-full text-left text-sm whitespace-nowrap">
-                                <thead class="bg-gray-50 text-gray-600 font-semibold border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-                                    <tr><th class="px-6 py-3">Book Details</th><th class="px-4 py-3">Language</th><th class="px-4 py-3 text-center">Opening</th><th class="px-4 py-3 text-center text-green-600">Received</th><th class="px-4 py-3 text-center text-red-600">Issued</th><th class="px-4 py-3 text-center text-blue-600">Returns</th><th class="px-4 py-3 text-center text-orange-500">Damaged</th><th class="px-6 py-3 text-center font-bold">Current Balance</th></tr>
+                                <thead class="bg-slate-50/90 text-slate-500 font-bold uppercase text-[11px] tracking-wider border-b border-slate-200 sticky top-0 z-10 backdrop-blur-md shadow-sm">
+                                    <tr>
+                                        <th class="px-6 py-4">Book Details</th>
+                                        <th class="px-4 py-4">Language</th>
+                                        <th class="px-4 py-4 text-center">Opening</th>
+                                        <th class="px-4 py-4 text-center text-emerald-600">Received</th>
+                                        <th class="px-4 py-4 text-center text-red-500">Issued</th>
+                                        <th class="px-4 py-4 text-center text-blue-600">Returns</th>
+                                        <th class="px-4 py-4 text-center text-orange-500">Damaged</th>
+                                        <th class="px-6 py-4 text-center font-extrabold text-slate-800 bg-slate-100/50">Balance</th>
+                                    </tr>
                                 </thead>
-                                <tbody id="reports-table-body" class="divide-y divide-gray-100"></tbody>
+                                <tbody id="reports-table-body" class="divide-y divide-slate-100"></tbody>
                             </table>
                         </div>
                     </div>
                 </section>
 
                 <!-- Manage Users Section -->
-                <section id="sec-users" class="content-section hidden flex-col h-full">
+                <section id="sec-users" class="content-section hidden flex-col h-full max-w-7xl mx-auto">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
-                        <div><h2 class="text-2xl font-bold text-gray-800">User Management</h2><p class="text-sm text-gray-500 mt-1">Manage system access, roles, and accounts.</p></div>
-                        <button onclick="openModal('add-user-modal')" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm"><i class="fa-solid fa-user-plus"></i> Add New User</button>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">User Management</h2>
+                            <p class="text-sm text-slate-500 mt-1 font-medium">Control system access, assign roles, and manage accounts.</p>
+                        </div>
+                        <button onclick="openModal('add-user-modal')" class="bg-gradient-to-r from-slate-800 to-slate-700 hover:from-slate-900 hover:to-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg shadow-slate-900/20 transition-all hover:-translate-y-0.5 flex items-center gap-2">
+                            <i class="fa-solid fa-user-plus"></i> Add New User
+                        </button>
                     </div>
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex-1">
+                    <div class="bg-white rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden flex-1">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm whitespace-nowrap">
-                                <thead class="bg-gray-50 text-gray-600 font-semibold border-b border-gray-200">
-                                    <tr><th class="px-6 py-3">Full Name</th><th class="px-6 py-3">Email Address</th><th class="px-6 py-3">Role</th><th class="px-6 py-3 text-center">Status</th><th class="px-6 py-3 text-right">Actions</th></tr>
+                                <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[11px] tracking-wider border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-6 py-4">Full Name</th>
+                                        <th class="px-6 py-4">Email Address</th>
+                                        <th class="px-6 py-4">Role</th>
+                                        <th class="px-6 py-4 text-center">Status</th>
+                                        <th class="px-6 py-4 text-right">Actions</th>
+                                    </tr>
                                 </thead>
-                                <tbody id="users-table-body" class="divide-y divide-gray-100"></tbody>
+                                <tbody id="users-table-body" class="divide-y divide-slate-100"></tbody>
                             </table>
                         </div>
                     </div>
@@ -219,17 +414,22 @@
         </main>
     </div>
 
-    <!-- Modals -->
-    <div id="add-book-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md flex flex-col">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl"><h3 class="font-bold text-lg text-gray-800">Add New Book</h3><button onclick="closeModal('add-book-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-times text-xl"></i></button></div>
-            <div class="p-6 overflow-y-auto flex-1 hide-scrollbar">
-                <form id="add-book-form" class="space-y-4">
-                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">1. Book Code *</label><input type="text" id="bk-code" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="e.g. B001"></div>
-                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">2. Book Name *</label><input type="text" id="bk-name" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="e.g. Advanced Mathematics"></div>
+    <!-- Modals (Updated styling for richer overlay and cards) -->
+    <div id="add-book-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col border border-white overflow-hidden transform scale-100 transition-transform">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-extrabold text-lg text-slate-800 flex items-center gap-2"><i class="fa-solid fa-book text-blue-500"></i> Add New Book</h3>
+                <button onclick="closeModal('add-book-modal')" class="text-slate-400 hover:text-red-500 bg-white w-8 h-8 rounded-full shadow-sm flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 hide-scrollbar bg-white">
+                <form id="add-book-form" class="space-y-5">
+                    <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">1. Book Code *</label><input type="text" id="bk-code" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="e.g. B001"></div>
+                    <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">2. Book Name *</label><input type="text" id="bk-name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="e.g. Advanced Mathematics"></div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">3. Language *</label>
-                        <select id="bk-language" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary bg-white">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">3. Language *</label>
+                        <select id="bk-language" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors cursor-pointer">
                             <option value="">[ Select Language ]</option>
                             <option value="marathi">Marathi</option>
                             <option value="hindi">Hindi</option>
@@ -240,52 +440,68 @@
                         </select>
                     </div>
                     <div id="other-language-container" class="hidden">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Other Language Name *</label>
-                        <input type="text" id="bk-other-language" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="e.g. Sanskrit, Gujarati">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Other Language Name *</label>
+                        <input type="text" id="bk-other-language" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="e.g. Sanskrit">
                     </div>
-                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">4. Book Price (₹) *</label><input type="number" id="bk-price" min="0" step="0.01" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" placeholder="0.00"></div>
-                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">5. Opening Stock *</label><input type="number" id="bk-opening" min="0" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary" value="0"></div>
+                    <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">4. Book Price (₹) *</label><input type="number" id="bk-price" min="0" step="0.01" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="0.00"></div>
+                    <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">5. Opening Stock *</label><input type="number" id="bk-opening" min="0" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" value="0"></div>
                 </form>
             </div>
-            <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-xl">
-                <button onclick="closeModal('add-book-modal')" class="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-                <button onclick="submitBookForm()" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-blue-800">Save Book Master</button>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/80">
+                <button onclick="closeModal('add-book-modal')" class="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-sm">Cancel</button>
+                <button onclick="submitBookForm()" class="px-5 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 transition-all">Save Book</button>
             </div>
         </div>
     </div>
 
     <!-- History Modal -->
-    <div id="history-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl"><h3 class="font-bold text-lg text-gray-800" id="hist-title">Book History</h3><button onclick="closeModal('history-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-times text-xl"></i></button></div>
+    <div id="history-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-extrabold text-lg text-slate-800 flex items-center gap-2" id="hist-title">Book History</h3>
+                <button onclick="closeModal('history-modal')" class="text-slate-400 hover:text-red-500 bg-white w-8 h-8 rounded-full shadow-sm flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
             <div class="p-6 overflow-y-auto flex-1 hide-scrollbar">
-                <div class="flex justify-between items-center mb-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                    <div><p class="text-xs text-blue-600 font-semibold uppercase">Calculation</p><p class="text-sm font-medium mt-1 text-gray-700" id="hist-formula"></p></div>
-                    <div class="text-right"><p class="text-xs text-blue-600 font-semibold uppercase">Balance</p><p class="text-2xl font-bold text-blue-800" id="hist-balance">0</p></div>
+                <div class="flex justify-between items-center mb-6 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100/50 shadow-sm">
+                    <div>
+                        <p class="text-[10px] text-indigo-600 font-bold uppercase tracking-widest mb-1"><i class="fa-solid fa-calculator"></i> Calculation Flow</p>
+                        <p class="text-sm font-semibold text-slate-700" id="hist-formula"></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] text-blue-600 font-bold uppercase tracking-widest mb-1">Current Balance</p>
+                        <p class="text-3xl font-black text-blue-700 tracking-tight" id="hist-balance">0</p>
+                    </div>
                 </div>
-                <table class="w-full text-left text-sm"><thead class="bg-gray-100 text-gray-600 font-medium border-b border-gray-200"><tr><th class="px-4 py-2">Date</th><th class="px-4 py-2">Transaction</th><th class="px-4 py-2 text-right">Qty</th><th class="px-4 py-2 text-right">Running</th><th class="px-4 py-2">Remarks</th></tr></thead><tbody id="hist-table-body" class="divide-y divide-gray-100"></tbody></table>
+                <table class="w-full text-left text-sm"><thead class="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider rounded-lg"><tr><th class="px-5 py-3 rounded-l-lg">Date</th><th class="px-4 py-3">Transaction</th><th class="px-4 py-3 text-right">Qty</th><th class="px-4 py-3 text-right">Running</th><th class="px-4 py-3 rounded-r-lg">Remarks</th></tr></thead><tbody id="hist-table-body" class="divide-y divide-slate-50"></tbody></table>
             </div>
         </div>
     </div>
 
     <!-- Add User Modal -->
-    <div id="add-user-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md flex flex-col">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl"><h3 class="font-bold text-lg text-gray-800">Create Secure Account</h3><button onclick="closeModal('add-user-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-times text-xl"></i></button></div>
+    <div id="add-user-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-extrabold text-lg text-slate-800 flex items-center gap-2"><i class="fa-solid fa-shield-halved text-emerald-500"></i> Create Secure Account</h3>
+                <button onclick="closeModal('add-user-modal')" class="text-slate-400 hover:text-red-500 bg-white w-8 h-8 rounded-full shadow-sm flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
             <div class="p-6 overflow-y-auto">
-                <form id="add-user-form" class="space-y-4">
-                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">Full Name</label><input type="text" id="new-user-name" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></div>
-                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">Email Address</label><input type="email" id="new-user-email" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></div>
-                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">Temporary Password</label><input type="password" id="new-user-password" required minlength="6" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary"></div>
-                    <div><label class="block text-xs font-semibold text-gray-600 mb-1">Assign Role</label><select id="new-user-role" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary"><option value="1">Administrator (Full Access)</option><option value="2">Staff (Data Entry)</option><option value="3" selected>Viewer (Read Only)</option></select></div>
-                    <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors mt-2">Create User Account</button>
+                <form id="add-user-form" class="space-y-5">
+                    <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Full Name</label><input type="text" id="new-user-name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-colors"></div>
+                    <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email Address</label><input type="email" id="new-user-email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-colors"></div>
+                    <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Temporary Password</label><input type="password" id="new-user-password" required minlength="6" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-colors"></div>
+                    <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Assign Role</label><select id="new-user-role" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-colors cursor-pointer"><option value="1">Administrator (Full Access)</option><option value="2">Staff (Data Entry)</option><option value="3" selected>Viewer (Read Only)</option></select></div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-emerald-500/30 transition-all hover:-translate-y-0.5 mt-4">Create Account</button>
                 </form>
             </div>
         </div>
     </div>
 
     <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
 
     <script>
         const SUPABASE_URL = 'https://hkvzvvkkojqhrkylbfie.supabase.co';
@@ -345,15 +561,15 @@
             document.getElementById('ui-user-role').textContent = roleName;
             
             const roleBadge = document.getElementById('ui-user-role');
-            if (roleName === 'Administrator') roleBadge.className = "inline-block px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-red-600 mt-1 uppercase";
-            if (roleName === 'Staff') roleBadge.className = "inline-block px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-blue-600 mt-1 uppercase";
-            if (roleName === 'Viewer') roleBadge.className = "inline-block px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-gray-500 mt-1 uppercase";
+            if (roleName === 'Administrator') roleBadge.className = "inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-red-500 mt-1 uppercase shadow-sm tracking-widest";
+            if (roleName === 'Staff') roleBadge.className = "inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-blue-500 mt-1 uppercase shadow-sm tracking-widest";
+            if (roleName === 'Viewer') roleBadge.className = "inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-slate-500 mt-1 uppercase shadow-sm tracking-widest";
 
             if (roleName !== 'Administrator') document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
             if (roleName === 'Viewer') {
                 document.querySelectorAll('.staff-admin-only').forEach(el => el.style.display = 'none');
                 const txList = document.getElementById('container-tx-list');
-                if (txList) txList.className = 'bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col lg:col-span-3';
+                if (txList) txList.className = 'bg-white rounded-3xl border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col lg:col-span-3';
             }
         }
 
@@ -405,20 +621,29 @@
             renderBooksTable(); 
             renderTransactionFormDropdown(); 
             renderRecentTransactions();
-            const activeFilter = document.querySelector('.report-filter-btn.bg-primary');
+            
+            // Keep styling for active filter buttons in Reports
+            const activeFilter = document.querySelector('.report-filter-btn.bg-slate-800, .report-filter-btn.bg-white.text-slate-800.shadow-sm');
             renderReportsTable(activeFilter ? activeFilter.dataset.filter : 'all');
         }
 
         // --- LANGUAGE FORMATTER HELPER ---
         function formatLanguageName(book) {
             const lang = (book.language || 'others').toLowerCase();
-            if (lang === 'marathi') return '<span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-medium text-xs">Marathi</span>';
-            if (lang === 'hindi') return '<span class="px-2 py-0.5 bg-orange-100 text-orange-800 rounded font-medium text-xs">Hindi</span>';
-            if (lang === 'kokani') return '<span class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded font-medium text-xs">Kokani</span>';
-            if (lang === 'english') return '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-medium text-xs">English</span>';
-            if (lang === 'bangla') return '<span class="px-2 py-0.5 bg-teal-100 text-teal-800 rounded font-medium text-xs">Bangla</span>';
-            const otherName = book.other_language ? ` (${book.other_language})` : '';
-            return `<span class="px-2 py-0.5 bg-gray-200 text-gray-800 rounded font-medium text-xs">Others${otherName}</span>`;
+            const styles = {
+                marathi: 'bg-blue-100/50 text-blue-700 border-blue-200',
+                hindi: 'bg-orange-100/50 text-orange-700 border-orange-200',
+                kokani: 'bg-purple-100/50 text-purple-700 border-purple-200',
+                english: 'bg-emerald-100/50 text-emerald-700 border-emerald-200',
+                bangla: 'bg-teal-100/50 text-teal-700 border-teal-200',
+            };
+            const defaultStyle = 'bg-slate-100 text-slate-700 border-slate-200';
+            const style = styles[lang] || defaultStyle;
+            
+            let label = lang.charAt(0).toUpperCase() + lang.slice(1);
+            if (lang === 'others' && book.other_language) label += ` (${book.other_language})`;
+            
+            return `<span class="px-2.5 py-1 ${style} border rounded-md font-bold text-[10px] uppercase tracking-wider inline-block">${label}</span>`;
         }
 
         // --- DASHBOARD ---
@@ -427,7 +652,6 @@
             let stockCats = { inStock: 0, lowStock: 0, outOfStock: 0 };
             let monthlyData = {};
             
-            // Language summary aggregations
             const langStats = {
                 marathi: { titles: 0, stock: 0 },
                 hindi: { titles: 0, stock: 0 },
@@ -469,22 +693,39 @@
         function renderLanguageSummaryCards(langStats) {
             const container = document.getElementById('language-summary-cards');
             const langConfig = [
-                { key: 'marathi', label: 'Marathi', color: 'border-l-4 border-blue-500' },
-                { key: 'hindi', label: 'Hindi', color: 'border-l-4 border-orange-500' },
-                { key: 'kokani', label: 'Kokani', color: 'border-l-4 border-purple-500' },
-                { key: 'english', label: 'English', color: 'border-l-4 border-emerald-500' },
-                { key: 'bangla', label: 'Bangla', color: 'border-l-4 border-teal-500' },
-                { key: 'others', label: 'Others', color: 'border-l-4 border-gray-500' }
+                { key: 'marathi', label: 'Marathi', border: 'border-blue-200', bgHover: 'group-hover:bg-blue-50/50', text: 'text-blue-600', fill: 'bg-blue-500' },
+                { key: 'hindi', label: 'Hindi', border: 'border-orange-200', bgHover: 'group-hover:bg-orange-50/50', text: 'text-orange-500', fill: 'bg-orange-500' },
+                { key: 'kokani', label: 'Kokani', border: 'border-purple-200', bgHover: 'group-hover:bg-purple-50/50', text: 'text-purple-600', fill: 'bg-purple-500' },
+                { key: 'english', label: 'English', border: 'border-emerald-200', bgHover: 'group-hover:bg-emerald-50/50', text: 'text-emerald-600', fill: 'bg-emerald-500' },
+                { key: 'bangla', label: 'Bangla', border: 'border-teal-200', bgHover: 'group-hover:bg-teal-50/50', text: 'text-teal-600', fill: 'bg-teal-500' },
+                { key: 'others', label: 'Others', border: 'border-slate-200', bgHover: 'group-hover:bg-slate-50/50', text: 'text-slate-600', fill: 'bg-slate-400' }
             ];
 
             container.innerHTML = langConfig.map(cfg => {
                 const stat = langStats[cfg.key] || { titles: 0, stock: 0 };
+                // Calculate max width for visual bar (cap at some relative number like 500 for visual effect)
+                const barWidth = Math.min((stat.stock / 500) * 100, 100);
+                
                 return `
-                    <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm ${cfg.color} flex flex-col justify-between">
-                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">${cfg.label}</p>
-                        <div class="mt-2">
-                            <p class="text-sm font-semibold text-gray-800">Titles: <span class="font-bold text-primary">${stat.titles}</span></p>
-                            <p class="text-sm font-semibold text-gray-800">Stock: <span class="font-bold text-green-600">${stat.stock}</span></p>
+                    <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-[0_2px_10px_-2px_rgba(0,0,0,0.03)] hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group">
+                        <div class="absolute inset-0 transition-colors duration-300 ${cfg.bgHover}"></div>
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div class="flex justify-between items-center mb-4">
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest group-hover:${cfg.text} transition-colors">${cfg.label}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="font-semibold text-slate-500">Titles</span>
+                                    <span class="font-extrabold text-slate-800">${stat.titles}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="font-semibold text-slate-500">Stock</span>
+                                    <span class="font-extrabold ${cfg.text}">${stat.stock}</span>
+                                </div>
+                            </div>
+                            <div class="mt-4 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                                <div class="${cfg.fill} h-1.5 rounded-full" style="width: ${barWidth}%"></div>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -495,8 +736,22 @@
             const ctxDist = document.getElementById('stockDistributionChart').getContext('2d');
             if (stockDistChart) stockDistChart.destroy();
             stockDistChart = new Chart(ctxDist, {
-                type: 'doughnut', data: { labels: ['In Stock', 'Low Stock', 'Out of Stock'], datasets: [{ data: [stockCats.inStock, stockCats.lowStock, stockCats.outOfStock], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], borderWidth: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {family: "'Inter', sans-serif"} } } }, cutout: '70%' }
+                type: 'doughnut', 
+                data: { 
+                    labels: ['In Stock', 'Low Stock', 'Out of Stock'], 
+                    datasets: [{ 
+                        data: [stockCats.inStock, stockCats.lowStock, stockCats.outOfStock], 
+                        backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'], 
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }] 
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: {family: "'Inter', sans-serif", weight: '600', size: 12}, color: '#475569' } } }, 
+                    cutout: '75%',
+                    borderRadius: 5
+                }
             });
 
             const ctxMove = document.getElementById('monthlyMovementChart').getContext('2d');
@@ -507,8 +762,21 @@
 
             monthlyChart = new Chart(ctxMove, {
                 type: 'bar',
-                data: { labels: labels.length ? labels : ['No Data'], datasets: [ { label: 'Received', data: labels.length ? recData : [0], backgroundColor: '#3b82f6', borderRadius: 4 }, { label: 'Issued', data: labels.length ? issData : [0], backgroundColor: '#ef4444', borderRadius: 4 } ] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: {family: "'Inter', sans-serif"} } } }, scales: { y: { beginAtZero: true, grid: { borderDash: [2, 4], color: '#f1f5f9' } }, x: { grid: { display: false } } } }
+                data: { 
+                    labels: labels.length ? labels : ['No Data'], 
+                    datasets: [ 
+                        { label: 'Received', data: labels.length ? recData : [0], backgroundColor: '#3b82f6', borderRadius: 6, maxBarThickness: 40 }, 
+                        { label: 'Issued', data: labels.length ? issData : [0], backgroundColor: '#ef4444', borderRadius: 6, maxBarThickness: 40 } 
+                    ] 
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: {family: "'Inter', sans-serif", weight: '600'}, color: '#475569' } } }, 
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, border: { display: false }, ticks: { color: '#64748b', font: {weight: '500'} } }, 
+                        x: { grid: { display: false }, border: { display: false }, ticks: { color: '#64748b', font: {weight: '500'} } } 
+                    } 
+                }
             });
         }
 
@@ -526,21 +794,26 @@
             });
 
             filtered.forEach(book => {
-                let statusBadge = book.status === 'In Stock' ? '<span class="px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">In Stock</span>' : book.status === 'Low Stock' ? '<span class="px-2.5 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Low Stock</span>' : '<span class="px-2.5 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">Out of Stock</span>';
+                let statusBadge = book.status === 'In Stock' 
+                    ? '<span class="px-2.5 py-1 bg-green-100/60 border border-green-200 text-green-700 rounded-lg text-[10px] uppercase font-bold tracking-widest">In Stock</span>' 
+                    : book.status === 'Low Stock' 
+                    ? '<span class="px-2.5 py-1 bg-yellow-100/60 border border-yellow-200 text-yellow-700 rounded-lg text-[10px] uppercase font-bold tracking-widest">Low Stock</span>' 
+                    : '<span class="px-2.5 py-1 bg-red-100/60 border border-red-200 text-red-700 rounded-lg text-[10px] uppercase font-bold tracking-widest">Out of Stock</span>';
+                
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4 font-mono text-xs text-gray-500">${book.code}</td>
-                        <td class="px-6 py-4 font-semibold text-gray-800">${book.name}</td>
+                    <tr>
+                        <td class="px-6 py-4 font-mono text-xs font-bold text-slate-400">${book.code}</td>
+                        <td class="px-6 py-4 font-bold text-slate-800">${book.name}</td>
                         <td class="px-6 py-4">${formatLanguageName(book)}</td>
-                        <td class="px-6 py-4 text-right">₹${Number(book.price).toFixed(2)}</td>
-                        <td class="px-6 py-4 text-center text-gray-500">${book.openingStock}</td>
-                        <td class="px-6 py-4 text-center font-bold text-gray-800">${book.currentStock}</td>
+                        <td class="px-6 py-4 text-right font-medium text-slate-600">₹${Number(book.price).toFixed(2)}</td>
+                        <td class="px-6 py-4 text-center text-slate-400 font-medium">${book.openingStock}</td>
+                        <td class="px-6 py-4 text-center font-extrabold text-slate-800 text-base">${book.currentStock}</td>
                         <td class="px-6 py-4 text-center">${statusBadge}</td>
-                        <td class="px-6 py-4 text-right"><button onclick="viewHistory('${book.id}')" class="text-blue-500 hover:text-blue-700 text-sm font-medium"><i class="fa-solid fa-clock-rotate-left mr-1"></i> History</button></td>
+                        <td class="px-6 py-4 text-right"><button onclick="viewHistory('${book.id}')" class="text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 px-3 py-1.5 rounded-lg text-sm font-bold transition-all"><i class="fa-solid fa-clock-rotate-left mr-1"></i> History</button></td>
                     </tr>
                 `;
             });
-            if(tbody.innerHTML === '') tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-gray-500">No books found matching criteria.</td></tr>`;
+            if(tbody.innerHTML === '') tbody.innerHTML = `<tr><td colspan="8" class="text-center py-12 text-slate-500 font-medium">No books found matching criteria.</td></tr>`;
         }
 
         document.getElementById('book-search').addEventListener('input', renderBooksTable);
@@ -581,16 +854,10 @@
             if (booksData.some(b => b.code.toLowerCase() === code.toLowerCase())) return showToast("Book code already exists.", "error");
 
             const bookData = { 
-                code, 
-                name, 
-                language,
+                code, name, language,
                 other_language: language === 'others' ? otherLanguage : null,
-                author: '-', 
-                publisher: '', 
-                category: 'General', 
-                price: Number(price), 
-                openingStock: Number(opening), 
-                minStock: 5, 
+                author: '-', publisher: '', category: 'General', 
+                price: Number(price), openingStock: Number(opening), minStock: 5, 
                 createdAt: new Date().toISOString() 
             };
 
@@ -622,7 +889,7 @@
             const book = computedInventory.find(b => b.id == this.value);
             if(book) {
                 document.getElementById('tx-hint-val').textContent = book.currentStock;
-                document.getElementById('tx-hint-val').className = book.currentStock > 0 ? "font-bold text-green-600" : "font-bold text-red-600";
+                document.getElementById('tx-hint-val').className = book.currentStock > 0 ? "font-extrabold text-emerald-600 ml-1" : "font-extrabold text-red-600 ml-1";
                 hint.classList.remove('hidden');
             }
         });
@@ -672,42 +939,45 @@
             recent.forEach(tx => {
                 let icon = ''; let color = ''; let sign = '';
                 switch(tx.type) {
-                    case 'receipt': icon = 'fa-arrow-down'; color = 'text-green-600 bg-green-50'; sign = '+'; break;
-                    case 'issue': icon = 'fa-arrow-up'; color = 'text-red-600 bg-red-50'; sign = '-'; break;
-                    case 'return': icon = 'fa-arrow-rotate-left'; color = 'text-blue-600 bg-blue-50'; sign = '+'; break;
-                    case 'damaged': icon = 'fa-ban'; color = 'text-orange-600 bg-orange-50'; sign = '-'; break;
-                    case 'adjustment': icon = 'fa-sliders'; color = 'text-gray-600 bg-gray-100'; sign = '±'; break;
+                    case 'receipt': icon = 'fa-arrow-down'; color = 'text-emerald-600 bg-emerald-100/50 border border-emerald-200'; sign = '+'; break;
+                    case 'issue': icon = 'fa-arrow-up'; color = 'text-red-600 bg-red-100/50 border border-red-200'; sign = '-'; break;
+                    case 'return': icon = 'fa-arrow-rotate-left'; color = 'text-blue-600 bg-blue-100/50 border border-blue-200'; sign = '+'; break;
+                    case 'damaged': icon = 'fa-ban'; color = 'text-orange-600 bg-orange-100/50 border border-orange-200'; sign = '-'; break;
+                    case 'adjustment': icon = 'fa-sliders'; color = 'text-slate-600 bg-slate-100/80 border border-slate-200'; sign = '±'; break;
                 }
 
-                let deleteBtnHtml = activeUserProfile.roles.name === 'Administrator' ? `<td class="px-4 py-3 text-center admin-only"><button onclick="deleteTransaction('${tx.id}')" class="text-red-500 hover:text-red-700 transition-colors" title="Delete Transaction"><i class="fa-solid fa-trash"></i></button></td>` : '';
+                let deleteBtnHtml = activeUserProfile.roles.name === 'Administrator' ? `<td class="px-4 py-3 text-center admin-only"><button onclick="deleteTransaction('${tx.id}')" class="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors" title="Delete Transaction"><i class="fa-solid fa-trash"></i></button></td>` : '';
 
                 tbody.innerHTML += `
                     <tr>
-                        <td class="px-4 py-3 text-gray-500 text-xs">${new Date(tx.date).toLocaleDateString('en-GB')}</td>
-                        <td class="px-4 py-3"><span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium ${color}"><i class="fa-solid ${icon}"></i> ${tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}</span></td>
-                        <td class="px-4 py-3"><p class="font-medium text-gray-800 text-xs truncate max-w-[150px]">${tx.bookName}</p><p class="text-[10px] text-gray-500">${tx.bookCode}</p></td>
-                        <td class="px-4 py-3 text-right font-bold text-gray-700">${sign}${tx.quantity}</td>
-                        <td class="px-4 py-3 text-xs text-gray-500 truncate max-w-[150px]">${tx.remarks || '-'}</td>
+                        <td class="px-5 py-4 text-slate-500 font-medium text-xs">${new Date(tx.date).toLocaleDateString('en-GB')}</td>
+                        <td class="px-4 py-4"><span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${color}"><i class="fa-solid ${icon}"></i> ${tx.type}</span></td>
+                        <td class="px-4 py-4"><p class="font-bold text-slate-800 text-sm truncate max-w-[160px]">${tx.bookName}</p><p class="text-[10px] font-bold text-slate-400 font-mono mt-0.5">${tx.bookCode}</p></td>
+                        <td class="px-4 py-4 text-right font-black text-slate-700 text-base">${sign}${tx.quantity}</td>
+                        <td class="px-4 py-4 text-xs text-slate-500 font-medium truncate max-w-[150px]">${tx.remarks || '-'}</td>
                         ${deleteBtnHtml}
                     </tr>
                 `;
             });
-            if(recent.length === 0) tbody.innerHTML = `<tr><td colspan="${activeUserProfile.roles.name === 'Administrator' ? 6 : 5}" class="text-center py-6 text-gray-500 text-sm">No recent transactions found.</td></tr>`;
+            if(recent.length === 0) tbody.innerHTML = `<tr><td colspan="${activeUserProfile.roles.name === 'Administrator' ? 6 : 5}" class="text-center py-10 text-slate-500 font-medium text-sm">No recent transactions found.</td></tr>`;
         }
 
         // --- REPORTS & HISTORY ---
         document.querySelectorAll('.report-filter-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('.report-filter-btn').forEach(b => { b.classList.remove('bg-primary', 'text-white'); b.classList.add('bg-white', 'text-gray-600'); });
-                this.classList.remove('bg-white', 'text-gray-600'); this.classList.add('bg-primary', 'text-white'); 
-                const activeFilterBtn = document.querySelector('.report-filter-btn.bg-primary');
+                document.querySelectorAll('.report-filter-btn').forEach(b => { 
+                    b.classList.remove('bg-white', 'text-slate-800', 'shadow-sm'); 
+                    b.classList.add('text-slate-500'); 
+                });
+                this.classList.remove('text-slate-500'); 
+                this.classList.add('bg-white', 'text-slate-800', 'shadow-sm'); 
                 const langFilterVal = document.getElementById('report-lang-filter').value;
-                renderReportsTable(activeFilterBtn ? activeFilterBtn.dataset.filter : 'all', langFilterVal);
+                renderReportsTable(this.dataset.filter, langFilterVal);
             });
         });
 
         document.getElementById('report-lang-filter').addEventListener('change', function() {
-            const activeFilterBtn = document.querySelector('.report-filter-btn.bg-primary');
+            const activeFilterBtn = document.querySelector('.report-filter-btn.bg-white.text-slate-800');
             renderReportsTable(activeFilterBtn ? activeFilterBtn.dataset.filter : 'all', this.value);
         });
 
@@ -720,44 +990,47 @@
 
             filtered.forEach(book => {
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4"><p class="font-semibold text-gray-800">${book.code}</p><p class="text-xs text-gray-500 truncate max-w-[200px]">${book.name}</p></td>
-                        <td class="px-4 py-3">${formatLanguageName(book)}</td>
-                        <td class="px-4 py-3 text-center text-gray-600 font-medium">${book.openingStock}</td>
-                        <td class="px-4 py-3 text-center text-green-600 font-medium">${book.totalReceived}</td>
-                        <td class="px-4 py-3 text-center text-red-600 font-medium">${book.totalIssued}</td>
-                        <td class="px-4 py-3 text-center text-blue-600 font-medium">${book.totalReturned}</td>
-                        <td class="px-4 py-3 text-center text-orange-500 font-medium">${book.totalDamaged}</td>
-                        <td class="px-6 py-3 text-center text-lg font-bold text-gray-800 bg-gray-50 border-l border-gray-100">${book.currentStock}</td>
+                    <tr>
+                        <td class="px-6 py-4"><p class="font-bold text-slate-800">${book.code}</p><p class="text-xs font-medium text-slate-500 truncate max-w-[220px] mt-0.5">${book.name}</p></td>
+                        <td class="px-4 py-4">${formatLanguageName(book)}</td>
+                        <td class="px-4 py-4 text-center text-slate-500 font-bold">${book.openingStock}</td>
+                        <td class="px-4 py-4 text-center text-emerald-600 font-bold">${book.totalReceived}</td>
+                        <td class="px-4 py-4 text-center text-red-500 font-bold">${book.totalIssued}</td>
+                        <td class="px-4 py-4 text-center text-blue-600 font-bold">${book.totalReturned}</td>
+                        <td class="px-4 py-4 text-center text-orange-500 font-bold">${book.totalDamaged}</td>
+                        <td class="px-6 py-4 text-center text-lg font-black text-slate-800 bg-slate-50/50 border-l border-slate-100">${book.currentStock}</td>
                     </tr>
                 `;
             });
-            if(filtered.length === 0) tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-gray-500">No data available for selected filters.</td></tr>`;
+            if(filtered.length === 0) tbody.innerHTML = `<tr><td colspan="8" class="text-center py-16 text-slate-500 font-medium">No data available for selected filters.</td></tr>`;
         }
 
         window.viewHistory = function(bookId) {
             const book = computedInventory.find(b => b.id == bookId); if(!book) return;
-            document.getElementById('hist-title').textContent = `${book.code} - ${book.name} (${book.language.toUpperCase()})`;
+            document.getElementById('hist-title').innerHTML = `<i class="fa-solid fa-clock-rotate-left text-indigo-500 mr-2"></i> ${book.code} - ${book.name}`;
             
-            let formulaStr = `Opening: ${book.openingStock}`;
-            if(book.totalReceived > 0) formulaStr += ` + Rec: ${book.totalReceived}`; if(book.totalIssued > 0) formulaStr += ` - Iss: ${book.totalIssued}`;
-            if(book.totalReturned > 0) formulaStr += ` + Ret: ${book.totalReturned}`; if(book.totalDamaged > 0) formulaStr += ` - Dmg: ${book.totalDamaged}`;
-            if(book.totalAdjustments > 0) formulaStr += ` ± Adj: ${book.totalAdjustments}`;
+            let formulaStr = `<span class="text-slate-500">Opening:</span> <span class="font-bold">${book.openingStock}</span>`;
+            if(book.totalReceived > 0) formulaStr += ` <span class="text-emerald-500 mx-1">+</span> Rec: <span class="font-bold">${book.totalReceived}</span>`; 
+            if(book.totalIssued > 0) formulaStr += ` <span class="text-red-500 mx-1">-</span> Iss: <span class="font-bold">${book.totalIssued}</span>`;
+            if(book.totalReturned > 0) formulaStr += ` <span class="text-blue-500 mx-1">+</span> Ret: <span class="font-bold">${book.totalReturned}</span>`; 
+            if(book.totalDamaged > 0) formulaStr += ` <span class="text-orange-500 mx-1">-</span> Dmg: <span class="font-bold">${book.totalDamaged}</span>`;
+            if(book.totalAdjustments > 0) formulaStr += ` <span class="text-slate-500 mx-1">±</span> Adj: <span class="font-bold">${book.totalAdjustments}</span>`;
             
-            document.getElementById('hist-formula').textContent = formulaStr;
-            document.getElementById('hist-balance').textContent = book.currentStock; document.getElementById('hist-balance').className = book.currentStock > 0 ? "text-2xl font-bold text-blue-800" : "text-2xl font-bold text-red-600";
+            document.getElementById('hist-formula').innerHTML = formulaStr;
+            document.getElementById('hist-balance').textContent = book.currentStock; 
+            document.getElementById('hist-balance').className = book.currentStock > 0 ? "text-3xl font-black text-blue-700 tracking-tight" : "text-3xl font-black text-red-600 tracking-tight";
 
             const tbody = document.getElementById('hist-table-body'); tbody.innerHTML = '';
             let runningBalance = Number(book.openingStock);
-            tbody.innerHTML += `<tr class="bg-gray-50"><td class="px-4 py-3 text-xs text-gray-500">-</td><td class="px-4 py-3 font-medium text-gray-700">Opening Stock</td><td class="px-4 py-3 text-right text-gray-500">${book.openingStock}</td><td class="px-4 py-3 text-right font-bold text-gray-800">${runningBalance}</td><td class="px-4 py-3 text-xs text-gray-500">Initial Setup</td></tr>`;
+            tbody.innerHTML += `<tr class="bg-slate-50/50"><td class="px-5 py-4 text-xs font-medium text-slate-400">-</td><td class="px-4 py-4 font-bold text-slate-700">Opening Stock</td><td class="px-4 py-4 text-right font-medium text-slate-500">${book.openingStock}</td><td class="px-4 py-4 text-right font-black text-slate-800">${runningBalance}</td><td class="px-4 py-4 text-xs font-medium text-slate-400">Initial Setup</td></tr>`;
 
             [...book.bookTxs].sort((a,b) => { const dA = new Date(a.date).getTime(); const dB = new Date(b.date).getTime(); return dA === dB ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() : dA - dB; }).forEach(tx => {
                 let qty = Number(tx.quantity); let displayQty = ''; let colorClass = '';
-                if (['receipt', 'return'].includes(tx.type)) { runningBalance += qty; displayQty = `+${qty}`; colorClass = 'text-green-600'; } 
-                else if (['issue', 'damaged'].includes(tx.type)) { runningBalance -= qty; displayQty = `-${qty}`; colorClass = 'text-red-600'; } 
-                else if (tx.type === 'adjustment') { runningBalance += qty; displayQty = `±${qty}`; colorClass = 'text-gray-600'; }
+                if (['receipt', 'return'].includes(tx.type)) { runningBalance += qty; displayQty = `+${qty}`; colorClass = 'text-emerald-600'; } 
+                else if (['issue', 'damaged'].includes(tx.type)) { runningBalance -= qty; displayQty = `-${qty}`; colorClass = 'text-red-500'; } 
+                else if (tx.type === 'adjustment') { runningBalance += qty; displayQty = `±${qty}`; colorClass = 'text-slate-600'; }
 
-                tbody.innerHTML += `<tr><td class="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">${new Date(tx.date).toLocaleDateString('en-GB')}</td><td class="px-4 py-3 text-sm capitalize text-gray-800">${tx.type}</td><td class="px-4 py-3 text-right font-medium ${colorClass}">${displayQty}</td><td class="px-4 py-3 text-right font-bold text-gray-800">${runningBalance}</td><td class="px-4 py-3 text-xs text-gray-500">${tx.remarks || '-'}</td></tr>`;
+                tbody.innerHTML += `<tr><td class="px-5 py-4 text-xs font-medium text-slate-500 whitespace-nowrap">${new Date(tx.date).toLocaleDateString('en-GB')}</td><td class="px-4 py-4 text-sm font-bold capitalize text-slate-800">${tx.type}</td><td class="px-4 py-4 text-right font-black ${colorClass}">${displayQty}</td><td class="px-4 py-4 text-right font-black text-slate-800">${runningBalance}</td><td class="px-4 py-4 text-xs font-medium text-slate-500">${tx.remarks || '-'}</td></tr>`;
             });
             openModal('history-modal');
         }
@@ -771,14 +1044,14 @@
 
             const tbody = document.getElementById('users-table-body');
             tbody.innerHTML = users.map(u => `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 font-semibold text-gray-800">${u.full_name}</td>
-                    <td class="px-6 py-4 text-gray-500">${u.email}</td>
-                    <td class="px-6 py-4"><span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-bold">${u.roles.name}</span></td>
-                    <td class="px-6 py-4 text-center"><span class="px-2.5 py-1 ${u.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} rounded-full text-xs font-semibold">${u.status}</span></td>
+                <tr>
+                    <td class="px-6 py-4 font-bold text-slate-800">${u.full_name}</td>
+                    <td class="px-6 py-4 font-medium text-slate-500">${u.email}</td>
+                    <td class="px-6 py-4"><span class="px-2.5 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[10px] font-bold uppercase tracking-widest">${u.roles.name}</span></td>
+                    <td class="px-6 py-4 text-center"><span class="px-3 py-1 ${u.status === 'Active' ? 'bg-emerald-100/60 border border-emerald-200 text-emerald-700' : 'bg-red-100/60 border border-red-200 text-red-700'} rounded-lg text-[10px] uppercase font-bold tracking-widest">${u.status}</span></td>
                     <td class="px-6 py-4 text-right space-x-3">
-                        <button onclick="toggleUserStatus('${u.id}', '${u.status}')" class="text-sm font-medium ${u.status === 'Active' ? 'text-red-500 hover:text-red-700' : 'text-green-600 hover:text-green-800'} transition-colors">${u.status === 'Active' ? 'Deactivate' : 'Activate'}</button>
-                        <button onclick="deleteSystemUser('${u.id}', '${u.email}')" class="text-sm font-medium text-red-600 hover:text-red-800 transition-colors" title="Delete User"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="toggleUserStatus('${u.id}', '${u.status}')" class="text-sm font-bold ${u.status === 'Active' ? 'text-red-500 hover:text-red-700' : 'text-emerald-600 hover:text-emerald-800'} transition-colors">${u.status === 'Active' ? 'Deactivate' : 'Activate'}</button>
+                        <button onclick="deleteSystemUser('${u.id}', '${u.email}')" class="text-sm font-bold text-slate-400 hover:text-red-600 transition-colors bg-slate-50 hover:bg-red-50 p-2 rounded-lg" title="Delete User"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
             `).join('');
@@ -881,27 +1154,42 @@
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault(); const target = link.dataset.target;
-                navLinks.forEach(l => { l.classList.remove('nav-active'); l.classList.add('nav-item', 'text-gray-700'); });
-                link.classList.remove('nav-item', 'text-gray-700'); link.classList.add('nav-active');
+                navLinks.forEach(l => { l.classList.remove('nav-active'); l.classList.add('nav-item'); });
+                link.classList.remove('nav-item'); link.classList.add('nav-active');
                 sections.forEach(sec => sec.classList.add('hidden')); document.getElementById(`sec-${target}`).classList.remove('hidden');
                 if(target === 'users') loadAdminUsersTable();
                 if(window.innerWidth < 768) { sidebar.classList.add('-translate-x-full', 'absolute'); }
             });
         });
 
-        document.getElementById('open-sidebar-btn').addEventListener('click', () => { sidebar.classList.remove('-translate-x-full'); sidebar.classList.add('absolute', 'h-full', 'z-50'); });
+        document.getElementById('open-sidebar-btn').addEventListener('click', () => { sidebar.classList.remove('-translate-x-full'); sidebar.classList.add('absolute', 'h-full', 'z-50', 'shadow-2xl'); });
         document.getElementById('close-sidebar-btn').addEventListener('click', () => { sidebar.classList.add('-translate-x-full'); });
         if(window.innerWidth < 768) sidebar.classList.add('-translate-x-full', 'absolute');
-        window.addEventListener('resize', () => { if(window.innerWidth >= 768) sidebar.classList.remove('-translate-x-full', 'absolute', 'h-full', 'z-50'); else sidebar.classList.add('-translate-x-full', 'absolute'); });
+        window.addEventListener('resize', () => { if(window.innerWidth >= 768) sidebar.classList.remove('-translate-x-full', 'absolute', 'h-full', 'z-50', 'shadow-2xl'); else sidebar.classList.add('-translate-x-full', 'absolute'); });
 
-        window.openModal = function(id) { const modal = document.getElementById(id); modal.classList.remove('hidden'); modal.children[0].style.animation = 'none'; modal.children[0].offsetHeight; modal.children[0].style.animation = null; }
-        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
+        window.openModal = function(id) { 
+            const modal = document.getElementById(id); 
+            modal.classList.remove('hidden'); 
+            setTimeout(() => modal.firstElementChild.classList.add('scale-100'), 10);
+        }
+        window.closeModal = (id) => {
+            const modal = document.getElementById(id); 
+            modal.firstElementChild.classList.remove('scale-100');
+            setTimeout(() => modal.classList.add('hidden'), 150);
+        }
         window.showToast = function(message, type = 'info') {
             const container = document.getElementById('toast-container'); const toast = document.createElement('div');
-            let color = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-gray-800'; let icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
-            toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium ${color} toast-enter-active`;
-            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
-            container.appendChild(toast); setTimeout(() => { toast.classList.replace('toast-enter-active', 'toast-exit-active'); setTimeout(() => toast.remove(), 300); }, 4000);
+            let color = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-red-600' : 'bg-slate-800'; let icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+            toast.className = `flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-white text-sm font-bold ${color} transition-all duration-300 transform translate-y-4 opacity-0`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i> <span>${message}</span>`;
+            container.appendChild(toast); 
+            // Animate in
+            setTimeout(() => { toast.classList.remove('translate-y-4', 'opacity-0'); }, 10);
+            // Animate out
+            setTimeout(() => { 
+                toast.classList.add('translate-y-4', 'opacity-0'); 
+                setTimeout(() => toast.remove(), 300); 
+            }, 4000);
         }
     </script>
 </body>
