@@ -191,7 +191,7 @@
                     <div class="mb-8">
                         <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-language text-blue-500"></i> Language-wise Distribution</h3>
                         <div id="language-summary-cards" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
-                            <!-- Populated dynamically with upgraded styling -->
+                            <!-- Populated dynamically -->
                         </div>
                     </div>
 
@@ -212,7 +212,7 @@
                     </div>
                 </section>
 
-                <!-- NEW COMPREHENSIVE ANALYTICS SUITE SECTION -->
+                <!-- ANALYTICS SUITE SECTION -->
                 <section id="sec-analytics" class="content-section hidden max-w-7xl mx-auto space-y-8">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-slate-200 pb-5">
                         <div>
@@ -239,7 +239,7 @@
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Books Received</p><h4 class="text-xl font-extrabold text-emerald-600 mt-1" id="kpi-an-received">0</h4><p class="text-[10px] text-slate-500 mt-0.5">Cumulative in-flow</p></div>
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Books Issued/Sold</p><h4 class="text-xl font-extrabold text-indigo-600 mt-1" id="kpi-an-issued">0</h4><p class="text-[10px] text-slate-500 mt-0.5">Total dispatched</p></div>
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sales Revenue</p><h4 class="text-xl font-extrabold text-emerald-700 mt-1" id="kpi-an-revenue">₹0</h4><p class="text-[10px] text-slate-500 mt-0.5">Estimated gross</p></div>
-                            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Gross Margin</p><h4 class="text-xl font-extrabold text-teal-600 mt-1" id="kpi-an-margin">₹0</h4><p class="text-[10px] text-slate-500 mt-0.5">Revenue vs 55% Cost</p></div>
+                            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Gross Profit</p><h4 class="text-xl font-extrabold text-teal-600 mt-1" id="kpi-an-margin">₹0</h4><p class="text-[10px] text-slate-500 mt-0.5">Revenue - Print Cost</p></div>
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Low Stock</p><h4 class="text-xl font-extrabold text-amber-500 mt-1" id="kpi-an-low">0</h4><p class="text-[10px] text-slate-500 mt-0.5">Below threshold</p></div>
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Out of Stock</p><h4 class="text-xl font-extrabold text-red-500 mt-1" id="kpi-an-out">0</h4><p class="text-[10px] text-slate-500 mt-0.5">Needs immediate action</p></div>
                             <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Fast-Moving Titles</p><h4 class="text-xl font-extrabold text-purple-600 mt-1" id="kpi-an-fast">0</h4><p class="text-[10px] text-slate-500 mt-0.5">> 20% issued</p></div>
@@ -547,6 +547,7 @@
                                     <select id="tx-type" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors cursor-pointer">
                                         <option value="receipt">Book Receipt (+)</option>
                                         <option value="issue">Issue / Sale (-)</option>
+                                        <option value="complimentary">Complimentary / Specimen (-)</option>
                                         <option value="damaged">Damaged / Lost (-)</option>
                                     </select>
                                 </div>
@@ -570,8 +571,8 @@
                                     <input type="number" id="tx-quantity" min="1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="e.g. 10">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Remarks</label>
-                                    <input type="text" id="tx-remarks" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="Invoice # or Notes">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Remarks / Destination Centre</label>
+                                    <input type="text" id="tx-remarks" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="Branch, Buyer name, or Invoice #">
                                 </div>
                                 <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all hover:-translate-y-0.5 mt-4">
                                     Save Transaction
@@ -683,39 +684,109 @@
         </main>
     </div>
 
-    <!-- Modals (Updated styling for richer overlay and cards) -->
+    <!-- Modals: Add Book Modal with Extended Analytical Fields -->
     <div id="add-book-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col border border-white overflow-hidden transform scale-100 transition-transform max-h-[90vh]">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg flex flex-col border border-white overflow-hidden transform scale-100 transition-transform max-h-[92vh]">
             <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 flex-shrink-0">
-                <h3 class="font-extrabold text-lg text-slate-800 flex items-center gap-2"><i class="fa-solid fa-book text-blue-500"></i> Add New Book</h3>
+                <h3 class="font-extrabold text-lg text-slate-800 flex items-center gap-2"><i class="fa-solid fa-book text-blue-500"></i> Add New Book Catalogue</h3>
                 <button onclick="closeModal('add-book-modal')" class="text-slate-400 hover:text-red-500 bg-white w-8 h-8 rounded-full shadow-sm flex items-center justify-center transition-colors">
                     <i class="fa-solid fa-times"></i>
                 </button>
             </div>
             <div class="p-6 overflow-y-auto flex-1 hide-scrollbar bg-white">
-                <form id="add-book-form" class="space-y-5">
-                    <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">1. Book Code *</label><input type="text" id="bk-code" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="e.g. B001"></div>
-                    <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">2. Book Name *</label><input type="text" id="bk-name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="e.g. Advanced Mathematics"></div>
+                <form id="add-book-form" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">1. Book Code *</label>
+                            <input type="text" id="bk-code" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="e.g. B001">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">2. Edition / Print Run</label>
+                            <input type="text" id="bk-edition" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="e.g. 1st Edition">
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">3. Language *</label>
-                        <select id="bk-language" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors cursor-pointer">
-                            <option value="">[ Select Language ]</option>
-                            <option value="marathi">Marathi</option>
-                            <option value="hindi">Hindi</option>
-                            <option value="ub-marathi">UB Marathi</option>
-                            <option value="ub-hindi">UB Hindi</option>
-                            <option value="kokani">Kokani</option>
-                            <option value="english">English</option>
-                            <option value="bangla">Bangla</option>
-                            <option value="others">Others</option>
-                        </select>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">3. Book Name *</label>
+                        <input type="text" id="bk-name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="e.g. Bhagavad Gita Commentary">
                     </div>
-                    <div id="other-language-container" class="hidden">
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Other Language Name *</label>
-                        <input type="text" id="bk-other-language" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="e.g. Sanskrit">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">4. Author</label>
+                            <input type="text" id="bk-author" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="e.g. Swami Vivekananda">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">5. Category *</label>
+                            <select id="bk-category" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors cursor-pointer">
+                                <option value="Philosophy">Philosophy</option>
+                                <option value="Vedanta" selected>Vedanta</option>
+                                <option value="Biography">Biography</option>
+                                <option value="Children's books">Children's books</option>
+                                <option value="Sanskrit">Sanskrit</option>
+                                <option value="Religious">Religious</option>
+                                <option value="General">General</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
                     </div>
-                    <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">4. Book Price (₹) *</label><input type="number" id="bk-price" min="0" step="0.01" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="0.00"></div>
-                    <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">5. Opening Stock *</label><input type="number" id="bk-opening" min="0" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" value="0"></div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">6. Language *</label>
+                            <select id="bk-language" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors cursor-pointer">
+                                <option value="">[ Select Language ]</option>
+                                <option value="marathi">Marathi</option>
+                                <option value="hindi">Hindi</option>
+                                <option value="ub-marathi">UB Marathi</option>
+                                <option value="ub-hindi">UB Hindi</option>
+                                <option value="kokani">Kokani</option>
+                                <option value="english">English</option>
+                                <option value="bangla">Bangla</option>
+                                <option value="others">Others</option>
+                            </select>
+                        </div>
+                        <div id="other-language-container" class="hidden">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Other Language *</label>
+                            <input type="text" id="bk-other-language" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="e.g. Sanskrit">
+                        </div>
+                    </div>
+
+                    <!-- FINANCIAL PRICING & AUTOMATIC PRINTING COST CALCULATION -->
+                    <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-calculator text-blue-600"></i> Financial & Cost Breakdown
+                            </label>
+                            <span class="text-[10px] font-semibold text-blue-600 bg-blue-100/70 px-2 py-0.5 rounded-full">Auto-Calculated</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Selling Price (₹) *</label>
+                                <input type="number" id="bk-price" min="0" step="0.01" required class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-blue-500" placeholder="100">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Profit Margin (%)</label>
+                                <input type="number" id="bk-profit-margin" min="0" max="100" step="0.1" value="20" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-emerald-600 focus:ring-2 focus:ring-blue-500" placeholder="20">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Printing Cost (₹)</label>
+                                <input type="number" id="bk-cost-price" min="0" step="0.01" class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500" placeholder="80.00">
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-500">Printing Cost auto-calculates as: <span class="font-mono font-bold text-slate-700">Selling Price × (100 - Margin%) ÷ 100</span></p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">7. Opening Stock *</label>
+                            <input type="number" id="bk-opening" min="0" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" value="0">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">8. Min. Reorder Threshold</label>
+                            <input type="number" id="bk-minstock" min="1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" value="5">
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/80 flex-shrink-0">
@@ -861,7 +932,7 @@
         }
 
         // ==========================================
-        // INVENTORY LOGIC & LANGUAGE CLASSIFICATION
+        // INVENTORY LOGIC & CALCULATION ENGINE
         // ==========================================
         async function fetchData() {
             try {
@@ -881,27 +952,38 @@
             computedInventory = booksData.map(book => {
                 const bookTxs = transactionsData.filter(t => t.bookId == book.id);
                 let currentStock = Number(book.openingStock) || 0;
-                let totalReceived = 0, totalIssued = 0, totalDamaged = 0, totalReturns = 0;
+                let totalReceived = 0, totalIssued = 0, totalDamaged = 0, totalReturns = 0, totalComplimentary = 0;
                 
                 bookTxs.forEach(tx => {
                     const qty = Number(tx.quantity);
                     switch(tx.type) {
                         case 'receipt': currentStock += qty; totalReceived += qty; break;
                         case 'issue': currentStock -= qty; totalIssued += qty; break;
+                        case 'complimentary': currentStock -= qty; totalComplimentary += qty; break;
                         case 'return': currentStock += qty; totalReturns += qty; break;
                         case 'damaged': currentStock -= qty; totalDamaged += qty; break;
                         case 'adjustment': currentStock += qty; break;
                     }
                 });
 
-                let status = currentStock <= 0 ? 'Out of Stock' : currentStock <= Number(book.minStock || 5) ? 'Low Stock' : 'In Stock';
+                const minStockVal = Number(book.minStock || 5);
+                let status = currentStock <= 0 ? 'Out of Stock' : currentStock <= minStockVal ? 'Low Stock' : 'In Stock';
                 const lang = book.language ? book.language.toLowerCase() : 'others';
+
+                // Cost and Profit Calculation per Book
+                const price = Number(book.price) || 0;
+                const costPrice = book.cost_price !== undefined && book.cost_price !== null 
+                    ? Number(book.cost_price) 
+                    : (price * 0.80); // Fallback to 80% cost (20% margin) if older record
+
                 return { 
                     ...book, 
                     language: lang, 
+                    cost_price: costPrice,
                     currentStock, 
                     totalReceived, 
                     totalIssued, 
+                    totalComplimentary,
                     totalDamaged, 
                     totalReturns, 
                     status, 
@@ -920,7 +1002,6 @@
             renderRecentTransactions();
             renderAnalyticsSuite();
             
-            // Keep styling for active filter buttons in Reports
             const activeFilter = document.querySelector('.report-filter-btn.bg-slate-800, .report-filter-btn.bg-white.text-slate-800.shadow-sm');
             renderReportsTable(activeFilter ? activeFilter.dataset.filter : 'all');
         }
@@ -979,7 +1060,7 @@
                     const monthKey = tx.date.substring(0, 7); 
                     if(!monthlyData[monthKey]) monthlyData[monthKey] = { rec: 0, iss: 0 };
                     if(tx.type === 'receipt') monthlyData[monthKey].rec += Number(tx.quantity);
-                    if(tx.type === 'issue') monthlyData[monthKey].iss += Number(tx.quantity);
+                    if(tx.type === 'issue' || tx.type === 'complimentary') monthlyData[monthKey].iss += Number(tx.quantity);
                 }
             });
 
@@ -1069,7 +1150,7 @@
                     labels: labels.length ? labels : ['No Data'], 
                     datasets: [ 
                         { label: 'Received', data: labels.length ? recData : [0], backgroundColor: '#3b82f6', borderRadius: 6, maxBarThickness: 40 }, 
-                        { label: 'Issued', data: labels.length ? issData : [0], backgroundColor: '#ef4444', borderRadius: 6, maxBarThickness: 40 } 
+                        { label: 'Issued / Out', data: labels.length ? issData : [0], backgroundColor: '#ef4444', borderRadius: 6, maxBarThickness: 40 } 
                     ] 
                 },
                 options: { 
@@ -1104,10 +1185,13 @@
             let totalStock = 0;
             let totalReceived = 0;
             let totalIssued = 0;
+            let totalComplimentary = 0;
             let totalDamaged = 0;
             let totalReturns = 0;
             let totalOpening = 0;
             let totalRevenue = 0;
+            let totalActualCostInvested = 0;
+            let totalProfitRealized = 0;
             let lowStockCount = 0;
             let outStockCount = 0;
             let fastMovingCount = 0;
@@ -1123,20 +1207,30 @@
                 totalOpening += Number(book.openingStock || 0);
                 totalReceived += book.totalReceived;
                 totalIssued += book.totalIssued;
+                totalComplimentary += (book.totalComplimentary || 0);
                 totalDamaged += book.totalDamaged;
                 totalReturns += book.totalReturns;
 
                 const price = Number(book.price || 0);
+                const costPrice = Number(book.cost_price || 0);
+
+                // Revenue is earned only from standard issues/sales (Complimentary is ₹0 revenue)
                 const bookRevenue = book.totalIssued * price;
+                const bookCostOfSold = book.totalIssued * costPrice;
+                const bookProfit = bookRevenue - bookCostOfSold;
+
                 totalRevenue += bookRevenue;
+                totalProfitRealized += bookProfit;
+                totalActualCostInvested += (book.currentStock * costPrice);
 
                 if (book.status === 'Low Stock') lowStockCount++;
                 if (book.status === 'Out of Stock') outStockCount++;
 
                 // Movement Velocity
                 const totalInflow = Number(book.openingStock || 0) + book.totalReceived;
-                const movementRatio = totalInflow > 0 ? (book.totalIssued / totalInflow) : 0;
-                if (movementRatio >= 0.20 && book.totalIssued >= 5) fastMovingCount++;
+                const totalDispatched = book.totalIssued + (book.totalComplimentary || 0);
+                const movementRatio = totalInflow > 0 ? (totalDispatched / totalInflow) : 0;
+                if (movementRatio >= 0.20 && totalDispatched >= 5) fastMovingCount++;
                 if (movementRatio < 0.05 && totalInflow > 0) slowMovingCount++;
 
                 // Category aggregate
@@ -1148,7 +1242,7 @@
                 categoryBreakdown[cat].revenue += bookRevenue;
 
                 // Author aggregate
-                const author = (book.author && book.author !== '-') ? book.author : 'Publication Editorial';
+                const author = (book.author && book.author !== '-' && book.author.trim() !== '') ? book.author : 'Editorial Staff';
                 if (!authorBreakdown[author]) authorBreakdown[author] = { titles: 0, stock: 0, issued: 0, revenue: 0 };
                 authorBreakdown[author].titles += 1;
                 authorBreakdown[author].stock += book.currentStock;
@@ -1159,14 +1253,14 @@
             // Transactions Scan for Centre Distribution and Monthly Series
             transactionsData.forEach(tx => {
                 const qty = Number(tx.quantity || 0);
-                if (tx.remarks && tx.type === 'issue') {
+                if (tx.remarks && (tx.type === 'issue' || tx.type === 'complimentary')) {
                     const match = tx.remarks.trim();
                     const centreKey = match.length > 2 ? match : 'Central Dispatch';
                     if (!centreBreakdown[centreKey]) centreBreakdown[centreKey] = { txs: 0, qty: 0, value: 0 };
                     centreBreakdown[centreKey].txs += 1;
                     centreBreakdown[centreKey].qty += qty;
                     const b = computedInventory.find(x => x.id == tx.bookId);
-                    const pr = b ? Number(b.price || 0) : 0;
+                    const pr = tx.type === 'complimentary' ? 0 : (b ? Number(b.price || 0) : 0);
                     centreBreakdown[centreKey].value += (qty * pr);
                 }
 
@@ -1180,27 +1274,25 @@
                 }
             });
 
-            // Financial & Stock Formulas
-            const estimatedStockCost = totalStock * 45; // benchmark publication printing cost
-            const grossMargin = totalRevenue * 0.45; // Estimated 45% margin
+            // Financial & Stock Turnover Formulas
             const turnoverRate = totalStock > 0 ? (totalIssued / ((totalOpening + totalStock) / 2 || 1)).toFixed(2) : '0.00';
             const returnRate = totalIssued > 0 ? ((totalReturns / totalIssued) * 100).toFixed(1) : 0;
-            const netFlow = totalReceived - totalIssued - totalDamaged;
+            const netFlow = totalReceived - (totalIssued + totalComplimentary) - totalDamaged;
 
             // Render KPI Scorecard
             document.getElementById('kpi-an-titles').textContent = totalTitles;
             document.getElementById('kpi-an-stock').textContent = totalStock;
             document.getElementById('kpi-an-received').textContent = totalReceived;
-            document.getElementById('kpi-an-issued').textContent = totalIssued;
+            document.getElementById('kpi-an-issued').textContent = `${totalIssued} ${totalComplimentary > 0 ? '(+' + totalComplimentary + ' comp)' : ''}`;
             document.getElementById('kpi-an-revenue').textContent = "₹" + totalRevenue.toLocaleString('en-IN');
-            document.getElementById('kpi-an-margin').textContent = "₹" + grossMargin.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+            document.getElementById('kpi-an-margin').textContent = "₹" + totalProfitRealized.toLocaleString('en-IN', { maximumFractionDigits: 0 });
             document.getElementById('kpi-an-low').textContent = lowStockCount;
             document.getElementById('kpi-an-out').textContent = outStockCount;
             document.getElementById('kpi-an-fast').textContent = fastMovingCount;
             document.getElementById('kpi-an-slow').textContent = slowMovingCount;
             document.getElementById('kpi-an-turnover').textContent = `${turnoverRate}x`;
             document.getElementById('kpi-an-returns').textContent = `${returnRate}%`;
-            document.getElementById('kpi-an-cost').textContent = "₹" + estimatedStockCost.toLocaleString('en-IN');
+            document.getElementById('kpi-an-cost').textContent = "₹" + totalActualCostInvested.toLocaleString('en-IN', { maximumFractionDigits: 0 });
             document.getElementById('kpi-an-damaged').textContent = totalDamaged;
             document.getElementById('kpi-an-netflow').textContent = (netFlow >= 0 ? `+${netFlow}` : `${netFlow}`);
 
@@ -1208,7 +1300,7 @@
             document.getElementById('eq-opening').textContent = totalOpening;
             document.getElementById('eq-receipts').textContent = totalReceived;
             document.getElementById('eq-returns').textContent = totalReturns;
-            document.getElementById('eq-issued').textContent = totalIssued;
+            document.getElementById('eq-issued').textContent = (totalIssued + totalComplimentary);
             document.getElementById('eq-damaged').textContent = totalDamaged;
             document.getElementById('eq-closing').textContent = totalStock;
 
@@ -1226,7 +1318,6 @@
         }
 
         function renderAnalyticsCharts(monthlyFinancials, categoryBreakdown) {
-            // Chart: Monthly Sales Growth
             const mKeys = Object.keys(monthlyFinancials).sort().slice(-8);
             const mLabels = mKeys.map(k => new Date(k + "-01").toLocaleDateString('default', { month: 'short', year: '2-digit' }));
             const mRev = mKeys.map(k => monthlyFinancials[k].revenue);
@@ -1258,7 +1349,6 @@
                 }
             });
 
-            // Chart: Category Revenue Contribution
             const catLabels = Object.keys(categoryBreakdown);
             const catValues = catLabels.map(k => categoryBreakdown[k].revenue);
             const ctxCat = document.getElementById('anCategoryRevenueChart').getContext('2d');
@@ -1279,7 +1369,6 @@
                 }
             });
 
-            // Chart: Category Demand
             const catDemand = catLabels.map(k => categoryBreakdown[k].issued);
             const ctxDemand = document.getElementById('anDemandChart').getContext('2d');
             if (anDemandChartInstance) anDemandChartInstance.destroy();
@@ -1288,7 +1377,7 @@
                 data: {
                     labels: catLabels.length ? catLabels : ['General'],
                     datasets: [{
-                        label: 'Books Issued/Requested',
+                        label: 'Books Issued/Sold',
                         data: catDemand.length ? catDemand : [0],
                         backgroundColor: '#6366f1',
                         borderRadius: 6
@@ -1345,14 +1434,16 @@
             const tbody = document.getElementById('an-stock-movement-table-body');
             tbody.innerHTML = computedInventory.slice(0, 20).map(b => {
                 const totalIn = Number(b.openingStock || 0) + b.totalReceived;
-                const rate = totalIn > 0 ? ((b.totalIssued / totalIn) * 100).toFixed(0) : 0;
-                const condition = b.currentStock > 10 ? '<span class="text-emerald-600 font-bold text-xs">Healthy</span>' : b.currentStock > 0 ? '<span class="text-amber-600 font-bold text-xs">Tight</span>' : '<span class="text-red-600 font-bold text-xs">Exhausted</span>';
+                const totalOut = b.totalIssued + (b.totalComplimentary || 0);
+                const rate = totalIn > 0 ? ((totalOut / totalIn) * 100).toFixed(0) : 0;
+                const minThresh = Number(b.minStock || 5);
+                const condition = b.currentStock > minThresh * 2 ? '<span class="text-emerald-600 font-bold text-xs">Healthy</span>' : b.currentStock > 0 ? '<span class="text-amber-600 font-bold text-xs">Tight</span>' : '<span class="text-red-600 font-bold text-xs">Exhausted</span>';
                 return `
                     <tr>
-                        <td class="px-4 py-3"><p class="font-bold text-slate-800 text-xs">${b.name}</p><p class="text-[10px] text-slate-400 font-mono">${b.code}</p></td>
+                        <td class="px-4 py-3"><p class="font-bold text-slate-800 text-xs">${b.name}</p><p class="text-[10px] text-slate-400 font-mono">${b.code} • ${b.category || 'General'}</p></td>
                         <td class="px-4 py-3 text-center text-slate-500 font-semibold">${b.openingStock}</td>
                         <td class="px-4 py-3 text-center text-emerald-600 font-bold">+${b.totalReceived}</td>
-                        <td class="px-4 py-3 text-center text-red-500 font-bold">-${b.totalIssued}</td>
+                        <td class="px-4 py-3 text-center text-red-500 font-bold">-${totalOut}</td>
                         <td class="px-4 py-3 text-center text-amber-500 font-bold">-${b.totalDamaged}</td>
                         <td class="px-4 py-3 text-center font-extrabold text-blue-700 bg-blue-50/50">${b.currentStock}</td>
                         <td class="px-4 py-3 text-center text-xs font-semibold">${rate}%</td>
@@ -1373,7 +1464,7 @@
                     : '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-md text-[10px] font-bold">Adequate Run</span>';
                 return `
                     <tr>
-                        <td class="px-4 py-3 font-semibold text-xs text-slate-800">${b.code} - ${b.name}</td>
+                        <td class="px-4 py-3 font-semibold text-xs text-slate-800">${b.code} - ${b.name} <span class="text-[10px] text-slate-400">(${b.edition || '1st Run'})</span></td>
                         <td class="px-4 py-3 text-center font-bold text-slate-600">${printed}</td>
                         <td class="px-4 py-3 text-center font-bold text-blue-600">${b.totalIssued}</td>
                         <td class="px-4 py-3 text-center font-bold">${ratio}%</td>
@@ -1466,28 +1557,31 @@
             }
 
             const price = Number(book.price || 0);
+            const costPrice = Number(book.cost_price || 0);
+            const marginPct = price > 0 ? (((price - costPrice) / price) * 100).toFixed(1) : 0;
             const revenue = book.totalIssued * price;
-            const cost = (Number(book.openingStock || 0) + book.totalReceived) * (price * 0.45);
-            const profit = revenue - cost;
+            const costOfSold = book.totalIssued * costPrice;
+            const realizedProfit = revenue - costOfSold;
 
             container.innerHTML = `
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-200">
-                    <div><span class="text-[10px] font-bold text-slate-400 uppercase">Book Code & Title</span><h5 class="text-sm font-extrabold text-slate-800 mt-0.5">${book.code} - ${book.name}</h5></div>
-                    <div><span class="text-[10px] font-bold text-slate-400 uppercase">Language / Category</span><h5 class="text-sm font-bold text-slate-700 mt-0.5 capitalize">${book.language} / ${book.category || 'General'}</h5></div>
-                    <div><span class="text-[10px] font-bold text-slate-400 uppercase">Selling Price</span><h5 class="text-sm font-extrabold text-emerald-600 mt-0.5">₹${price.toFixed(2)}</h5></div>
-                    <div><span class="text-[10px] font-bold text-slate-400 uppercase">Status</span><h5 class="text-sm font-extrabold mt-0.5 ${book.status === 'In Stock' ? 'text-emerald-600' : 'text-red-500'}">${book.status}</h5></div>
+                    <div><span class="text-[10px] font-bold text-slate-400 uppercase">Title & Edition</span><h5 class="text-sm font-extrabold text-slate-800 mt-0.5">${book.code} - ${book.name} <span class="text-xs font-normal text-slate-500">(${book.edition || '1st Run'})</span></h5></div>
+                    <div><span class="text-[10px] font-bold text-slate-400 uppercase">Author & Category</span><h5 class="text-sm font-bold text-slate-700 mt-0.5">${book.author || 'Editorial'} / <span class="text-blue-600">${book.category || 'General'}</span></h5></div>
+                    <div><span class="text-[10px] font-bold text-slate-400 uppercase">Retail / Print Cost</span><h5 class="text-sm font-extrabold text-emerald-600 mt-0.5">₹${price.toFixed(2)} <span class="text-xs text-slate-500 font-semibold">(Cost: ₹${costPrice.toFixed(2)}, ${marginPct}%)</span></h5></div>
+                    <div><span class="text-[10px] font-bold text-slate-400 uppercase">Stock & Status</span><h5 class="text-sm font-extrabold mt-0.5 ${book.status === 'In Stock' ? 'text-emerald-600' : 'text-red-500'}">${book.currentStock} in stock (${book.status})</h5></div>
                 </div>
 
                 <div class="p-5 bg-white border border-slate-100 shadow-sm rounded-2xl">
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Section 7 Lifecycle Tracking Equation</p>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2 text-center text-xs">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 text-center text-xs">
                         <div class="p-3 bg-slate-50 rounded-xl"><p class="text-slate-400 font-bold">Opening</p><p class="text-base font-extrabold text-slate-800 mt-1">${book.openingStock}</p></div>
                         <div class="p-3 bg-emerald-50 rounded-xl"><p class="text-emerald-600 font-bold">+ Receipts</p><p class="text-base font-extrabold text-emerald-700 mt-1">${book.totalReceived}</p></div>
                         <div class="p-3 bg-red-50 rounded-xl"><p class="text-red-600 font-bold">- Issued/Sold</p><p class="text-base font-extrabold text-red-700 mt-1">${book.totalIssued}</p></div>
+                        <div class="p-3 bg-purple-50 rounded-xl"><p class="text-purple-600 font-bold">- Complimentary</p><p class="text-base font-extrabold text-purple-700 mt-1">${book.totalComplimentary || 0}</p></div>
                         <div class="p-3 bg-blue-50 rounded-xl"><p class="text-blue-600 font-bold">+ Returns</p><p class="text-base font-extrabold text-blue-700 mt-1">${book.totalReturns}</p></div>
                         <div class="p-3 bg-amber-50 rounded-xl"><p class="text-amber-600 font-bold">- Damaged</p><p class="text-base font-extrabold text-amber-700 mt-1">${book.totalDamaged}</p></div>
                         <div class="p-3 bg-indigo-50 rounded-xl"><p class="text-indigo-600 font-bold">= Closing</p><p class="text-base font-extrabold text-indigo-700 mt-1">${book.currentStock}</p></div>
-                        <div class="p-3 bg-emerald-100 rounded-xl"><p class="text-emerald-800 font-bold">Gross Revenue</p><p class="text-base font-black text-emerald-800 mt-1">₹${revenue.toLocaleString('en-IN')}</p></div>
+                        <div class="p-3 bg-emerald-100 rounded-xl"><p class="text-emerald-800 font-bold">Realized Profit</p><p class="text-base font-black text-emerald-800 mt-1">₹${realizedProfit.toLocaleString('en-IN')}</p></div>
                     </div>
                 </div>
             `;
@@ -1501,7 +1595,7 @@
             tbody.innerHTML = '';
             
             const filtered = computedInventory.filter(book => {
-                const matchesSearch = book.name.toLowerCase().includes(searchQ) || book.code.toLowerCase().includes(searchQ);
+                const matchesSearch = book.name.toLowerCase().includes(searchQ) || book.code.toLowerCase().includes(searchQ) || (book.author && book.author.toLowerCase().includes(searchQ));
                 const matchesLang = langFilter === 'all' || book.language === langFilter;
                 return matchesSearch && matchesLang;
             });
@@ -1516,9 +1610,15 @@
                 tbody.innerHTML += `
                     <tr>
                         <td class="px-6 py-4 font-mono text-xs font-bold text-slate-400">${book.code}</td>
-                        <td class="px-6 py-4 font-bold text-slate-800">${book.name}</td>
+                        <td class="px-6 py-4">
+                            <p class="font-bold text-slate-800">${book.name}</p>
+                            <p class="text-[11px] text-slate-400 font-medium">${book.author || 'Editorial'} • <span class="text-blue-500">${book.category || 'General'}</span></p>
+                        </td>
                         <td class="px-6 py-4">${formatLanguageName(book)}</td>
-                        <td class="px-6 py-4 text-right font-medium text-slate-600">₹${Number(book.price).toFixed(2)}</td>
+                        <td class="px-6 py-4 text-right font-medium text-slate-600">
+                            <div>₹${Number(book.price).toFixed(2)}</div>
+                            <div class="text-[10px] text-slate-400">Cost: ₹${Number(book.cost_price).toFixed(2)}</div>
+                        </td>
                         <td class="px-6 py-4 text-center text-slate-400 font-medium">${book.openingStock}</td>
                         <td class="px-6 py-4 text-center font-extrabold text-slate-800 text-base">${book.currentStock}</td>
                         <td class="px-6 py-4 text-center">${statusBadge}</td>
@@ -1538,7 +1638,30 @@
             renderBooksTable();
         }
 
-        // --- ADD BOOK LANGUAGE LOGIC ---
+        // --- DYNAMIC PROFIT MARGIN & PRINTING COST CALCULATOR ---
+        function calculatePrintingCostFromMargin() {
+            const price = parseFloat(document.getElementById('bk-price').value) || 0;
+            const margin = parseFloat(document.getElementById('bk-profit-margin').value) || 0;
+            if (price > 0) {
+                const cost = price * (1 - (margin / 100));
+                document.getElementById('bk-cost-price').value = Math.max(0, cost).toFixed(2);
+            }
+        }
+
+        function calculateMarginFromPrintingCost() {
+            const price = parseFloat(document.getElementById('bk-price').value) || 0;
+            const cost = parseFloat(document.getElementById('bk-cost-price').value) || 0;
+            if (price > 0) {
+                const margin = ((price - cost) / price) * 100;
+                document.getElementById('bk-profit-margin').value = margin.toFixed(1);
+            }
+        }
+
+        document.getElementById('bk-price').addEventListener('input', calculatePrintingCostFromMargin);
+        document.getElementById('bk-profit-margin').addEventListener('input', calculatePrintingCostFromMargin);
+        document.getElementById('bk-cost-price').addEventListener('input', calculateMarginFromPrintingCost);
+
+        // Language toggle
         document.getElementById('bk-language').addEventListener('change', function() {
             const otherContainer = document.getElementById('other-language-container');
             const otherInput = document.getElementById('bk-other-language');
@@ -1557,30 +1680,44 @@
             
             const code = document.getElementById('bk-code').value.trim(); 
             const name = document.getElementById('bk-name').value.trim();
+            const edition = document.getElementById('bk-edition').value.trim() || '1st Edition';
+            const author = document.getElementById('bk-author').value.trim() || 'Editorial Staff';
+            const category = document.getElementById('bk-category').value;
             const language = document.getElementById('bk-language').value;
             const otherLanguage = document.getElementById('bk-other-language').value.trim();
-            const price = document.getElementById('bk-price').value; 
+            const price = parseFloat(document.getElementById('bk-price').value); 
+            const costPrice = parseFloat(document.getElementById('bk-cost-price').value) || (price * 0.80);
             const opening = document.getElementById('bk-opening').value;
+            const minStock = parseInt(document.getElementById('bk-minstock').value) || 5;
 
-            if(!code || !name || !language || !price || !opening) return showToast("Please fill all required fields.", "error");
+            if(!code || !name || !language || isNaN(price) || !opening) return showToast("Please fill all required fields.", "error");
             if(language === 'others' && !otherLanguage) return showToast("Please specify the other language name.", "error");
             if (booksData.some(b => b.code.toLowerCase() === code.toLowerCase())) return showToast("Book code already exists.", "error");
 
             const bookData = { 
-                code, name, language,
+                code, 
+                name, 
+                language,
                 other_language: language === 'others' ? otherLanguage : null,
-                author: '-', publisher: '', category: 'General', 
-                price: Number(price), openingStock: Number(opening), minStock: 5, 
+                author,
+                category,
+                edition,
+                price: Number(price),
+                cost_price: Number(costPrice),
+                openingStock: Number(opening), 
+                minStock: Number(minStock), 
+                publisher: 'Publication Dept',
                 createdAt: new Date().toISOString() 
             };
 
             try {
                 const { error } = await supabaseClient.from('books').insert([bookData]);
                 if (error) throw error;
-                await logAuditAction('Add Book', 'Inventory', `Added new book: ${code} (${language})`);
+                await logAuditAction('Add Book', 'Inventory', `Added new book: ${code} - ${name} (${category})`);
                 showToast("Book added successfully!", "success");
                 closeModal('add-book-modal'); 
                 document.getElementById('add-book-form').reset(); 
+                document.getElementById('bk-profit-margin').value = "20";
                 document.getElementById('other-language-container').classList.add('hidden');
                 fetchData(); 
             } catch(e) { showToast("Failed to add book: " + e.message, "error"); }
@@ -1619,7 +1756,9 @@
             if(!bookId || !date || !qty) return showToast("Please fill all required fields.", "error");
             const book = computedInventory.find(b => b.id == bookId); if(!book) return;
 
-            if ((type === 'issue' || type === 'damaged') && qty > book.currentStock) return showToast(`Insufficient Stock!`, "error");
+            if ((type === 'issue' || type === 'complimentary' || type === 'damaged') && qty > book.currentStock) {
+                return showToast(`Insufficient Stock! Current stock is only ${book.currentStock}`, "error");
+            }
 
             const txData = { bookId, bookCode: book.code, bookName: book.name, type, date, quantity: qty, remarks, createdAt: new Date().toISOString() };
             const btn = this.querySelector('button[type="submit"]'); btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
@@ -1654,6 +1793,7 @@
                 switch(tx.type) {
                     case 'receipt': icon = 'fa-arrow-down'; color = 'text-emerald-600 bg-emerald-100/50 border border-emerald-200'; sign = '+'; break;
                     case 'issue': icon = 'fa-arrow-up'; color = 'text-red-600 bg-red-100/50 border border-red-200'; sign = '-'; break;
+                    case 'complimentary': icon = 'fa-gift'; color = 'text-purple-600 bg-purple-100/50 border border-purple-200'; sign = '-'; break;
                     case 'return': icon = 'fa-arrow-rotate-left'; color = 'text-blue-600 bg-blue-100/50 border border-blue-200'; sign = '+'; break;
                     case 'damaged': icon = 'fa-ban'; color = 'text-orange-600 bg-orange-100/50 border border-orange-200'; sign = '-'; break;
                     case 'adjustment': icon = 'fa-sliders'; color = 'text-slate-600 bg-slate-100/80 border border-slate-200'; sign = '±'; break;
@@ -1702,13 +1842,14 @@
             if(langFilter !== 'all') filtered = filtered.filter(b => b.language === langFilter);
 
             filtered.forEach(book => {
+                const totalOut = book.totalIssued + (book.totalComplimentary || 0);
                 tbody.innerHTML += `
                     <tr>
                         <td class="px-6 py-4"><p class="font-bold text-slate-800">${book.code}</p><p class="text-xs font-medium text-slate-500 truncate max-w-[220px] mt-0.5">${book.name}</p></td>
                         <td class="px-4 py-4">${formatLanguageName(book)}</td>
                         <td class="px-4 py-4 text-center text-slate-500 font-bold">${book.openingStock}</td>
                         <td class="px-4 py-4 text-center text-emerald-600 font-bold">${book.totalReceived}</td>
-                        <td class="px-4 py-4 text-center text-red-500 font-bold">${book.totalIssued}</td>
+                        <td class="px-4 py-4 text-center text-red-500 font-bold">${totalOut}</td>
                         <td class="px-4 py-4 text-center text-orange-500 font-bold">${book.totalDamaged}</td>
                         <td class="px-6 py-4 text-center text-lg font-black text-slate-800 bg-slate-50/50 border-l border-slate-100">${book.currentStock}</td>
                     </tr>
@@ -1724,6 +1865,7 @@
             let formulaStr = `<span class="text-slate-500">Opening:</span> <span class="font-bold">${book.openingStock}</span>`;
             if(book.totalReceived > 0) formulaStr += ` <span class="text-emerald-500 mx-1">+</span> Rec: <span class="font-bold">${book.totalReceived}</span>`; 
             if(book.totalIssued > 0) formulaStr += ` <span class="text-red-500 mx-1">-</span> Iss: <span class="font-bold">${book.totalIssued}</span>`;
+            if(book.totalComplimentary > 0) formulaStr += ` <span class="text-purple-500 mx-1">-</span> Comp: <span class="font-bold">${book.totalComplimentary}</span>`;
             if(book.totalDamaged > 0) formulaStr += ` <span class="text-orange-500 mx-1">-</span> Dmg: <span class="font-bold">${book.totalDamaged}</span>`;
             
             document.getElementById('hist-formula').innerHTML = formulaStr;
@@ -1737,7 +1879,7 @@
             [...book.bookTxs].sort((a,b) => { const dA = new Date(a.date).getTime(); const dB = new Date(b.date).getTime(); return dA === dB ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() : dA - dB; }).forEach(tx => {
                 let qty = Number(tx.quantity); let displayQty = ''; let colorClass = '';
                 if (['receipt', 'return'].includes(tx.type)) { runningBalance += qty; displayQty = `+${qty}`; colorClass = 'text-emerald-600'; } 
-                else if (['issue', 'damaged'].includes(tx.type)) { runningBalance -= qty; displayQty = `-${qty}`; colorClass = 'text-red-500'; } 
+                else if (['issue', 'complimentary', 'damaged'].includes(tx.type)) { runningBalance -= qty; displayQty = `-${qty}`; colorClass = 'text-red-500'; } 
                 else if (tx.type === 'adjustment') { runningBalance += qty; displayQty = `±${qty}`; colorClass = 'text-slate-600'; }
 
                 tbody.innerHTML += `<tr><td class="px-5 py-4 text-xs font-medium text-slate-500 whitespace-nowrap">${new Date(tx.date).toLocaleDateString('en-GB')}</td><td class="px-4 py-4 text-sm font-bold capitalize text-slate-800">${tx.type}</td><td class="px-4 py-4 text-right font-black ${colorClass}">${displayQty}</td><td class="px-4 py-4 text-right font-black text-slate-800">${runningBalance}</td><td class="px-4 py-4 text-xs font-medium text-slate-500">${tx.remarks || '-'}</td></tr>`;
@@ -1906,9 +2048,7 @@
             toast.className = `flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-white text-sm font-bold ${color} transition-all duration-300 transform translate-y-4 opacity-0`;
             toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i> <span>${message}</span>`;
             container.appendChild(toast); 
-            // Animate in
             setTimeout(() => { toast.classList.remove('translate-y-4', 'opacity-0'); }, 10);
-            // Animate out
             setTimeout(() => { 
                 toast.classList.add('translate-y-4', 'opacity-0'); 
                 setTimeout(() => toast.remove(), 300); 
