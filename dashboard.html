@@ -96,6 +96,9 @@
                 <a href="#" data-target="inventory" class="nav-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"><i class="fa-solid fa-right-left w-5 text-center text-lg"></i> Transactions</a>
                 <a href="#" data-target="reports" class="nav-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"><i class="fa-solid fa-file-invoice w-5 text-center text-lg"></i> Reports</a>
                 
+                <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider mt-4 mb-2">Publication Operations</p>
+                <a href="#" data-target="nonbook-inventory" class="nav-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"><i class="fa-solid fa-boxes-packing w-5 text-center text-lg text-indigo-500"></i> Publication Materials</a>
+
                 <div class="admin-only my-4 border-t border-slate-200/60 pt-4">
                     <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Administration</p>
                     <a href="#" data-target="users" class="admin-only nav-link nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"><i class="fa-solid fa-users-gear w-5 text-center text-lg"></i> Manage Users</a>
@@ -603,6 +606,135 @@
                     </div>
                 </section>
 
+                <!-- NEW: NON-BOOK PUBLICATION MATERIALS & INVENTORY PORTAL -->
+                <section id="sec-nonbook-inventory" class="content-section hidden max-w-7xl mx-auto space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-slate-200 pb-5">
+                        <div>
+                            <span class="text-xs font-extrabold text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Publication Department Non-Book Operations</span>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight mt-1">Publication Materials Inventory</h2>
+                            <p class="text-sm text-slate-500 mt-0.5 font-medium">Tracking paper, stationery, binding, packaging, and department consumables</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="exportNonBookCSV()" class="px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-600 hover:text-indigo-600 hover:border-indigo-200 transition-all text-sm font-semibold flex items-center gap-2">
+                                <i class="fa-solid fa-file-excel text-emerald-600"></i> Export Excel/CSV
+                            </button>
+                            <button onclick="openModal('add-nonbook-item-modal')" class="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white px-4 py-2.5 rounded-xl shadow-lg shadow-indigo-500/30 text-sm font-semibold transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i> Add Item Master
+                            </button>
+                            <button onclick="openModal('nonbook-entry-modal')" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-4 py-2.5 rounded-xl shadow-lg shadow-emerald-500/30 text-sm font-semibold transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-right-left"></i> Inventory Entry
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Material Portal Quick Stats -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Catalogued Items</p>
+                            <h3 class="text-2xl font-black text-slate-800 mt-1" id="kpi-nb-items">0</h3>
+                            <p class="text-xs text-slate-500 mt-1">Non-book SKUs</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Stock Received (In)</p>
+                            <h3 class="text-2xl font-black text-emerald-600 mt-1" id="kpi-nb-received">0</h3>
+                            <p class="text-xs text-slate-500 mt-1">Purchases/Inward</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Stock Issued (Out)</p>
+                            <h3 class="text-2xl font-black text-red-500 mt-1" id="kpi-nb-issued">0</h3>
+                            <p class="text-xs text-slate-500 mt-1">Department consumption</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Low / Reorder Alert</p>
+                            <h3 class="text-2xl font-black text-amber-500 mt-1" id="kpi-nb-low">0</h3>
+                            <p class="text-xs text-slate-500 mt-1">Stock ≤ threshold</p>
+                        </div>
+                    </div>
+
+                    <!-- Formula Bar -->
+                    <div class="p-4 bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span class="font-bold tracking-wider uppercase text-indigo-200">Stock Calculation Rule:</span>
+                            <span class="font-mono bg-white/10 px-3 py-1 rounded-lg">Current Stock = Opening Stock + Stock Received − Stock Issued</span>
+                        </div>
+                        <span class="text-slate-300 text-[11px]">Separate non-book items tracked cleanly from publication titles</span>
+                    </div>
+
+                    <!-- Filter Toolbar -->
+                    <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex flex-col lg:flex-row gap-4 justify-between items-center">
+                        <div class="flex flex-wrap gap-2 w-full lg:w-auto">
+                            <button onclick="setNonBookTab('all')" class="nb-tab-btn active px-4 py-2 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white" id="nb-tab-all">All Items</button>
+                            <button onclick="setNonBookTab('inward')" class="nb-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200" id="nb-tab-inward">Stock In (Receipts)</button>
+                            <button onclick="setNonBookTab('outward')" class="nb-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200" id="nb-tab-outward">Stock Out (Issued)</button>
+                            <button onclick="setNonBookTab('low')" class="nb-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200" id="nb-tab-low">Low Stock Items</button>
+                            <button onclick="setNonBookTab('history')" class="nb-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200" id="nb-tab-history">Inventory History</button>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                            <div class="relative flex-1">
+                                <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input type="text" id="nb-search" placeholder="Search item, code, vendor..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <select id="nb-category-filter" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium focus:ring-2 focus:ring-indigo-500">
+                                <option value="all">All Categories</option>
+                                <option value="Stationery">Stationery</option>
+                                <option value="Printing Materials">Printing Materials</option>
+                                <option value="Packaging Materials">Packaging Materials</option>
+                                <option value="Publication Materials">Publication Materials</option>
+                                <option value="Binding Materials">Binding Materials</option>
+                                <option value="Office Consumables">Office Consumables</option>
+                                <option value="Dispatch Materials">Dispatch Materials</option>
+                                <option value="Cleaning/Maintenance Items">Cleaning/Maintenance Items</option>
+                                <option value="Equipment & Accessories">Equipment & Accessories</option>
+                                <option value="Storage Materials">Storage Materials</option>
+                                <option value="Miscellaneous">Miscellaneous</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Non-Book Table / History View -->
+                    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                        <div id="nb-table-container" class="overflow-x-auto">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-5 py-4">Item Code / SKU</th>
+                                        <th class="px-5 py-4">Item Name</th>
+                                        <th class="px-4 py-4">Category</th>
+                                        <th class="px-4 py-4 text-center">Unit</th>
+                                        <th class="px-4 py-4 text-center">Opening Stock</th>
+                                        <th class="px-4 py-4 text-center text-emerald-600">Stock Received</th>
+                                        <th class="px-4 py-4 text-center text-red-500">Stock Issued/Used</th>
+                                        <th class="px-5 py-4 text-center font-black text-slate-800 bg-slate-100/50">Current Stock</th>
+                                        <th class="px-4 py-4 text-center">Status</th>
+                                        <th class="px-4 py-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="nonbook-table-body" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Non-Book History Container (visible when history tab is active) -->
+                        <div id="nb-history-container" class="overflow-x-auto hidden p-2">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+                                    <tr>
+                                        <th class="px-4 py-3">Date</th>
+                                        <th class="px-4 py-3">Item Details</th>
+                                        <th class="px-4 py-3">Transaction</th>
+                                        <th class="px-4 py-3 text-right">Quantity</th>
+                                        <th class="px-4 py-3">Supplier/Vendor</th>
+                                        <th class="px-4 py-3">Ref No.</th>
+                                        <th class="px-4 py-3">Issued To / Dept</th>
+                                        <th class="px-4 py-3">Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="nb-history-table-body" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Reports Section -->
                 <section id="sec-reports" class="content-section hidden flex-col h-full max-w-7xl mx-auto">
                     <div class="mb-6">
@@ -683,7 +815,8 @@
         </main>
     </div>
 
-    <!-- Modals (Updated styling for richer overlay and cards) -->
+    <!-- Modals -->
+    <!-- Add Book Modal -->
     <div id="add-book-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col border border-white overflow-hidden transform scale-100 transition-transform max-h-[90vh]">
             <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 flex-shrink-0">
@@ -725,7 +858,7 @@
         </div>
     </div>
 
-    <!-- History Modal -->
+    <!-- History Modal for Books -->
     <div id="history-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
             <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 flex-shrink-0">
@@ -759,6 +892,142 @@
                         <tbody id="hist-table-body" class="divide-y divide-slate-50"></tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Add Non-Book Item Modal -->
+    <div id="add-nonbook-item-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg flex flex-col border border-white overflow-hidden max-h-[90vh]">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 flex-shrink-0">
+                <h3 class="font-extrabold text-lg text-slate-800 flex items-center gap-2"><i class="fa-solid fa-box-archive text-indigo-600"></i> New Publication Material (Item Master)</h3>
+                <button onclick="closeModal('add-nonbook-item-modal')" class="text-slate-400 hover:text-red-500 bg-white w-8 h-8 rounded-full shadow-sm flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 hide-scrollbar">
+                <form id="add-nonbook-item-form" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Item Code / SKU *</label>
+                            <input type="text" id="nb-new-code" required placeholder="e.g. MAT-001" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Unit *</label>
+                            <input type="text" id="nb-new-unit" required placeholder="Pieces, Reams, Rolls..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Item Name *</label>
+                        <input type="text" id="nb-new-name" required placeholder="e.g. Printing Paper 70 GSM" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Category *</label>
+                        <select id="nb-new-category" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500">
+                            <option value="Stationery">Stationery</option>
+                            <option value="Printing Materials">Printing Materials</option>
+                            <option value="Packaging Materials">Packaging Materials</option>
+                            <option value="Publication Materials">Publication Materials</option>
+                            <option value="Binding Materials">Binding Materials</option>
+                            <option value="Office Consumables">Office Consumables</option>
+                            <option value="Dispatch Materials">Dispatch Materials</option>
+                            <option value="Cleaning/Maintenance Items">Cleaning/Maintenance Items</option>
+                            <option value="Equipment & Accessories">Equipment & Accessories</option>
+                            <option value="Storage Materials">Storage Materials</option>
+                            <option value="Miscellaneous">Miscellaneous</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Opening Stock *</label>
+                            <input type="number" id="nb-new-opening" min="0" value="0" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Reorder Alert Level</label>
+                            <input type="number" id="nb-new-reorder" min="0" value="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Remarks / Specifications</label>
+                        <input type="text" id="nb-new-remarks" placeholder="Optional notes" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </form>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/80 flex-shrink-0">
+                <button onclick="closeModal('add-nonbook-item-modal')" class="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-300 rounded-xl hover:bg-slate-50">Cancel</button>
+                <button onclick="submitNonBookItemForm()" class="px-5 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl shadow-lg shadow-indigo-500/30">Save Item</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Non-Book Inventory Entry Modal (Stock Transaction) -->
+    <div id="nonbook-entry-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl flex flex-col border border-white overflow-hidden max-h-[90vh]">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 flex-shrink-0">
+                <h3 class="font-extrabold text-lg text-slate-800 flex items-center gap-2"><i class="fa-solid fa-right-left text-emerald-600"></i> Non-Book Inventory Entry</h3>
+                <button onclick="closeModal('nonbook-entry-modal')" class="text-slate-400 hover:text-red-500 bg-white w-8 h-8 rounded-full shadow-sm flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 hide-scrollbar">
+                <form id="nonbook-tx-form" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Step 1 — Select Item *</label>
+                            <select id="nb-entry-item" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Step 3 — Transaction Type *</label>
+                            <select id="nb-entry-type" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500">
+                                <option value="receipt">Stock Received / Purchase (+)</option>
+                                <option value="issue">Stock Issued / Used (-)</option>
+                                <option value="adjustment">Stock Adjustment (±)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center text-xs">
+                        <span class="text-slate-500">Unit: <strong id="nb-entry-unit-label" class="text-slate-700">Pieces</strong></span>
+                        <span class="text-slate-500">Current Stock: <strong id="nb-entry-stock-label" class="text-indigo-600 text-sm">0</strong></span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Date *</label>
+                            <input type="date" id="nb-entry-date" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Step 4 — Quantity *</label>
+                            <input type="number" id="nb-entry-qty" min="1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500" placeholder="e.g. 50">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Supplier / Vendor</label>
+                            <input type="text" id="nb-entry-supplier" placeholder="e.g. ABC Paper Mills" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Purchase / Receipt Ref No.</label>
+                            <input type="text" id="nb-entry-ref" placeholder="Invoice # or PO #" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Issued To / Department</label>
+                            <input type="text" id="nb-entry-dept" placeholder="e.g. Dispatch Section / John" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Remarks</label>
+                            <input type="text" id="nb-entry-remarks" placeholder="Purpose or condition" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/80 flex-shrink-0">
+                <button onclick="closeModal('nonbook-entry-modal')" class="px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-300 rounded-xl hover:bg-slate-50">Cancel</button>
+                <button onclick="submitNonBookEntryForm()" class="px-5 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl shadow-lg shadow-emerald-500/30">Save Inventory Entry</button>
             </div>
         </div>
     </div>
@@ -802,6 +1071,48 @@
         let anCategoryChartInstance = null;
         let anDemandChartInstance = null;
 
+        // ==========================================
+        // NON-BOOK INVENTORY DATA STORE
+        // ==========================================
+        let nonBookItems = [
+            { id: 'nb-1', code: 'PRT-PAP-01', name: 'Printing Paper (70 GSM)', category: 'Printing Materials', unit: 'Reams', openingStock: 10, reorderLevel: 10, remarks: 'White offset bond paper' },
+            { id: 'nb-2', code: 'PKG-TAP-01', name: 'Packing Tape (Brown)', category: 'Packaging Materials', unit: 'Rolls', openingStock: 15, reorderLevel: 8, remarks: '2 inch standard packaging tape' },
+            { id: 'nb-3', code: 'PKG-ENV-01', name: 'Envelopes (A4 Dispatch)', category: 'Printing Materials', unit: 'Pieces', openingStock: 100, reorderLevel: 150, remarks: 'With publication seal' },
+            { id: 'nb-4', code: 'STN-PEN-01', name: 'Ballpoint Pens (Blue/Black)', category: 'Stationery', unit: 'Boxes', openingStock: 25, reorderLevel: 5, remarks: 'Office writing supplies' },
+            { id: 'nb-5', code: 'BND-COI-01', name: 'Spiral Binding Coils (12mm)', category: 'Binding Materials', unit: 'Packets', openingStock: 12, reorderLevel: 5, remarks: 'Black plastic coils' },
+            { id: 'nb-6', code: 'PUB-BKM-01', name: 'Bookmarks (Publication Logo)', category: 'Publication Materials', unit: 'Pieces', openingStock: 500, reorderLevel: 200, remarks: 'Glossy lamination' },
+            { id: 'nb-7', code: 'OFC-TNR-01', name: 'Toner Cartridge (HP Laser)', category: 'Office Consumables', unit: 'Boxes', openingStock: 4, reorderLevel: 2, remarks: 'Central office printer' },
+            { id: 'nb-8', code: 'DSP-BAG-01', name: 'Courier Bags (Tamper Proof)', category: 'Dispatch Materials', unit: 'Pieces', openingStock: 250, reorderLevel: 100, remarks: 'With document pouch' },
+            { id: 'nb-9', code: 'CLN-DST-01', name: 'Dusters & Microfiber Cloths', category: 'Cleaning/Maintenance Items', unit: 'Pieces', openingStock: 18, reorderLevel: 6, remarks: 'Department maintenance' },
+            { id: 'nb-10', code: 'EQP-USB-01', name: 'USB Flash Drives 64GB', category: 'Equipment & Accessories', unit: 'Pieces', openingStock: 8, reorderLevel: 3, remarks: 'Editorial backup drives' },
+            { id: 'nb-11', code: 'STR-BOX-01', name: 'Corrugated Storage Boxes', category: 'Storage Materials', unit: 'Pieces', openingStock: 40, reorderLevel: 15, remarks: 'Warehouse non-book racks' },
+            { id: 'nb-12', code: 'MSC-OTH-01', name: 'Stamp Pads & Ink', category: 'Miscellaneous', unit: 'Pieces', openingStock: 6, reorderLevel: 2, remarks: 'General counter stamping' }
+        ];
+
+        let nonBookTransactions = [
+            { id: 'nbt-1', itemId: 'nb-1', type: 'receipt', quantity: 20, date: '2026-09-05', supplier: 'Apex Paper Mills', refNo: 'INV-8821', issuedTo: 'Warehouse', remarks: 'Annual order' },
+            { id: 'nbt-2', itemId: 'nb-1', type: 'issue', quantity: 5, date: '2026-09-12', supplier: '-', refNo: '-', issuedTo: 'Printing Press Sec', remarks: 'Pamphlet batch 1' },
+            { id: 'nbt-3', itemId: 'nb-2', type: 'receipt', quantity: 10, date: '2026-09-08', supplier: 'Shree Packaging', refNo: 'RC-1044', issuedTo: 'Packaging Store', remarks: 'Regular re-stock' },
+            { id: 'nbt-4', itemId: 'nb-2', type: 'issue', quantity: 8, date: '2026-09-18', supplier: '-', refNo: '-', issuedTo: 'Dispatch Department', remarks: 'Book bulk shipment' },
+            { id: 'nbt-5', itemId: 'nb-3', type: 'receipt', quantity: 500, date: '2026-09-10', supplier: 'City Print Works', refNo: 'BILL-412', issuedTo: 'Dispatch Section', remarks: 'Printed envelopes' },
+            { id: 'nbt-6', itemId: 'nb-3', type: 'issue', quantity: 150, date: '2026-09-22', supplier: '-', refNo: '-', issuedTo: 'Dispatch Section', remarks: 'Monthly journals' }
+        ];
+
+        let activeNonBookTab = 'all';
+
+        // Load non-book storage if available
+        if (localStorage.getItem('portal_nonbook_items')) {
+            try { nonBookItems = JSON.parse(localStorage.getItem('portal_nonbook_items')); } catch(e){}
+        }
+        if (localStorage.getItem('portal_nonbook_txs')) {
+            try { nonBookTransactions = JSON.parse(localStorage.getItem('portal_nonbook_txs')); } catch(e){}
+        }
+
+        function saveNonBookToStorage() {
+            localStorage.setItem('portal_nonbook_items', JSON.stringify(nonBookItems));
+            localStorage.setItem('portal_nonbook_txs', JSON.stringify(nonBookTransactions));
+        }
+
         // AUTHENTICATION CHECK
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -828,6 +1139,7 @@
                 document.getElementById('boot-loader').classList.add('hidden');
                 document.getElementById('app').classList.remove('hidden');
                 fetchData();
+                renderNonBookModule();
 
             } catch (err) {
                 alert(err.message);
@@ -911,7 +1223,11 @@
             updateUI();
         }
 
-        window.refreshData = function() { showToast("Fetching latest data...", "info"); fetchData(); }
+        window.refreshData = function() { 
+            showToast("Fetching latest data...", "info"); 
+            fetchData(); 
+            renderNonBookModule();
+        }
 
         function updateUI() {
             renderDashboard(); 
@@ -1133,13 +1449,11 @@
                 if (book.status === 'Low Stock') lowStockCount++;
                 if (book.status === 'Out of Stock') outStockCount++;
 
-                // Movement Velocity
                 const totalInflow = Number(book.openingStock || 0) + book.totalReceived;
                 const movementRatio = totalInflow > 0 ? (book.totalIssued / totalInflow) : 0;
                 if (movementRatio >= 0.20 && book.totalIssued >= 5) fastMovingCount++;
                 if (movementRatio < 0.05 && totalInflow > 0) slowMovingCount++;
 
-                // Category aggregate
                 const cat = book.category || 'General';
                 if (!categoryBreakdown[cat]) categoryBreakdown[cat] = { titles: 0, stock: 0, issued: 0, revenue: 0 };
                 categoryBreakdown[cat].titles += 1;
@@ -1147,7 +1461,6 @@
                 categoryBreakdown[cat].issued += book.totalIssued;
                 categoryBreakdown[cat].revenue += bookRevenue;
 
-                // Author aggregate
                 const author = (book.author && book.author !== '-') ? book.author : 'Publication Editorial';
                 if (!authorBreakdown[author]) authorBreakdown[author] = { titles: 0, stock: 0, issued: 0, revenue: 0 };
                 authorBreakdown[author].titles += 1;
@@ -1156,7 +1469,6 @@
                 authorBreakdown[author].revenue += bookRevenue;
             });
 
-            // Transactions Scan for Centre Distribution and Monthly Series
             transactionsData.forEach(tx => {
                 const qty = Number(tx.quantity || 0);
                 if (tx.remarks && tx.type === 'issue') {
@@ -1180,14 +1492,12 @@
                 }
             });
 
-            // Financial & Stock Formulas
-            const estimatedStockCost = totalStock * 45; // benchmark publication printing cost
-            const grossMargin = totalRevenue * 0.45; // Estimated 45% margin
+            const estimatedStockCost = totalStock * 45; 
+            const grossMargin = totalRevenue * 0.45; 
             const turnoverRate = totalStock > 0 ? (totalIssued / ((totalOpening + totalStock) / 2 || 1)).toFixed(2) : '0.00';
             const returnRate = totalIssued > 0 ? ((totalReturns / totalIssued) * 100).toFixed(1) : 0;
             const netFlow = totalReceived - totalIssued - totalDamaged;
 
-            // Render KPI Scorecard
             document.getElementById('kpi-an-titles').textContent = totalTitles;
             document.getElementById('kpi-an-stock').textContent = totalStock;
             document.getElementById('kpi-an-received').textContent = totalReceived;
@@ -1204,7 +1514,6 @@
             document.getElementById('kpi-an-damaged').textContent = totalDamaged;
             document.getElementById('kpi-an-netflow').textContent = (netFlow >= 0 ? `+${netFlow}` : `${netFlow}`);
 
-            // Balance Formula Banner (Section 13)
             document.getElementById('eq-opening').textContent = totalOpening;
             document.getElementById('eq-receipts').textContent = totalReceived;
             document.getElementById('eq-returns').textContent = totalReturns;
@@ -1212,10 +1521,7 @@
             document.getElementById('eq-damaged').textContent = totalDamaged;
             document.getElementById('eq-closing').textContent = totalStock;
 
-            // Render Charts for Analytics Suite
             renderAnalyticsCharts(monthlyFinancials, categoryBreakdown);
-
-            // Render Lists & Tables
             renderBestAndSlowSellers();
             renderStockMovementTable();
             renderPrintingAnalysis();
@@ -1226,7 +1532,6 @@
         }
 
         function renderAnalyticsCharts(monthlyFinancials, categoryBreakdown) {
-            // Chart: Monthly Sales Growth
             const mKeys = Object.keys(monthlyFinancials).sort().slice(-8);
             const mLabels = mKeys.map(k => new Date(k + "-01").toLocaleDateString('default', { month: 'short', year: '2-digit' }));
             const mRev = mKeys.map(k => monthlyFinancials[k].revenue);
@@ -1258,7 +1563,6 @@
                 }
             });
 
-            // Chart: Category Revenue Contribution
             const catLabels = Object.keys(categoryBreakdown);
             const catValues = catLabels.map(k => categoryBreakdown[k].revenue);
             const ctxCat = document.getElementById('anCategoryRevenueChart').getContext('2d');
@@ -1279,7 +1583,6 @@
                 }
             });
 
-            // Chart: Category Demand
             const catDemand = catLabels.map(k => categoryBreakdown[k].issued);
             const ctxDemand = document.getElementById('anDemandChart').getContext('2d');
             if (anDemandChartInstance) anDemandChartInstance.destroy();
@@ -1467,8 +1770,6 @@
 
             const price = Number(book.price || 0);
             const revenue = book.totalIssued * price;
-            const cost = (Number(book.openingStock || 0) + book.totalReceived) * (price * 0.45);
-            const profit = revenue - cost;
 
             container.innerHTML = `
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-200">
@@ -1746,6 +2047,285 @@
         }
 
         // ==========================================
+        // NON-BOOK INVENTORY LOGIC & ACTIONS
+        // ==========================================
+        function computeNonBookInventory() {
+            return nonBookItems.map(item => {
+                const itemTxs = nonBookTransactions.filter(t => t.itemId === item.id);
+                let currentStock = Number(item.openingStock) || 0;
+                let received = 0;
+                let issued = 0;
+
+                itemTxs.forEach(tx => {
+                    const q = Number(tx.quantity) || 0;
+                    if (tx.type === 'receipt') {
+                        currentStock += q;
+                        received += q;
+                    } else if (tx.type === 'issue') {
+                        currentStock -= q;
+                        issued += q;
+                    } else if (tx.type === 'adjustment') {
+                        currentStock += q;
+                    }
+                });
+
+                const reorder = Number(item.reorderLevel) || 10;
+                let status = currentStock <= 0 ? 'Out of Stock' : currentStock <= reorder ? 'Low Stock' : 'Adequate';
+
+                return {
+                    ...item,
+                    received,
+                    issued,
+                    currentStock,
+                    status
+                };
+            });
+        }
+
+        function renderNonBookModule() {
+            const computed = computeNonBookInventory();
+            const totalItems = computed.length;
+            const totalRecv = computed.reduce((acc, c) => acc + c.received, 0);
+            const totalIss = computed.reduce((acc, c) => acc + c.issued, 0);
+            const totalLow = computed.filter(c => c.status !== 'Adequate').length;
+
+            document.getElementById('kpi-nb-items').textContent = totalItems;
+            document.getElementById('kpi-nb-received').textContent = totalRecv;
+            document.getElementById('kpi-nb-issued').textContent = totalIss;
+            document.getElementById('kpi-nb-low').textContent = totalLow;
+
+            renderNonBookTable(computed);
+            renderNonBookHistory();
+            populateNonBookItemDropdown();
+        }
+
+        function renderNonBookTable(computed) {
+            const tbody = document.getElementById('nonbook-table-body');
+            const searchQ = (document.getElementById('nb-search').value || '').toLowerCase();
+            const catFilter = document.getElementById('nb-category-filter').value;
+
+            let filtered = computed.filter(item => {
+                const matchSearch = item.name.toLowerCase().includes(searchQ) || item.code.toLowerCase().includes(searchQ);
+                const matchCat = catFilter === 'all' || item.category === catFilter;
+                return matchSearch && matchCat;
+            });
+
+            if (activeNonBookTab === 'inward') {
+                filtered = filtered.filter(i => i.received > 0);
+            } else if (activeNonBookTab === 'outward') {
+                filtered = filtered.filter(i => i.issued > 0);
+            } else if (activeNonBookTab === 'low') {
+                filtered = filtered.filter(i => i.status === 'Low Stock' || i.status === 'Out of Stock');
+            }
+
+            tbody.innerHTML = filtered.map(item => {
+                let badgeClass = item.status === 'Adequate' 
+                    ? 'bg-emerald-100 text-emerald-700 border-emerald-200' 
+                    : item.status === 'Low Stock' 
+                    ? 'bg-amber-100 text-amber-700 border-amber-200' 
+                    : 'bg-red-100 text-red-700 border-red-200';
+
+                return `
+                    <tr>
+                        <td class="px-5 py-4 font-mono font-bold text-xs text-slate-500">${item.code}</td>
+                        <td class="px-5 py-4 font-bold text-slate-800 text-sm">${item.name}</td>
+                        <td class="px-4 py-4 text-xs font-semibold text-indigo-600"><span class="px-2.5 py-1 bg-indigo-50 border border-indigo-100 rounded-md">${item.category}</span></td>
+                        <td class="px-4 py-4 text-center font-bold text-xs text-slate-500">${item.unit}</td>
+                        <td class="px-4 py-4 text-center text-slate-600 font-semibold">${item.openingStock}</td>
+                        <td class="px-4 py-4 text-center text-emerald-600 font-bold">+${item.received}</td>
+                        <td class="px-4 py-4 text-center text-red-500 font-bold">-${item.issued}</td>
+                        <td class="px-5 py-4 text-center font-black text-slate-800 bg-slate-50/50 text-base border-l border-r border-slate-100">${item.currentStock} ${item.unit}</td>
+                        <td class="px-4 py-4 text-center"><span class="px-2.5 py-1 border rounded-lg text-[10px] font-bold uppercase tracking-wider ${badgeClass}">${item.status}</span></td>
+                        <td class="px-4 py-4 text-right">
+                            <button onclick="quickEntryForNonBook('${item.id}')" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100"><i class="fa-solid fa-plus mr-1"></i> Transact</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-12 text-slate-400 font-medium">No materials match selected filter criteria.</td></tr>`;
+            }
+        }
+
+        function renderNonBookHistory() {
+            const tbody = document.getElementById('nb-history-table-body');
+            const recent = [...nonBookTransactions].reverse();
+
+            tbody.innerHTML = recent.map(tx => {
+                const item = nonBookItems.find(i => i.id === tx.itemId) || { name: 'Unknown Item', code: '-', unit: '' };
+                const isRec = tx.type === 'receipt';
+                const sign = isRec ? '+' : '-';
+                const color = isRec ? 'text-emerald-600 font-bold' : 'text-red-500 font-bold';
+
+                return `
+                    <tr>
+                        <td class="px-4 py-3 text-xs text-slate-500">${tx.date}</td>
+                        <td class="px-4 py-3"><p class="font-bold text-xs text-slate-800">${item.name}</p><span class="text-[10px] font-mono text-slate-400">${item.code}</span></td>
+                        <td class="px-4 py-3 text-xs font-bold uppercase ${isRec ? 'text-emerald-700' : 'text-red-700'}">${tx.type}</td>
+                        <td class="px-4 py-3 text-right ${color}">${sign}${tx.quantity} ${item.unit}</td>
+                        <td class="px-4 py-3 text-xs text-slate-600">${tx.supplier || '-'}</td>
+                        <td class="px-4 py-3 text-xs font-mono text-slate-500">${tx.refNo || '-'}</td>
+                        <td class="px-4 py-3 text-xs text-slate-600">${tx.issuedTo || '-'}</td>
+                        <td class="px-4 py-3 text-xs text-slate-400">${tx.remarks || '-'}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            if (recent.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">No transaction records found.</td></tr>`;
+            }
+        }
+
+        window.setNonBookTab = function(tab) {
+            activeNonBookTab = tab;
+            document.querySelectorAll('.nb-tab-btn').forEach(btn => {
+                btn.className = "nb-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200";
+            });
+            const activeBtn = document.getElementById('nb-tab-' + tab);
+            if (activeBtn) activeBtn.className = "nb-tab-btn active px-4 py-2 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white";
+
+            const tableContainer = document.getElementById('nb-table-container');
+            const historyContainer = document.getElementById('nb-history-container');
+
+            if (tab === 'history') {
+                tableContainer.classList.add('hidden');
+                historyContainer.classList.remove('hidden');
+            } else {
+                tableContainer.classList.remove('hidden');
+                historyContainer.classList.add('hidden');
+                renderNonBookTable(computeNonBookInventory());
+            }
+        };
+
+        function populateNonBookItemDropdown() {
+            const select = document.getElementById('nb-entry-item');
+            if (!select) return;
+            select.innerHTML = '<option value="">-- Select Material / Item --</option>';
+            nonBookItems.forEach(i => {
+                const opt = document.createElement('option');
+                opt.value = i.id;
+                opt.textContent = `${i.code} — ${i.name} (${i.category})`;
+                select.appendChild(opt);
+            });
+        }
+
+        document.getElementById('nb-entry-item').addEventListener('change', function() {
+            const computed = computeNonBookInventory();
+            const item = computed.find(i => i.id === this.value);
+            if (item) {
+                document.getElementById('nb-entry-unit-label').textContent = item.unit;
+                document.getElementById('nb-entry-stock-label').textContent = `${item.currentStock} ${item.unit}`;
+            }
+        });
+
+        document.getElementById('nb-entry-date').valueAsDate = new Date();
+        document.getElementById('nb-search').addEventListener('input', () => renderNonBookTable(computeNonBookInventory()));
+        document.getElementById('nb-category-filter').addEventListener('change', () => renderNonBookTable(computeNonBookInventory()));
+
+        window.submitNonBookItemForm = function() {
+            const code = document.getElementById('nb-new-code').value.trim();
+            const name = document.getElementById('nb-new-name').value.trim();
+            const category = document.getElementById('nb-new-category').value;
+            const unit = document.getElementById('nb-new-unit').value.trim();
+            const opening = Number(document.getElementById('nb-new-opening').value) || 0;
+            const reorder = Number(document.getElementById('nb-new-reorder').value) || 10;
+            const remarks = document.getElementById('nb-new-remarks').value.trim();
+
+            if (!code || !name || !unit) {
+                return showToast("Please fill all required master fields.", "error");
+            }
+            if (nonBookItems.some(i => i.code.toLowerCase() === code.toLowerCase())) {
+                return showToast("Item code already exists.", "error");
+            }
+
+            const newItem = {
+                id: 'nb-' + Date.now(),
+                code,
+                name,
+                category,
+                unit,
+                openingStock: opening,
+                reorderLevel: reorder,
+                remarks
+            };
+
+            nonBookItems.push(newItem);
+            saveNonBookToStorage();
+            closeModal('add-nonbook-item-modal');
+            document.getElementById('add-nonbook-item-form').reset();
+            renderNonBookModule();
+            showToast("Publication material master item created!", "success");
+        };
+
+        window.quickEntryForNonBook = function(itemId) {
+            openModal('nonbook-entry-modal');
+            document.getElementById('nb-entry-item').value = itemId;
+            const event = new Event('change');
+            document.getElementById('nb-entry-item').dispatchEvent(event);
+        };
+
+        window.submitNonBookEntryForm = function() {
+            const itemId = document.getElementById('nb-entry-item').value;
+            const type = document.getElementById('nb-entry-type').value;
+            const date = document.getElementById('nb-entry-date').value;
+            const qty = Number(document.getElementById('nb-entry-qty').value);
+            const supplier = document.getElementById('nb-entry-supplier').value.trim();
+            const refNo = document.getElementById('nb-entry-ref').value.trim();
+            const dept = document.getElementById('nb-entry-dept').value.trim();
+            const remarks = document.getElementById('nb-entry-remarks').value.trim();
+
+            if (!itemId || !date || !qty || qty <= 0) {
+                return showToast("Please enter a valid item, date and quantity.", "error");
+            }
+
+            const computed = computeNonBookInventory();
+            const currentItem = computed.find(i => i.id === itemId);
+
+            if (type === 'issue' && currentItem && qty > currentItem.currentStock) {
+                return showToast(`Cannot issue ${qty} ${currentItem.unit}. Only ${currentItem.currentStock} in stock.`, "error");
+            }
+
+            const newTx = {
+                id: 'nbt-' + Date.now(),
+                itemId,
+                type,
+                date,
+                quantity: qty,
+                supplier: supplier || '-',
+                refNo: refNo || '-',
+                issuedTo: dept || '-',
+                remarks: remarks || '-'
+            };
+
+            nonBookTransactions.push(newTx);
+            saveNonBookToStorage();
+            closeModal('nonbook-entry-modal');
+            document.getElementById('nonbook-tx-form').reset();
+            document.getElementById('nb-entry-date').valueAsDate = new Date();
+            renderNonBookModule();
+            showToast("Material transaction successfully updated stock!", "success");
+        };
+
+        window.exportNonBookCSV = function() {
+            const computed = computeNonBookInventory();
+            let csv = "Item Code,Item Name,Category,Unit,Opening Stock,Stock Received,Stock Issued,Current Stock,Status\n";
+            computed.forEach(i => {
+                csv += `"${i.code}","${i.name}","${i.category}","${i.unit}",${i.openingStock},${i.received},${i.issued},${i.currentStock},"${i.status}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Publication_NonBook_Inventory_${new Date().toISOString().substring(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast("Inventory exported to CSV/Excel successfully!", "info");
+        };
+
+        // ==========================================
         // ADMIN & UI UTILITIES
         // ==========================================
         async function loadAdminUsersTable() {
@@ -1880,9 +2460,14 @@
                 e.preventDefault(); const target = link.dataset.target;
                 navLinks.forEach(l => { l.classList.remove('nav-active'); l.classList.add('nav-item'); });
                 link.classList.remove('nav-item'); link.classList.add('nav-active');
-                sections.forEach(sec => sec.classList.add('hidden')); document.getElementById(`sec-${target}`).classList.remove('hidden');
-                if(target === 'users') loadAdminUsersTable();
-                if(window.innerWidth < 768) { closeSidebarMobile(); }
+                sections.forEach(sec => sec.classList.add('hidden')); 
+                
+                const targetSec = document.getElementById(`sec-${target}`);
+                if (targetSec) targetSec.classList.remove('hidden');
+                
+                if (target === 'users') loadAdminUsersTable();
+                if (target === 'nonbook-inventory') renderNonBookModule();
+                if (window.innerWidth < 768) { closeSidebarMobile(); }
             });
         });
 
@@ -1906,9 +2491,7 @@
             toast.className = `flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-white text-sm font-bold ${color} transition-all duration-300 transform translate-y-4 opacity-0`;
             toast.innerHTML = `<i class="fa-solid ${icon} text-lg"></i> <span>${message}</span>`;
             container.appendChild(toast); 
-            // Animate in
             setTimeout(() => { toast.classList.remove('translate-y-4', 'opacity-0'); }, 10);
-            // Animate out
             setTimeout(() => { 
                 toast.classList.add('translate-y-4', 'opacity-0'); 
                 setTimeout(() => toast.remove(), 300); 
