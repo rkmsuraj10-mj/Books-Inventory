@@ -553,9 +553,9 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Select Book *</label>
-                                    <select id="tx-book" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors cursor-pointer">
-                                        <option value="">-- Select a Book --</option>
-                                    </select>
+                                    <input list="tx-books-list" id="tx-book-input" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors cursor-text" placeholder="-- Search by Book Name or Code --" autocomplete="off">
+                                    <datalist id="tx-books-list"></datalist>
+                                    <input type="hidden" id="tx-book">
                                     <div class="mt-2 text-right">
                                         <p id="tx-current-stock-hint" class="inline-block px-3 py-1 bg-slate-100 rounded-lg text-xs font-medium text-slate-600 hidden">
                                             Current stock: <span id="tx-hint-val" class="font-extrabold ml-1"></span>
@@ -1725,35 +1725,61 @@
 
         // --- TRANSACTIONS ---
         function renderTransactionFormDropdown() {
-            const select = document.getElementById('tx-book'); const currentVal = select.value;
-            select.innerHTML = '<option value="">-- Select a Book --</option>';
+            const datalist = document.getElementById('tx-books-list'); 
+            const searchInput = document.getElementById('tx-book-input');
+            const hiddenInput = document.getElementById('tx-book');
+            const currentVal = hiddenInput.value;
+            
+            datalist.innerHTML = '';
             [...computedInventory].sort((a,b) => a.name.localeCompare(b.name)).forEach(b => {
-                const opt = document.createElement('option'); opt.value = b.id; opt.textContent = `${b.code} - ${b.name} (${b.language.toUpperCase()}, Stock: ${b.currentStock})`; select.appendChild(opt);
+                const opt = document.createElement('option'); 
+                opt.value = `${b.code} - ${b.name} (${b.language.toUpperCase()}, Stock: ${b.currentStock})`;
+                opt.dataset.id = b.id;
+                datalist.appendChild(opt);
             });
-            if(currentVal && computedInventory.find(b=>b.id == currentVal)) select.value = currentVal;
+            
+            if(currentVal) {
+                const book = computedInventory.find(b=>b.id == currentVal);
+                if(book) searchInput.value = `${book.code} - ${book.name} (${book.language.toUpperCase()}, Stock: ${book.currentStock})`;
+            }
         }
 
-        document.getElementById('tx-book').addEventListener('change', function(e) {
+        document.getElementById('tx-book-input').addEventListener('input', function(e) {
+            const val = this.value;
+            const options = document.getElementById('tx-books-list').options;
+            const hiddenInput = document.getElementById('tx-book');
             const hint = document.getElementById('tx-current-stock-hint');
-            if(!this.value) { hint.classList.add('hidden'); return; }
-            const book = computedInventory.find(b => b.id == this.value);
-            if(book) {
-                document.getElementById('tx-hint-val').textContent = book.currentStock;
-                document.getElementById('tx-hint-val').className = book.currentStock > 0 ? "font-extrabold text-emerald-600 ml-1" : "font-extrabold text-red-600 ml-1";
-                hint.classList.remove('hidden');
+            
+            hiddenInput.value = ''; 
+            hint.classList.add('hidden');
+
+            for(let i = 0; i < options.length; i++) {
+                if(options[i].value === val) {
+                    const bookId = options[i].dataset.id;
+                    hiddenInput.value = bookId;
+                    const book = computedInventory.find(b => b.id == bookId);
+                    if(book) {
+                        document.getElementById('tx-hint-val').textContent = book.currentStock;
+                        document.getElementById('tx-hint-val').className = book.currentStock > 0 ? "font-extrabold text-emerald-600 ml-1" : "font-extrabold text-red-600 ml-1";
+                        hint.classList.remove('hidden');
+                    }
+                    break;
+                }
             }
         });
+
         document.getElementById('tx-date').valueAsDate = new Date();
 
         document.getElementById('transaction-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (activeUserProfile.roles.name === 'Viewer') return showToast("Permission Denied.", "error");
 
-            const type = document.getElementById('tx-type').value; const bookId = document.getElementById('tx-book').value;
+            const type = document.getElementById('tx-type').value; 
+            const bookId = document.getElementById('tx-book').value;
             const date = document.getElementById('tx-date').value; let qty = Number(document.getElementById('tx-quantity').value);
             const remarks = document.getElementById('tx-remarks').value;
 
-            if(!bookId || !date || !qty) return showToast("Please fill all required fields.", "error");
+            if(!bookId || !date || !qty) return showToast("Please fill all required fields or select a valid book.", "error");
             const book = computedInventory.find(b => b.id == bookId); if(!book) return;
 
             if ((type === 'issue' || type === 'complimentary' || type === 'damaged') && qty > book.currentStock) {
@@ -1768,7 +1794,11 @@
                 if (error) throw error;
                 await logAuditAction('Transaction', 'Inventory', `Recorded ${type} of ${qty} for ${book.code}`);
                 showToast("Transaction saved successfully!", "success");
-                this.reset(); document.getElementById('tx-date').valueAsDate = new Date(); document.getElementById('tx-current-stock-hint').classList.add('hidden'); fetchData(); 
+                this.reset(); 
+                document.getElementById('tx-book').value = ''; 
+                document.getElementById('tx-date').valueAsDate = new Date(); 
+                document.getElementById('tx-current-stock-hint').classList.add('hidden'); 
+                fetchData(); 
             } catch(error) { showToast("Transaction failed: " + error.message, "error"); } finally { btn.disabled = false; btn.textContent = 'Save Transaction'; }
         });
 
