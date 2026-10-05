@@ -1729,38 +1729,55 @@
             } catch(e) { showToast("Failed to add book: " + e.message, "error"); }
         }
 
-        // --- TRANSACTIONS ---
+       // --- TRANSACTIONS ---
         function renderTransactionFormDropdown() {
-            const select = document.getElementById('tx-book'); const currentVal = select.value;
-            select.innerHTML = '<option value="">-- Select a Book --</option>';
+            const datalist = document.getElementById('tx-book-list'); 
+            datalist.innerHTML = '';
+            
             [...computedInventory].sort((a,b) => a.name.localeCompare(b.name)).forEach(b => {
-                const opt = document.createElement('option'); opt.value = b.id; opt.textContent = `${b.code} - ${b.name} (${b.language.toUpperCase()}, Stock: ${b.currentStock})`; select.appendChild(opt);
+                const opt = document.createElement('option'); 
+                // Combines Code and Name to make both searchable
+                opt.value = `${b.code} - ${b.name}`; 
+                opt.textContent = `(${b.language.toUpperCase()}, Stock: ${b.currentStock})`; 
+                datalist.appendChild(opt);
             });
-            if(currentVal && computedInventory.find(b=>b.id == currentVal)) select.value = currentVal;
         }
 
-        document.getElementById('tx-book').addEventListener('change', function(e) {
+        // Changed from 'change' to 'input' for real-time validation against the datalist
+        document.getElementById('tx-book').addEventListener('input', function(e) {
             const hint = document.getElementById('tx-current-stock-hint');
             if(!this.value) { hint.classList.add('hidden'); return; }
-            const book = computedInventory.find(b => b.id == this.value);
+            
+            // Match the combined string to find the correct book
+            const book = computedInventory.find(b => `${b.code} - ${b.name}` === this.value);
             if(book) {
                 document.getElementById('tx-hint-val').textContent = book.currentStock;
                 document.getElementById('tx-hint-val').className = book.currentStock > 0 ? "font-extrabold text-emerald-600 ml-1" : "font-extrabold text-red-600 ml-1";
                 hint.classList.remove('hidden');
+            } else {
+                hint.classList.add('hidden'); // Hide hint if the user types an unmatched string
             }
         });
+        
         document.getElementById('tx-date').valueAsDate = new Date();
 
         document.getElementById('transaction-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (activeUserProfile.roles.name === 'Viewer') return showToast("Permission Denied.", "error");
 
-            const type = document.getElementById('tx-type').value; const bookId = document.getElementById('tx-book').value;
-            const date = document.getElementById('tx-date').value; let qty = Number(document.getElementById('tx-quantity').value);
+            const type = document.getElementById('tx-type').value; 
+            const bookInputValue = document.getElementById('tx-book').value;
+            const date = document.getElementById('tx-date').value; 
+            let qty = Number(document.getElementById('tx-quantity').value);
             const remarks = document.getElementById('tx-remarks').value;
 
-            if(!bookId || !date || !qty) return showToast("Please fill all required fields.", "error");
-            const book = computedInventory.find(b => b.id == bookId); if(!book) return;
+            if(!bookInputValue || !date || !qty) return showToast("Please fill all required fields.", "error");
+            
+            // Retrieve the book ID based on the combined search string
+            const book = computedInventory.find(b => `${b.code} - ${b.name}` === bookInputValue); 
+            if(!book) return showToast("Invalid selection. Please choose a valid book from the list.", "error");
+
+            const bookId = book.id;
 
             if ((type === 'issue' || type === 'complimentary' || type === 'damaged') && qty > book.currentStock) {
                 return showToast(`Insufficient Stock! Current stock is only ${book.currentStock}`, "error");
@@ -1774,8 +1791,16 @@
                 if (error) throw error;
                 await logAuditAction('Transaction', 'Inventory', `Recorded ${type} of ${qty} for ${book.code}`);
                 showToast("Transaction saved successfully!", "success");
-                this.reset(); document.getElementById('tx-date').valueAsDate = new Date(); document.getElementById('tx-current-stock-hint').classList.add('hidden'); fetchData(); 
-            } catch(error) { showToast("Transaction failed: " + error.message, "error"); } finally { btn.disabled = false; btn.textContent = 'Save Transaction'; }
+                this.reset(); 
+                document.getElementById('tx-date').valueAsDate = new Date(); 
+                document.getElementById('tx-current-stock-hint').classList.add('hidden'); 
+                fetchData(); 
+            } catch(error) { 
+                showToast("Transaction failed: " + error.message, "error"); 
+            } finally { 
+                btn.disabled = false; 
+                btn.textContent = 'Save Transaction'; 
+            }
         });
 
         window.deleteTransaction = async function(txId) {
