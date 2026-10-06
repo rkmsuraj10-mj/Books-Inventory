@@ -4,20 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Entry Portal | Ramakrishna Math Nagpur</title>
+    <!-- Google Fonts for modern typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
+        /* CSS Variables for consistent theming */
         :root {
-            --bg-dark: #070e1c; 
-            --bg-card: rgba(17, 24, 39, 0.7); 
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --bg-dark: #111827; 
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-body: #D1D5DB; /* Highly legible light gray */
+            --text-muted: #9ca3af;
             --accent-saffron: #f97316;
-            --accent-hover: #ea580c;
+            --accent-amber: #d97706;
         }
 
+        /* Reset and Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -27,88 +32,36 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-dark);
-            color: var(--text-main); 
+            color: var(--text-body); 
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             overflow-x: hidden;
-            position: relative;
         }
 
-        /* Elaborate Background with Glows and Patterns mimicking the mockup */
+        /* Background Pattern / Graphic */
         .background-pattern {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            /* Subtle overlay mimicking traditional heritage patterns alongside modern glows */
             background-image: 
-                radial-gradient(circle at 15% 50%, rgba(249, 115, 22, 0.08), transparent 45%),
-                radial-gradient(circle at 85% 30%, rgba(30, 58, 138, 0.15), transparent 50%);
-            z-index: -2;
-        }
-
-        /* Mandala Corner Decor (Top Right) */
-        .mandala-decor {
-            position: absolute;
-            top: -10%;
-            right: -5%;
-            width: 600px;
-            height: 600px;
-            background-image: repeating-radial-gradient(
-                circle at center,
-                transparent 0,
-                transparent 20px,
-                rgba(255, 255, 255, 0.02) 21px,
-                rgba(255, 255, 255, 0.02) 22px
-            );
-            border-radius: 50%;
-            opacity: 0.5;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        /* Mandala Corner Decor (Left) */
-        .mandala-decor-left {
-            position: absolute;
-            top: 30%;
-            left: -15%;
-            width: 400px;
-            height: 400px;
-            background-image: repeating-radial-gradient(
-                circle at center,
-                transparent 0,
-                transparent 15px,
-                rgba(249, 115, 22, 0.03) 16px,
-                rgba(249, 115, 22, 0.03) 17px
-            );
-            border-radius: 50%;
-            opacity: 0.6;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        /* 4-Point Star Decor (Bottom Right) */
-        .star-decor {
-            position: absolute;
-            bottom: 10%;
-            right: 8%;
-            width: 40px;
-            height: 40px;
-            background-color: rgba(255, 255, 255, 0.4);
-            clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+                radial-gradient(circle at 15% 50%, rgba(249, 115, 22, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(39, 68, 114, 0.15), transparent 25%),
+                radial-gradient(circle, rgba(255,255,255,0.03) 2px, transparent 2.5px);
+            background-size: 100% 100%, 100% 100%, 40px 40px;
             z-index: -1;
         }
 
         /* Header Navigation */
         header {
-            padding: 1.25rem 4%;
+            padding: 2rem 5%; /* Increased padding */
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            background: rgba(7, 14, 28, 0.5);
-            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
         }
 
         .logo-section {
@@ -118,40 +71,33 @@
         }
 
         .logo-image {
-            height: 45px;
+            height: 60px; /* Elevated brand logo scale */
             width: auto;
             object-fit: contain;
         }
 
         .header-title {
-            font-size: 1.15rem;
-            font-weight: 500;
-            color: #ffffff;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text-main);
         }
 
-        .header-actions {
+        .header-nav {
             display: flex;
-            gap: 2rem;
-            color: #94a3b8;
-            font-size: 0.85rem;
-            font-weight: 500;
+            gap: 1.5rem;
         }
 
-        .action-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
+        .header-nav a {
+            color: var(--text-body);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
             transition: color 0.3s ease;
         }
 
-        .action-item:hover {
-            color: #ffffff;
-        }
-
-        .action-item svg {
-            width: 16px;
-            height: 16px;
+        .header-nav a:hover {
+            color: var(--accent-saffron);
         }
 
         /* Main Content Grid */
@@ -167,7 +113,7 @@
             max-width: 1250px;
             width: 100%;
             display: grid;
-            grid-template-columns: 1fr 1.1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 5rem;
             align-items: center; 
         }
@@ -175,20 +121,19 @@
         /* Left Side: Image Content */
         .hero-image-wrapper {
             width: 100%;
-            border-radius: 20px;
+            border-radius: 24px; /* Generous modern rounded corners */
             overflow: hidden;
-            border: 2px solid rgba(255,255,255,0.1);
-            /* Added strong orange glow behind image to match mockup */
-            box-shadow: 0 0 60px rgba(249, 115, 22, 0.15), 0 20px 40px rgba(0,0,0,0.6);
-            background-color: #111;
+            /* Subtle outer glow & delicate border */
+            box-shadow: 0 0 40px rgba(249, 115, 22, 0.15); 
+            border: 1px solid var(--glass-border);
+            background-color: transparent; 
         }
 
         .hero-image-wrapper img {
             width: 100%;
             height: auto;
             display: block;
-            object-fit: cover; 
-            opacity: 0.95;
+            object-fit: contain; 
         }
 
         /* Right Side: Text & Features Content */
@@ -199,57 +144,63 @@
             gap: 1.5rem;
         }
 
-        /* Welcome Heading */
+        /* Modern & Elegant Welcome Heading */
         .welcome-heading {
+            border-left: 4px solid var(--accent-saffron);
+            padding-left: 1.25rem;
             margin-bottom: 0.5rem;
         }
 
         .welcome-heading .dept-text {
             display: block;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--accent-saffron);
+            font-size: 1.15rem;
+            font-weight: 400;
+            color: var(--text-body);
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 0.4rem;
+            letter-spacing: 1px;
+            margin-bottom: 0.35rem;
         }
 
         .welcome-heading .math-text {
             display: block;
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: #e2e8f0;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-main);
             letter-spacing: 0.5px;
         }
 
         .hero-content h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            line-height: 1.15;
-            color: #ffffff;
-            margin-bottom: 0.5rem;
+            font-size: 3.5rem; /* Larger, bolder modern typography */
+            font-weight: 800;
+            line-height: 1.1;
+            margin-top: 0.5rem;
+            color: var(--text-main);
         }
 
-        .highlight-orange {
+        .hero-content h1 span {
             color: var(--accent-saffron);
+            /* Optional: Add a text gradient for extra pop on the warm orange */
+            background: linear-gradient(to right, var(--accent-saffron), var(--accent-amber));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .hero-content p {
-            font-size: 0.95rem;
-            color: #94a3b8;
-            line-height: 1.7;
+            font-size: 1.15rem;
+            color: var(--text-body); /* Improved readability against dark */
+            line-height: 1.6;
             margin-bottom: 0.5rem;
-            max-width: 95%;
         }
 
-        /* Button */
+        /* High-Contrast Call to Action */
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.6rem;
-            padding: 0.75rem 1.75rem;
-            border-radius: 8px;
-            font-size: 0.95rem;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1rem 2.5rem; /* Slightly larger button size */
+            border-radius: 12px;
+            font-size: 1.1rem;
             font-weight: 600;
             text-decoration: none;
             transition: all 0.3s ease;
@@ -259,64 +210,44 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #f97316, #d97706);
+            /* Orange-to-amber gradient */
+            background: linear-gradient(135deg, var(--accent-saffron), var(--accent-amber));
             color: #ffffff;
-            box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3);
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
         }
 
         .btn-primary:hover {
-            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
+            background: linear-gradient(135deg, #ea580c, #b45309);
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
         }
 
-        /* Glassmorphism Information Box */
+        /* Glassmorphism System Info Box */
         .info-box {
-            background: linear-gradient(180deg, rgba(30, 41, 59, 0.35) 0%, rgba(15, 23, 42, 0.5) 100%);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 1.75rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-bottom: 2px solid rgba(249, 115, 22, 0.7); /* Orange bottom border */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 20px 40px rgba(249, 115, 22, 0.03);
-            color: var(--text-main);
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            color: var(--text-body);
             margin-top: 1rem;
         }
 
-        .info-box-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .info-box-header h2 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        /* System Online Badge exactly like mockup */
         .status-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background-color: rgba(16, 185, 129, 0.15); /* Dark teal background */
-            color: #6ee7b7; /* Bright mint text */
-            padding: 0.3rem 0.85rem;
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #4ade80;
+            padding: 0.5rem 1.25rem;
             border-radius: 50px;
-            border: 1px solid rgba(52, 211, 153, 0.2);
-            font-size: 0.7rem;
-            font-weight: 600;
+            font-size: 0.875rem;
+            font-weight: 700;
             letter-spacing: 0.5px;
-        }
-
-        .status-badge .dot {
-            width: 6px;
-            height: 6px;
-            background-color: #34d399;
-            border-radius: 50%;
-            box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+            margin-bottom: 1.5rem;
         }
 
         .card-features {
@@ -327,53 +258,56 @@
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            font-size: 0.9rem;
-            color: #cbd5e1;
+            gap: 1rem;
+            font-size: 1rem;
+            color: var(--text-body);
         }
 
-        .card-features li svg {
-            width: 18px;
-            height: 18px;
-            color: var(--accent-saffron);
-            flex-shrink: 0;
+        .icon-wrapper {
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .info-note {
-            font-size: 0.8rem;
-            color: rgba(249, 115, 22, 0.8);
-            font-style: italic;
-            border-top: 1px solid rgba(255,255,255,0.06);
-            padding-top: 1.25rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--glass-border);
+            padding-top: 1rem;
             margin-top: 1.5rem;
-            line-height: 1.5;
         }
 
-        /* Footer */
+        /* Refined Footer */
         footer {
             text-align: center;
-            padding: 2rem;
-            color: #64748b;
-            font-size: 0.85rem;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            background: rgba(7, 14, 28, 0.8);
+            padding: 2.5rem 5%;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.875rem;
         }
 
         .footer-links {
-            margin-top: 0.5rem;
             display: flex;
             justify-content: center;
-            gap: 1.5rem;
+            gap: 2rem;
         }
 
         .footer-links a {
-            color: #64748b;
+            color: var(--text-muted);
             text-decoration: none;
+            font-size: 0.875rem;
             transition: color 0.3s ease;
         }
 
         .footer-links a:hover {
-            color: #94a3b8;
+            color: var(--text-body);
         }
 
         /* Responsive Design */
@@ -387,45 +321,39 @@
                 margin: 0 auto;
             }
             .hero-content {
-                align-items: flex-start;
-                text-align: left;
+                align-items: center;
+                text-align: center;
+            }
+            .welcome-heading {
+                border-left: none;
+                border-bottom: 4px solid var(--accent-saffron);
+                padding-left: 0;
+                padding-bottom: 1rem;
             }
             .hero-content h1 {
-                font-size: 2.5rem;
+                font-size: 2.75rem;
             }
             .info-box {
+                text-align: left;
                 width: 100%;
             }
-            .mandala-decor, .mandala-decor-left, .star-decor {
-                display: none;
+            .header-nav {
+                display: none; /* Hide anchors on small screens for simplicity */
             }
         }
     </style>
 </head>
 <body>
     <div class="background-pattern"></div>
-    <div class="mandala-decor"></div>
-    <div class="mandala-decor-left"></div>
-    <div class="star-decor"></div>
 
     <header>
         <div class="logo-section">
             <img src="Rkm Nagpur logo.png" alt="Ramakrishna Math Nagpur Logo" class="logo-image">
             <div class="header-title">Ramakrishna Math Nagpur</div>
         </div>
-        <div class="header-actions">
-            <span class="action-item">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Help Desk
-            </span>
-            <span class="action-item">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                Security Alert
-            </span>
+        <div class="header-nav">
+            <a href="#">Help Desk</a>
+            <a href="#">Security Alerts</a>
         </div>
     </header>
 
@@ -439,62 +367,44 @@
             <!-- Right side: Welcome Content & Info Box -->
             <div class="hero-content">
                 
+                <!-- Modern & Elegant Heading Structure -->
                 <div class="welcome-heading">
                     <span class="dept-text">Welcome to the Publication Department</span>
                     <span class="math-text">Ramakrishna Math, Nagpur</span>
                 </div>
                 
-                <!-- Exact heading wrapping and color matching the mockup -->
-                <h1>Official <span class="highlight-orange">Publication Books &</span><br>
-                Inventory <span class="highlight-orange">Management</span><br>
-                <span class="highlight-orange">Portal</span></h1>
+                <h1>Official<br><span>Publication Books & Inventory Management Portal</span></h1>
                 
-                <p>This secure portal is designed to facilitate the systematic entry, management, and real-time tracking of books received, issued, and available in stock.</p>
+                <p>This portal is designed to facilitate the systematic entry, management, and monitoring of books received, issued, and available in stock.</p>
                 
                 <a href="login.html" class="btn btn-primary">
+                    <span class="icon-wrapper">🔒</span>
                     Proceed to Secure Login
-                    <!-- Filled lock icon on the right side -->
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                        <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clip-rule="evenodd" />
-                    </svg>
                 </a>
                 
+                <!-- Upgraded Glassmorphism Info Box -->
                 <div class="info-box">
-                    <div class="info-box-header">
-                        <h2>Features</h2>
-                        <!-- Mockup-accurate badge -->
-                        <div class="status-badge">
-                            SYSTEM ONLINE
-                            <span class="dot"></span>
-                        </div>
+                    <div class="status-badge">
+                        🟢 SYSTEM ONLINE
                     </div>
                     
                     <ul class="card-features">
                         <li>
-                            <!-- Lock outline icon -->
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                            Secure Access (For authorized personnel only)
+                            <span class="icon-wrapper">🔒</span>
+                            Secure access for authorized personnel
                         </li>
                         <li>
-                            <!-- Database stack icon -->
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
-                            </svg>
-                            Centralized Database Management
+                            <span class="icon-wrapper">🗄️</span>
+                            Centralized database management
                         </li>
                         <li>
-                            <!-- Trending chart icon -->
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                            </svg>
-                            Real-time Stock Monitoring & Tracking
+                            <span class="icon-wrapper">📈</span>
+                            Real-time stock monitoring & tracking
                         </li>
                     </ul>
 
                     <p class="info-note">
-                        *Authorized Access Only. Ensure you have your credentials configured before proceeding to the BookFlow System interface.
+                        * Authorized Access Only. Ensure you have your credentials configured before proceeding to the BookFlow System interface.
                     </p>
                 </div>
             </div>
@@ -502,10 +412,11 @@
     </main>
 
     <footer>
-        <p>&copy; 2026 Publication Department, Ramakrishna Math Nagpur. All Rights Reserved.</p>
+        <p class="footer-text">&copy; 2026 Publication Department, Ramakrishna Math Nagpur. All rights reserved.</p>
         <div class="footer-links">
-            <a href="#">Terms</a>
-            <a href="#">Privacy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Contact Administration</a>
         </div>
     </footer>
 </body>
