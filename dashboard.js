@@ -142,7 +142,8 @@ function updateUI() {
     renderAnalyticsSuite();
     
     const activeFilter = document.querySelector('.report-filter-btn.bg-slate-800, .report-filter-btn.bg-white.text-slate-800.shadow-sm');
-    renderReportsTable(activeFilter ? activeFilter.dataset.filter : 'all');
+    const langFilterVal = document.getElementById('report-lang-filter') ? document.getElementById('report-lang-filter').value : 'all';
+    renderReportsTable(activeFilter ? activeFilter.dataset.filter : 'all', langFilterVal);
 }
 
 // --- LANGUAGE FORMATTER HELPER ---
@@ -1159,12 +1160,28 @@ document.getElementById('report-lang-filter').addEventListener('change', functio
     renderReportsTable(activeFilterBtn ? activeFilterBtn.dataset.filter : 'all', this.value);
 });
 
+document.getElementById('report-search')?.addEventListener('input', function() {
+    const activeFilterBtn = document.querySelector('.report-filter-btn.bg-white.text-slate-800');
+    const langFilterVal = document.getElementById('report-lang-filter') ? document.getElementById('report-lang-filter').value : 'all';
+    renderReportsTable(activeFilterBtn ? activeFilterBtn.dataset.filter : 'all', langFilterVal);
+});
+
 function renderReportsTable(filterType = 'all', langFilter = 'all') {
     const tbody = document.getElementById('reports-table-body'); tbody.innerHTML = '';
+    const searchQ = (document.getElementById('report-search')?.value || '').toLowerCase();
+    
     let filtered = computedInventory;
+    
     if(filterType === 'low') filtered = computedInventory.filter(b => b.status === 'Low Stock'); 
     if(filterType === 'out') filtered = computedInventory.filter(b => b.status === 'Out of Stock');
     if(langFilter !== 'all') filtered = filtered.filter(b => b.language === langFilter);
+    
+    if(searchQ) {
+        filtered = filtered.filter(b => 
+            (b.name && b.name.toLowerCase().includes(searchQ)) || 
+            (b.code && b.code.toLowerCase().includes(searchQ))
+        );
+    }
 
     filtered.forEach(book => {
         const totalOut = book.totalIssued + (book.totalComplimentary || 0);
