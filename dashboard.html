@@ -540,8 +540,12 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <!-- Form -->
                         <div id="container-tx-form" class="staff-admin-only lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] h-fit">
-                            <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-4 mb-5 text-sm uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-blue-500"></i> New Entry</h3>
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-5">
+                                <h3 id="tx-form-title" class="font-bold text-slate-800 text-sm uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-blue-500"></i> New Entry</h3>
+                                <button type="button" id="tx-cancel-edit-btn" onclick="cancelEditTransaction()" class="hidden text-[10px] font-bold text-slate-500 hover:text-red-600 bg-slate-100 hover:bg-red-50 px-2.5 py-1 rounded-lg transition-colors">Cancel Edit</button>
+                            </div>
                             <form id="transaction-form" class="space-y-4">
+                                <input type="hidden" id="edit-tx-id" value="">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Transaction Type *</label>
                                     <select id="tx-type" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors cursor-pointer">
@@ -574,7 +578,7 @@
                                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Remarks / Destination Centre</label>
                                     <input type="text" id="tx-remarks" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors" placeholder="Branch, Buyer name, or Invoice #">
                                 </div>
-                                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all hover:-translate-y-0.5 mt-4">
+                                <button type="submit" id="tx-submit-btn" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all hover:-translate-y-0.5 mt-4">
                                     Save Transaction
                                 </button>
                             </form>
@@ -582,8 +586,12 @@
                         
                         <!-- List -->
                         <div id="container-tx-list" class="lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
-                            <div class="p-5 border-b border-slate-100 bg-white flex justify-between items-center">
-                                <h3 class="font-bold text-slate-800 text-sm uppercase tracking-widest"><i class="fa-solid fa-clock-rotate-left text-slate-400 mr-2"></i> Recent Transactions</h3>
+                            <div class="p-5 border-b border-slate-100 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <h3 class="font-bold text-slate-800 text-sm uppercase tracking-widest whitespace-nowrap"><i class="fa-solid fa-clock-rotate-left text-slate-400 mr-2"></i> Recent Transactions</h3>
+                                <div class="relative w-full sm:max-w-xs">
+                                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                                    <input type="text" id="tx-search" placeholder="Search Book Code or Name..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                                </div>
                             </div>
                             <div class="overflow-x-auto flex-1 p-2">
                                 <table class="w-full text-left text-sm whitespace-nowrap">
@@ -1839,33 +1847,106 @@
             e.preventDefault();
             if (activeUserProfile.roles.name === 'Viewer') return showToast("Permission Denied.", "error");
 
+            const editTxId = document.getElementById('edit-tx-id').value;
             const type = document.getElementById('tx-type').value; 
             const bookId = document.getElementById('tx-book').value;
-            const date = document.getElementById('tx-date').value; let qty = Number(document.getElementById('tx-quantity').value);
+            const date = document.getElementById('tx-date').value; 
+            let qty = Number(document.getElementById('tx-quantity').value);
             const remarks = document.getElementById('tx-remarks').value;
 
             if(!bookId || !date || !qty) return showToast("Please fill all required fields or select a valid book.", "error");
             const book = computedInventory.find(b => b.id == bookId); if(!book) return;
 
-            if ((type === 'issue' || type === 'complimentary' || type === 'damaged') && qty > book.currentStock) {
-                return showToast(`Insufficient Stock! Current stock is only ${book.currentStock}`, "error");
+            // Accurate stock validation (accounts for edit revisions)
+            let effectiveStock = book.currentStock;
+            if (editTxId) {
+                const originalTx = transactionsData.find(t => t.id == editTxId);
+                if (originalTx && originalTx.bookId == bookId) {
+                    if (['issue', 'complimentary', 'damaged'].includes(originalTx.type)) effectiveStock += Number(originalTx.quantity);
+                    else if (['receipt', 'return'].includes(originalTx.type)) effectiveStock -= Number(originalTx.quantity);
+                }
             }
 
-            const txData = { bookId, bookCode: book.code, bookName: book.name, type, date, quantity: qty, remarks, createdAt: new Date().toISOString() };
-            const btn = this.querySelector('button[type="submit"]'); btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+            if ((type === 'issue' || type === 'complimentary' || type === 'damaged') && qty > effectiveStock) {
+                return showToast(`Insufficient Stock! Maximum available stock is ${effectiveStock}`, "error");
+            }
+
+            const txData = { bookId, bookCode: book.code, bookName: book.name, type, date, quantity: qty, remarks };
+            const btn = document.getElementById('tx-submit-btn'); 
+            const originalBtnText = btn.textContent;
+            btn.disabled = true; 
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
 
             try {
-                const { error } = await supabaseClient.from('transactions').insert([txData]);
-                if (error) throw error;
-                await logAuditAction('Transaction', 'Inventory', `Recorded ${type} of ${qty} for ${book.code}`);
-                showToast("Transaction saved successfully!", "success");
-                this.reset(); 
-                document.getElementById('tx-book').value = ''; 
-                document.getElementById('tx-date').valueAsDate = new Date(); 
-                document.getElementById('tx-current-stock-hint').classList.add('hidden'); 
+                if (editTxId) {
+                    const { error } = await supabaseClient.from('transactions').update(txData).eq('id', editTxId);
+                    if (error) throw error;
+                    await logAuditAction('Edit TX', 'Inventory', `Updated transaction ${editTxId} for ${book.code}`);
+                    showToast("Transaction updated successfully!", "success");
+                } else {
+                    txData.createdAt = new Date().toISOString();
+                    const { error } = await supabaseClient.from('transactions').insert([txData]);
+                    if (error) throw error;
+                    await logAuditAction('Transaction', 'Inventory', `Recorded ${type} of ${qty} for ${book.code}`);
+                    showToast("Transaction saved successfully!", "success");
+                }
+                
+                cancelEditTransaction();
                 fetchData(); 
-            } catch(error) { showToast("Transaction failed: " + error.message, "error"); } finally { btn.disabled = false; btn.textContent = 'Save Transaction'; }
+            } catch(error) { 
+                showToast("Transaction failed: " + error.message, "error"); 
+                btn.disabled = false; 
+                btn.textContent = originalBtnText;
+            }
         });
+
+        window.editTransaction = function(txId) {
+            if (activeUserProfile.roles.name !== 'Administrator') return showToast("Permission Denied.", "error");
+            const tx = transactionsData.find(t => t.id == txId);
+            if (!tx) return;
+            
+            document.getElementById('edit-tx-id').value = tx.id;
+            document.getElementById('tx-form-title').innerHTML = '<i class="fa-solid fa-pen-to-square text-amber-500"></i> Edit Entry';
+            document.getElementById('tx-cancel-edit-btn').classList.remove('hidden');
+            
+            document.getElementById('tx-type').value = tx.type;
+            
+            const bookInput = document.getElementById('tx-book-input');
+            const hiddenBookInput = document.getElementById('tx-book');
+            hiddenBookInput.value = tx.bookId;
+            
+            const book = computedInventory.find(b => b.id == tx.bookId);
+            if(book) {
+                bookInput.value = `${book.code} - ${book.name} (${book.language.toUpperCase()}, Stock: ${book.currentStock})`;
+                document.getElementById('tx-hint-val').textContent = book.currentStock;
+                document.getElementById('tx-hint-val').className = book.currentStock > 0 ? "font-extrabold text-emerald-600 ml-1" : "font-extrabold text-red-600 ml-1";
+                document.getElementById('tx-current-stock-hint').classList.remove('hidden');
+            } else {
+                bookInput.value = `${tx.bookCode} - ${tx.bookName}`; 
+            }
+            
+            document.getElementById('tx-date').value = tx.date;
+            document.getElementById('tx-quantity').value = tx.quantity;
+            document.getElementById('tx-remarks').value = tx.remarks || '';
+            
+            document.getElementById('tx-submit-btn').textContent = 'Update Transaction';
+            document.getElementById('container-tx-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.cancelEditTransaction = function() {
+            document.getElementById('transaction-form').reset();
+            document.getElementById('edit-tx-id').value = '';
+            document.getElementById('tx-book').value = '';
+            document.getElementById('tx-current-stock-hint').classList.add('hidden');
+            document.getElementById('tx-date').valueAsDate = new Date();
+            
+            document.getElementById('tx-form-title').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-500"></i> New Entry';
+            document.getElementById('tx-cancel-edit-btn').classList.add('hidden');
+            
+            const submitBtn = document.getElementById('tx-submit-btn');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Save Transaction';
+        }
 
         window.deleteTransaction = async function(txId) {
             if (activeUserProfile.roles.name !== 'Administrator') return showToast("Permission Denied.", "error");
@@ -1879,9 +1960,23 @@
             } catch(error) { showToast("Failed to delete: " + error.message, "error"); }
         }
 
+        // --- SEARCH INTEGRATION ---
+        document.getElementById('tx-search')?.addEventListener('input', renderRecentTransactions);
+
         function renderRecentTransactions() {
             const tbody = document.getElementById('recent-tx-body'); tbody.innerHTML = '';
-            const recent = [...transactionsData].reverse().slice(0, 15);
+            const searchQ = (document.getElementById('tx-search')?.value || '').toLowerCase();
+            
+            let filteredTxs = transactionsData;
+            if (searchQ) {
+                filteredTxs = transactionsData.filter(tx => 
+                    (tx.bookName && tx.bookName.toLowerCase().includes(searchQ)) || 
+                    (tx.bookCode && tx.bookCode.toLowerCase().includes(searchQ))
+                );
+            }
+            
+            const displayLimit = searchQ ? 50 : 15;
+            const recent = [...filteredTxs].reverse().slice(0, displayLimit);
             
             recent.forEach(tx => {
                 let icon = ''; let color = ''; let sign = '';
@@ -1894,7 +1989,12 @@
                     case 'adjustment': icon = 'fa-sliders'; color = 'text-slate-600 bg-slate-100/80 border border-slate-200'; sign = '±'; break;
                 }
 
-                let deleteBtnHtml = activeUserProfile.roles.name === 'Administrator' ? `<td class="px-4 py-3 text-center admin-only"><button onclick="deleteTransaction('${tx.id}')" class="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors" title="Delete Transaction"><i class="fa-solid fa-trash"></i></button></td>` : '';
+                let actionsHtml = activeUserProfile.roles.name === 'Administrator' 
+                    ? `<td class="px-4 py-3 text-center admin-only">
+                        <button onclick="editTransaction('${tx.id}')" class="text-blue-400 hover:text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors mr-1" title="Edit Transaction"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteTransaction('${tx.id}')" class="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors" title="Delete Transaction"><i class="fa-solid fa-trash"></i></button>
+                       </td>` 
+                    : '';
 
                 tbody.innerHTML += `
                     <tr>
@@ -1903,11 +2003,11 @@
                         <td class="px-4 py-4"><p class="font-bold text-slate-800 text-sm truncate max-w-[160px]">${tx.bookName}</p><p class="text-[10px] font-bold text-slate-400 font-mono mt-0.5">${tx.bookCode}</p></td>
                         <td class="px-4 py-4 text-right font-black text-slate-700 text-base">${sign}${tx.quantity}</td>
                         <td class="px-4 py-4 text-xs text-slate-500 font-medium truncate max-w-[150px]">${tx.remarks || '-'}</td>
-                        ${deleteBtnHtml}
+                        ${actionsHtml}
                     </tr>
                 `;
             });
-            if(recent.length === 0) tbody.innerHTML = `<tr><td colspan="${activeUserProfile.roles.name === 'Administrator' ? 6 : 5}" class="text-center py-10 text-slate-500 font-medium text-sm">No recent transactions found.</td></tr>`;
+            if(recent.length === 0) tbody.innerHTML = `<tr><td colspan="${activeUserProfile.roles.name === 'Administrator' ? 6 : 5}" class="text-center py-10 text-slate-500 font-medium text-sm">No transactions found.</td></tr>`;
         }
 
         // --- REPORTS & HISTORY ---
