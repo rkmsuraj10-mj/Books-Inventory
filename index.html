@@ -12,14 +12,12 @@
     <style>
         /* CSS Variables for consistent theming */
         :root {
-            --bg-dark: #111827; 
-            --bg-card: #ffffff;
-            --text-main: #1f2937;
-            --text-muted: #4b5563;
+            --bg-dark: #0a1122; /* Deep modern navy */
+            --bg-card: rgba(30, 41, 59, 0.45); /* Glassmorphism base */
+            --text-main: #f9fafb;
+            --text-muted: #94a3b8;
             --accent-saffron: #f97316;
             --accent-hover: #ea580c;
-            --button-blue: #274472;
-            --button-blue-hover: #1c3254;
         }
 
         /* Reset and Base Styles */
@@ -32,7 +30,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-dark);
-            color: #ffffff; 
+            color: var(--text-main); 
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -46,8 +44,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: radial-gradient(circle at 15% 50%, rgba(249, 115, 22, 0.08), transparent 25%),
-                              radial-gradient(circle at 85% 30%, rgba(39, 68, 114, 0.15), transparent 25%);
+            background-image: radial-gradient(circle at 10% 50%, rgba(249, 115, 22, 0.05), transparent 40%),
+                              radial-gradient(circle at 90% 20%, rgba(39, 68, 114, 0.1), transparent 40%);
             z-index: -1;
         }
 
@@ -67,16 +65,41 @@
         }
 
         .logo-image {
-            height: 50px;
+            height: 40px;
             width: auto;
             object-fit: contain;
         }
 
         .header-title {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.15rem;
+            font-weight: 500;
             letter-spacing: 0.5px;
             color: #ffffff;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1.5rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .action-item:hover {
+            color: #ffffff;
+        }
+
+        .action-item svg {
+            width: 16px;
+            height: 16px;
         }
 
         /* Main Content Grid */
@@ -92,19 +115,18 @@
             max-width: 1200px;
             width: 100%;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1.1fr;
             gap: 4rem;
-            /* Changed to flex-start to align image with top heading */
             align-items: flex-start; 
         }
 
         /* Left Side: Image Content */
         .hero-image-wrapper {
             width: 100%;
-            border-radius: 16px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            background-color: var(--bg-card); 
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(249, 115, 22, 0.05);
         }
 
         .hero-image-wrapper img {
@@ -119,55 +141,58 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 1.5rem;
+            gap: 1.25rem;
+            padding-top: 1rem;
         }
 
         /* Modern & Elegant Welcome Heading */
         .welcome-heading {
-            border-left: 4px solid var(--accent-saffron);
-            padding-left: 1.25rem;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
 
         .welcome-heading .dept-text {
             display: block;
-            font-size: 1.15rem;
-            font-weight: 400;
-            color: #d1d5db;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-saffron);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.35rem;
+            letter-spacing: 1.5px;
+            margin-bottom: 0.5rem;
         }
 
         .welcome-heading .math-text {
             display: block;
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: #ffffff;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #e2e8f0;
             letter-spacing: 0.5px;
         }
 
         .hero-content h1 {
-            font-size: 3rem;
+            font-size: 2.75rem;
             font-weight: 700;
-            line-height: 1.1;
-            margin-top: 0.5rem;
+            line-height: 1.2;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
         }
 
-        .hero-content h1 span {
+        .highlight-orange {
             color: var(--accent-saffron);
         }
 
         .hero-content p {
-            font-size: 1.1rem;
-            color: #9ca3af;
+            font-size: 0.95rem;
+            color: #94a3b8;
             line-height: 1.6;
             margin-bottom: 0.5rem;
+            max-width: 95%;
         }
 
         /* Button */
         .btn {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
             padding: 0.875rem 2rem;
             border-radius: 8px;
             font-size: 1rem;
@@ -180,44 +205,65 @@
         }
 
         .btn-primary {
-            background-color: var(--button-blue);
+            background: linear-gradient(135deg, #f97316, #d97706);
             color: #ffffff;
-            box-shadow: 0 4px 14px rgba(39, 68, 114, 0.4);
+            box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3);
         }
 
         .btn-primary:hover {
-            background-color: var(--button-blue-hover);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
             transform: translateY(-2px);
         }
 
-        /* White Information Box */
+        .btn-primary svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Glassmorphism Information Box */
         .info-box {
             background-color: var(--bg-card);
-            padding: 2rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 1.75rem;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 2px solid rgba(249, 115, 22, 0.6);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             color: var(--text-main);
             margin-top: 1rem;
-            border-top: 4px solid var(--accent-saffron);
+        }
+
+        .info-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-box-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
         }
 
         .status-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background-color: #ecfdf5;
-            color: #065f46;
-            padding: 0.5rem 1rem;
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            padding: 0.35rem 0.85rem;
             border-radius: 50px;
-            font-size: 0.875rem;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            font-size: 0.75rem;
             font-weight: 600;
-            margin-bottom: 1.5rem;
+            letter-spacing: 0.5px;
         }
 
         .status-badge .dot {
             width: 8px;
             height: 8px;
-            background-color: #10b981;
+            background-color: #34d399;
             border-radius: 50%;
             animation: pulse 2s infinite;
         }
@@ -227,12 +273,12 @@
         }
 
         .card-features li {
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
             gap: 0.75rem;
             font-size: 0.95rem;
-            color: var(--text-muted);
+            color: #cbd5e1;
         }
 
         .card-features li svg {
@@ -244,26 +290,45 @@
 
         .info-note {
             font-size: 0.85rem;
-            color: #6b7280;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 1rem;
+            color: rgba(249, 115, 22, 0.85);
+            font-style: italic;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 1.25rem;
             margin-top: 1.5rem;
+            line-height: 1.5;
         }
 
         /* Footer */
         footer {
             text-align: center;
             padding: 2rem;
-            color: #6b7280;
-            font-size: 0.875rem;
+            color: #64748b;
+            font-size: 0.85rem;
             border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .footer-links {
+            margin-top: 0.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .footer-links a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #94a3b8;
         }
 
         /* Animations */
         @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
         }
 
         /* Responsive Design */
@@ -280,14 +345,11 @@
                 align-items: center;
                 text-align: center;
             }
-            .welcome-heading {
-                border-left: none;
-                border-bottom: 4px solid var(--accent-saffron);
-                padding-left: 0;
-                padding-bottom: 1rem;
+            .hero-content p {
+                max-width: 100%;
             }
             .hero-content h1 {
-                font-size: 2.5rem;
+                font-size: 2.25rem;
             }
             .info-box {
                 text-align: left;
@@ -303,6 +365,20 @@
         <div class="logo-section">
             <img src="Rkm Nagpur logo.png" alt="Ramakrishna Math Nagpur Logo" class="logo-image">
             <div class="header-title">Ramakrishna Math Nagpur</div>
+        </div>
+        <div class="header-actions">
+            <span class="action-item">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Help Desk
+            </span>
+            <span class="action-item">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                Security Alert
+            </span>
         </div>
     </header>
 
@@ -322,41 +398,49 @@
                     <span class="math-text">Ramakrishna Math, Nagpur</span>
                 </div>
                 
-                <h1>Official<br><span>Publication Books & Inventory Management Portal</span></h1>
+                <h1>Official <span class="highlight-orange">Publication Books &</span><br>Inventory <span class="highlight-orange">Management<br>Portal</span></h1>
                 
-                <p>This portal is designed to facilitate the systematic entry, management, and monitoring of books received, issued, and available in stock.</p>
+                <p>This secure portal is designed to facilitate the systematic entry, management, and real-time tracking of books received, issued, and available in stock.</p>
                 
-                <a href="login.html" class="btn btn-primary">Proceed to Secure Login</a>
+                <a href="login.html" class="btn btn-primary">
+                    Proceed to Secure Login
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </a>
                 
                 <div class="info-box">
-                    <div class="status-badge">
-                        <span class="dot"></span>
-                        System Online
+                    <div class="info-box-header">
+                        <h2>Features</h2>
+                        <div class="status-badge">
+                            SYSTEM ONLINE
+                            <span class="dot"></span>
+                        </div>
                     </div>
                     
                     <ul class="card-features">
                         <li>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
-                            Secure access for authorized personnel
+                            Secure Access (For authorized personnel only)
                         </li>
                         <li>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
                             </svg>
-                            Centralized database management
+                            Centralized Database Management
                         </li>
                         <li>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            Real-time stock monitoring & tracking
+                            Real-time Stock Monitoring & Tracking
                         </li>
                     </ul>
 
                     <p class="info-note">
-                        * Authorized Access Only. Ensure you have your credentials configured before proceeding to the BookFlow System interface.
+                        *Authorized Access Only. Ensure you have your credentials configured before proceeding to the BookFlow System interface.
                     </p>
                 </div>
             </div>
@@ -364,7 +448,11 @@
     </main>
 
     <footer>
-        <p>&copy; 2026 Publication Department, Ramakrishna Math Nagpur. All rights reserved.</p>
+        <p>&copy; 2026 Publication Department, Ramakrishna Math Nagpur. All Rights Reserved.</p>
+        <div class="footer-links">
+            <a href="#">Terms</a>
+            <a href="#">Privacy</a>
+        </div>
     </footer>
 </body>
 </html>
