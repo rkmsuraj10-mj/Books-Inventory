@@ -162,7 +162,7 @@
             display: grid;
             grid-template-columns: 1fr 1.1fr;
             gap: 5rem;
-            align-items: center; 
+            align-items: flex-start; /* Changed to align the photo and text to the top */
         }
 
         /* Left Side: Image Content */
@@ -207,7 +207,7 @@
         .hero-content {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start; /* Changed to match top alignment */
             gap: 1.5rem;
             animation: fadeUp 1s ease-out 0.2s forwards;
             opacity: 0;
